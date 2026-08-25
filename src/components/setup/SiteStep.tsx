@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -67,7 +68,19 @@ export function SiteStep({ onBack, lang }: { onBack?: () => void; lang: WizardLa
   }
 
   return (
-    <Card className="w-full max-w-lg p-6 sm:p-8">
+    <Card className="relative w-full max-w-lg p-6 sm:p-8">
+      {onBack && (
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={onBack}
+          aria-label={t.back}
+          className="absolute right-4 top-4 h-9 w-9 p-0 sm:right-6 sm:top-6"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+      )}
+
       <h1 className="text-xl font-medium tracking-tight text-foreground">{t.title}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{t.subtitle}</p>
 
@@ -119,16 +132,9 @@ export function SiteStep({ onBack, lang }: { onBack?: () => void; lang: WizardLa
 
         {error && <p className="text-sm text-red-400">{error}</p>}
 
-        <div className="flex flex-col-reverse gap-3 sm:flex-row">
-          {onBack && (
-            <Button type="button" variant="secondary" onClick={onBack} className="sm:w-auto">
-              {t.back}
-            </Button>
-          )}
-          <Button type="button" onClick={handleSubmit} disabled={isSubmitting} className="flex-1">
-            {isSubmitting ? t.saving : t.finish}
-          </Button>
-        </div>
+        <Button type="button" onClick={handleSubmit} disabled={isSubmitting} className="w-full">
+          {isSubmitting ? t.saving : t.finish}
+        </Button>
       </div>
     </Card>
   );
