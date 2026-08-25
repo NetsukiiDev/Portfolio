@@ -25,18 +25,22 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "SQLite non è supportato su Vercel." }, { status: 400 });
   }
 
-  const connectionResult = await testDatabaseConnection(input);
-  if (!connectionResult.ok) {
-    return NextResponse.json(connectionResult, { status: 400 });
-  }
-
   // On Vercel the filesystem is read-only and there's no CLI to shell out to at
   // request time, and DATABASE_URL can only be made to persist by setting it as
   // a platform environment variable — something only the user can do from the
-  // Vercel dashboard. Hand back the values to paste there instead of trying
-  // (and failing) to provision anything ourselves.
+  // Vercel dashboard. There's also no point testing the connection from here
+  // first: this function's network path (or the target database's firewall)
+  // may differ from the one the real deploy uses once the variable is set, so
+  // hand back the values immediately and let the user confirm connectivity
+  // themselves after the redeploy — via "Verifica connessione" beforehand if
+  // they want an early sanity check, but it's optional, not a gate.
   if (isVercelRuntime()) {
     return NextResponse.json({ ok: true, manualEnv: generateEnvInstructions(input) });
+  }
+
+  const connectionResult = await testDatabaseConnection(input);
+  if (!connectionResult.ok) {
+    return NextResponse.json(connectionResult, { status: 400 });
   }
 
   const empty = await isTargetDatabaseEmpty(input);

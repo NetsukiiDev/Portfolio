@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Database, Server, CheckCircle2, Copy, Check } from "lucide-react";
+import { Database, Server, CheckCircle2, Copy, Check, Download } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -143,6 +143,69 @@ export function DatabaseStep({
     }
   }
 
+  // On Vercel, generating the .env values never depends on a live connection
+  // test succeeding from here — this server's network path (or the target
+  // database's firewall) may differ from the one the real deploy uses once
+  // DATABASE_URL is actually set. The user fills the form, grabs the values,
+  // pastes them into Vercel, redeploys, and finds out there.
+  async function generateManualEnv(): Promise<ManualEnv | null> {
+    setCommitError(null);
+    try {
+      const res = await fetch("/api/setup/database", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildPayload()),
+      });
+      const body = await res.json();
+      if (!body.ok || !body.manualEnv) {
+        setCommitError(body.error ?? "Configurazione non riuscita");
+        return null;
+      }
+      return body.manualEnv as ManualEnv;
+    } catch {
+      setCommitError("Configurazione non riuscita");
+      return null;
+    }
+  }
+
+  function downloadEnvFile(env: ManualEnv) {
+    const blob = new Blob([envTextFor(env)], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = ".env";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  async function handleCopyEnv() {
+    setIsCommitting(true);
+    try {
+      const env = await generateManualEnv();
+      if (env) {
+        setManualEnv(env);
+        await copyEnvToClipboard(env);
+      }
+    } finally {
+      setIsCommitting(false);
+    }
+  }
+
+  async function handleDownloadEnv() {
+    setIsCommitting(true);
+    try {
+      const env = await generateManualEnv();
+      if (env) {
+        setManualEnv(env);
+        downloadEnvFile(env);
+      }
+    } finally {
+      setIsCommitting(false);
+    }
+  }
+
   async function handleCopy() {
     if (!manualEnv) return;
     await copyEnvToClipboard(manualEnv);
@@ -171,13 +234,11 @@ export function DatabaseStep({
         <h1 className="text-xl font-medium tracking-tight text-foreground">Database</h1>
         <div className="mt-6 flex items-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.06] p-4">
           <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" />
-          <p className="text-sm text-muted-foreground">
-            {copied ? "Connessione verificata, dati copiati negli appunti." : "Connessione verificata."}
-          </p>
+          <p className="text-sm text-muted-foreground">Dati generati.</p>
         </div>
 
         <p className="mt-6 text-sm text-muted-foreground">
-          Vercel non può salvare questi valori da solo. Incollali in{" "}
+          Vercel non può salvare questi valori da solo. Incollali (o importa il file scaricato) in{" "}
           <span className="text-foreground">Project Settings → Environment Variables</span> sul tuo progetto
           Vercel, poi fai il redeploy.
         </p>
@@ -198,7 +259,12 @@ export function DatabaseStep({
               </>
             )}
           </Button>
-          <Button type="button" onClick={onComplete} className="sm:flex-1">
+          <Button type="button" variant="secondary" onClick={() => downloadEnvFile(manualEnv)} className="sm:flex-1">
+            <Download className="h-4 w-4" /> Scarica
+          </Button>
+        </div>
+        <div className="mt-3">
+          <Button type="button" onClick={onComplete} className="w-full">
             Ricontrolla dopo il redeploy
           </Button>
         </div>
@@ -292,25 +358,47 @@ export function DatabaseStep({
         <p className="mt-4 text-sm text-muted-foreground">Il server si sta riavviando per applicare la nuova configurazione…</p>
       )}
 
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={handleTest}
-          disabled={testState === "testing"}
-          className="sm:flex-1"
-        >
-          {testState === "testing" ? "Verifica…" : "Verifica connessione"}
-        </Button>
-        <Button
-          type="button"
-          onClick={handleContinue}
-          disabled={isCommitting || waitingForRestart}
-          className="sm:flex-1"
-        >
-          {isCommitting ? "Configurazione…" : isVercel ? "Copia dati .env" : "Continua"}
-        </Button>
-      </div>
+      {isVercel ? (
+        <div className="mt-6 space-y-3">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleTest}
+            disabled={testState === "testing"}
+            className="w-full"
+          >
+            {testState === "testing" ? "Verifica…" : "Verifica connessione (opzionale)"}
+          </Button>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button type="button" onClick={handleCopyEnv} disabled={isCommitting} className="sm:flex-1">
+              {isCommitting ? "Generazione…" : <><Copy className="h-4 w-4" /> Copia .env</>}
+            </Button>
+            <Button type="button" onClick={handleDownloadEnv} disabled={isCommitting} className="sm:flex-1">
+              {isCommitting ? "Generazione…" : <><Download className="h-4 w-4" /> Scarica .env</>}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleTest}
+            disabled={testState === "testing"}
+            className="sm:flex-1"
+          >
+            {testState === "testing" ? "Verifica…" : "Verifica connessione"}
+          </Button>
+          <Button
+            type="button"
+            onClick={handleContinue}
+            disabled={isCommitting || waitingForRestart}
+            className="sm:flex-1"
+          >
+            {isCommitting ? "Configurazione…" : "Continua"}
+          </Button>
+        </div>
+      )}
     </Card>
   );
 }
