@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSetupStatus } from "@/lib/setup";
 import { testDatabaseConnection, isTargetDatabaseEmpty, provisionDatabase } from "@/lib/db-provision";
-import { dbSetupSchema } from "@/lib/setup-schema";
+import { dbSetupSchema, getDbSetupErrorField } from "@/lib/setup-schema";
 
 export async function POST(request: NextRequest) {
   const status = await getSetupStatus();
@@ -11,7 +11,10 @@ export async function POST(request: NextRequest) {
 
   const parsed = dbSetupSchema.safeParse(await request.json());
   if (!parsed.success) {
-    return NextResponse.json({ ok: false, error: "Invalid submission" }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, errorCode: "missing_field", field: getDbSetupErrorField(parsed.error) },
+      { status: 400 },
+    );
   }
   const input = parsed.data;
 
@@ -22,14 +25,14 @@ export async function POST(request: NextRequest) {
 
   const empty = await isTargetDatabaseEmpty(input);
   if (!empty) {
-    return NextResponse.json({ ok: false, error: "The target database already has tables — pick an empty database." }, { status: 409 });
+    return NextResponse.json({ ok: false, errorCode: "db_not_empty" }, { status: 409 });
   }
 
   try {
     await provisionDatabase(input);
   } catch (error) {
     return NextResponse.json(
-      { ok: false, error: error instanceof Error ? error.message : "Failed to provision the database" },
+      { ok: false, error: error instanceof Error ? error.message : undefined },
       { status: 500 },
     );
   }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSetupStatus } from "@/lib/setup";
 import { testDatabaseConnection } from "@/lib/db-provision";
-import { dbSetupSchema } from "@/lib/setup-schema";
+import { dbSetupSchema, getDbSetupErrorField } from "@/lib/setup-schema";
 
 export async function POST(request: NextRequest) {
   const status = await getSetupStatus();
@@ -11,7 +11,10 @@ export async function POST(request: NextRequest) {
 
   const parsed = dbSetupSchema.safeParse(await request.json());
   if (!parsed.success) {
-    return NextResponse.json({ ok: false, error: "Invalid submission" }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, errorCode: "missing_field", field: getDbSetupErrorField(parsed.error) },
+      { status: 400 },
+    );
   }
 
   const result = await testDatabaseConnection(parsed.data);

@@ -1,18 +1,20 @@
 import { cn } from "@/lib/cn";
+import { getSetupT } from "@/lib/setup-translations";
 import type { SetupStep } from "@/lib/setup";
+import type { Locale } from "@/types";
 
-const STEPS: { key: Exclude<SetupStep, "complete">; label: string }[] = [
-  { key: "database", label: "Database" },
-  { key: "account", label: "Account" },
-  { key: "site", label: "Sito" },
-];
-
-export function SetupStepper({ current }: { current: SetupStep }) {
-  const currentIndex = STEPS.findIndex((step) => step.key === current);
+export function SetupStepper({ current, lang }: { current: SetupStep; lang: Locale }) {
+  const t = getSetupT(lang);
+  const steps: { key: Exclude<SetupStep, "complete">; label: string }[] = [
+    { key: "database", label: t.stepper.database },
+    { key: "account", label: t.stepper.account },
+    { key: "site", label: t.stepper.site },
+  ];
+  const currentIndex = steps.findIndex((step) => step.key === current);
 
   return (
     <div className="mb-8 flex items-center gap-2 sm:gap-3">
-      {STEPS.map((step, index) => (
+      {steps.map((step, index) => (
         <div key={step.key} className="flex items-center gap-2 sm:gap-3">
           <div className="flex items-center gap-1.5 sm:gap-2">
             <span
@@ -34,7 +36,7 @@ export function SetupStepper({ current }: { current: SetupStep }) {
               {step.label}
             </span>
           </div>
-          {index < STEPS.length - 1 && <div className="h-px w-5 shrink-0 bg-border sm:w-8" />}
+          {index < steps.length - 1 && <div className="h-px w-5 shrink-0 bg-border sm:w-8" />}
         </div>
       ))}
     </div>

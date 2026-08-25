@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { getSetupT } from "@/lib/setup-translations";
+import type { Locale } from "@/types";
 
 interface AccountFormValues {
   firstName: string;
@@ -14,7 +16,16 @@ interface AccountFormValues {
   confirmPassword: string;
 }
 
-export function AccountStep({ onComplete, onBack }: { onComplete: () => void; onBack?: () => void }) {
+export function AccountStep({
+  onComplete,
+  onBack,
+  lang,
+}: {
+  onComplete: () => void;
+  onBack?: () => void;
+  lang: Locale;
+}) {
+  const t = getSetupT(lang).account;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const {
@@ -42,12 +53,12 @@ export function AccountStep({ onComplete, onBack }: { onComplete: () => void; on
       });
       const body = await res.json();
       if (!res.ok) {
-        setError(body.error ?? "Qualcosa è andato storto");
+        setError(body.error ?? t.genericError);
         return;
       }
       onComplete();
     } catch {
-      setError("Qualcosa è andato storto");
+      setError(t.genericError);
     } finally {
       setIsSubmitting(false);
     }
@@ -55,39 +66,39 @@ export function AccountStep({ onComplete, onBack }: { onComplete: () => void; on
 
   return (
     <Card className="w-full max-w-lg p-6 sm:p-8">
-      <h1 className="text-xl font-medium tracking-tight text-foreground">Account amministratore</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Crea l&apos;account che userai per accedere al pannello.</p>
+      <h1 className="text-xl font-medium tracking-tight text-foreground">{t.title}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{t.subtitle}</p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <Input placeholder="Nome" {...register("firstName", { required: true })} />
-            {errors.firstName && <p className="mt-1.5 text-xs text-red-400">Obbligatorio</p>}
+            <Input placeholder={t.firstName} {...register("firstName", { required: true })} />
+            {errors.firstName && <p className="mt-1.5 text-xs text-red-400">{t.required}</p>}
           </div>
           <div>
-            <Input placeholder="Cognome" {...register("lastName", { required: true })} />
-            {errors.lastName && <p className="mt-1.5 text-xs text-red-400">Obbligatorio</p>}
+            <Input placeholder={t.lastName} {...register("lastName", { required: true })} />
+            {errors.lastName && <p className="mt-1.5 text-xs text-red-400">{t.required}</p>}
           </div>
         </div>
         <div>
-          <Input placeholder="Nome utente" {...register("username", { required: true, minLength: 3 })} />
-          {errors.username && <p className="mt-1.5 text-xs text-red-400">Almeno 3 caratteri</p>}
+          <Input placeholder={t.username} {...register("username", { required: true, minLength: 3 })} />
+          {errors.username && <p className="mt-1.5 text-xs text-red-400">{t.minUsername}</p>}
         </div>
         <div>
-          <Input type="password" placeholder="Password" {...register("password", { required: true, minLength: 8 })} />
-          {errors.password && <p className="mt-1.5 text-xs text-red-400">Almeno 8 caratteri</p>}
+          <Input type="password" placeholder={t.password} {...register("password", { required: true, minLength: 8 })} />
+          {errors.password && <p className="mt-1.5 text-xs text-red-400">{t.minPassword}</p>}
         </div>
         <div>
           <Input
             type="password"
-            placeholder="Conferma password"
+            placeholder={t.confirmPassword}
             {...register("confirmPassword", {
               required: true,
-              validate: (value) => value === password || "Le password non coincidono",
+              validate: (value) => value === password || t.passwordMismatch,
             })}
           />
           {errors.confirmPassword && (
-            <p className="mt-1.5 text-xs text-red-400">{errors.confirmPassword.message ?? "Obbligatorio"}</p>
+            <p className="mt-1.5 text-xs text-red-400">{errors.confirmPassword.message ?? t.required}</p>
           )}
         </div>
 
@@ -96,11 +107,11 @@ export function AccountStep({ onComplete, onBack }: { onComplete: () => void; on
         <div className="flex flex-col-reverse gap-3 sm:flex-row">
           {onBack && (
             <Button type="button" variant="secondary" onClick={onBack} className="sm:w-auto">
-              Indietro
+              {t.back}
             </Button>
           )}
           <Button type="submit" disabled={isSubmitting} className="flex-1">
-            {isSubmitting ? "Creazione…" : "Continua"}
+            {isSubmitting ? t.creating : t.continueLabel}
           </Button>
         </div>
       </form>

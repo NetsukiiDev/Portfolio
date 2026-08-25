@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { getSetupT } from "@/lib/setup-translations";
+import type { Locale } from "@/types";
 
 type DbType = "sqlite" | "mysql";
 
@@ -23,11 +25,14 @@ export function DatabaseStep({
   onComplete,
   alreadyConfigured = false,
   onNext,
+  lang,
 }: {
   onComplete: () => void;
   alreadyConfigured?: boolean;
   onNext?: () => void;
+  lang: Locale;
 }) {
+  const t = getSetupT(lang).database;
   const [dbType, setDbType] = useState<DbType>("sqlite");
   const [mysql, setMysql] = useState<MysqlFields>(EMPTY_MYSQL);
   const [testState, setTestState] = useState<"idle" | "testing" | "ok" | "error">("idle");
@@ -48,6 +53,15 @@ export function DatabaseStep({
     };
   }
 
+  function describeError(body: { ok: false; error?: string; errorCode?: string; field?: keyof typeof t.fields }): string {
+    if (body.errorCode === "missing_field") {
+      const fieldLabel = body.field ? t.fields[body.field] : undefined;
+      return fieldLabel ? t.missingField(fieldLabel) : t.genericError;
+    }
+    if (body.errorCode === "db_not_empty") return t.dbNotEmpty;
+    return body.error ?? t.genericError;
+  }
+
   async function handleTest() {
     setTestState("testing");
     setTestError(null);
@@ -62,11 +76,11 @@ export function DatabaseStep({
         setTestState("ok");
       } else {
         setTestState("error");
-        setTestError(body.error ?? "Connessione non riuscita");
+        setTestError(describeError(body));
       }
     } catch {
       setTestState("error");
-      setTestError("Connessione non riuscita");
+      setTestError(t.connectionFailed);
     }
   }
 
@@ -84,7 +98,7 @@ export function DatabaseStep({
         // server is restarting — keep polling
       }
     }
-    setCommitError("Il server non ha completato il riavvio. Riavvialo manualmente e ricarica la pagina.");
+    setCommitError(t.restartTimeout);
     setWaitingForRestart(false);
   }
 
@@ -99,7 +113,7 @@ export function DatabaseStep({
       });
       const body = await res.json();
       if (!body.ok) {
-        setCommitError(body.error ?? "Configurazione non riuscita");
+        setCommitError(describeError(body));
         return;
       }
       if (body.restartRequired) {
@@ -109,7 +123,7 @@ export function DatabaseStep({
         onComplete();
       }
     } catch {
-      setCommitError("Configurazione non riuscita");
+      setCommitError(t.genericError);
     } finally {
       setIsCommitting(false);
     }
@@ -118,14 +132,14 @@ export function DatabaseStep({
   if (alreadyConfigured) {
     return (
       <Card className="w-full max-w-lg p-6 sm:p-8">
-        <h1 className="text-xl font-medium tracking-tight text-foreground">Database</h1>
+        <h1 className="text-xl font-medium tracking-tight text-foreground">{t.title}</h1>
         <div className="mt-6 flex items-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.06] p-4">
           <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" />
-          <p className="text-sm text-muted-foreground">Il database è già configurato.</p>
+          <p className="text-sm text-muted-foreground">{t.alreadyConfigured}</p>
         </div>
         <div className="mt-6">
           <Button type="button" onClick={onNext} className="w-full sm:w-auto">
-            Avanti
+            {t.next}
           </Button>
         </div>
       </Card>
@@ -134,8 +148,8 @@ export function DatabaseStep({
 
   return (
     <Card className="w-full max-w-lg p-6 sm:p-8">
-      <h1 className="text-xl font-medium tracking-tight text-foreground">Database</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Scegli dove verranno salvati i contenuti del sito.</p>
+      <h1 className="text-xl font-medium tracking-tight text-foreground">{t.title}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{t.subtitle}</p>
 
       <div className="mt-6 grid grid-cols-2 gap-3">
         <button
@@ -150,8 +164,8 @@ export function DatabaseStep({
           )}
         >
           <Database className="h-5 w-5" />
-          SQLite
-          <span className="text-xs text-muted-foreground">Consigliato, nessun setup</span>
+          {t.sqliteLabel}
+          <span className="text-xs text-muted-foreground">{t.sqliteHint}</span>
         </button>
         <button
           type="button"
@@ -165,8 +179,8 @@ export function DatabaseStep({
           )}
         >
           <Server className="h-5 w-5" />
-          MySQL / MariaDB
-          <span className="text-xs text-muted-foreground">Server esterno</span>
+          {t.mysqlLabel}
+          <span className="text-xs text-muted-foreground">{t.mysqlHint}</span>
         </button>
       </div>
 
@@ -174,30 +188,30 @@ export function DatabaseStep({
         <div className="mt-6 space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input
-              placeholder="Host"
+              placeholder={t.host}
               value={mysql.host}
               onChange={(e) => setMysql({ ...mysql, host: e.target.value })}
             />
             <Input
-              placeholder="Porta"
+              placeholder={t.port}
               value={mysql.port}
               onChange={(e) => setMysql({ ...mysql, port: e.target.value })}
             />
           </div>
           <Input
-            placeholder="Nome database"
+            placeholder={t.databaseName}
             value={mysql.database}
             onChange={(e) => setMysql({ ...mysql, database: e.target.value })}
           />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input
-              placeholder="Utente"
+              placeholder={t.user}
               value={mysql.user}
               onChange={(e) => setMysql({ ...mysql, user: e.target.value })}
             />
             <Input
               type="password"
-              placeholder="Password"
+              placeholder={t.password}
               value={mysql.password}
               onChange={(e) => setMysql({ ...mysql, password: e.target.value })}
             />
@@ -205,12 +219,10 @@ export function DatabaseStep({
         </div>
       )}
 
-      {testState === "ok" && <p className="mt-4 text-sm text-emerald-400">Connessione riuscita.</p>}
+      {testState === "ok" && <p className="mt-4 text-sm text-emerald-400">{t.connectionOk}</p>}
       {testState === "error" && <p className="mt-4 text-sm text-red-400">{testError}</p>}
       {commitError && <p className="mt-4 text-sm text-red-400">{commitError}</p>}
-      {waitingForRestart && (
-        <p className="mt-4 text-sm text-muted-foreground">Il server si sta riavviando per applicare la nuova configurazione…</p>
-      )}
+      {waitingForRestart && <p className="mt-4 text-sm text-muted-foreground">{t.restarting}</p>}
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
         <Button
@@ -220,7 +232,7 @@ export function DatabaseStep({
           disabled={testState === "testing"}
           className="sm:flex-1"
         >
-          {testState === "testing" ? "Verifica…" : "Verifica connessione"}
+          {testState === "testing" ? t.testing : t.testConnection}
         </Button>
         <Button
           type="button"
@@ -228,7 +240,7 @@ export function DatabaseStep({
           disabled={isCommitting || waitingForRestart}
           className="sm:flex-1"
         >
-          {isCommitting ? "Configurazione…" : "Continua"}
+          {isCommitting ? t.committing : t.continueLabel}
         </Button>
       </div>
     </Card>

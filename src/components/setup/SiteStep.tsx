@@ -10,16 +10,18 @@ import { Select } from "@/components/ui/Select";
 import { cn } from "@/lib/cn";
 import { PALETTES, PALETTE_KEYS, type PaletteKey, type ThemeMode } from "@/lib/theme";
 import { LOCALES } from "@/lib/constants";
+import { getSetupT } from "@/lib/setup-translations";
 import type { Locale } from "@/types";
 
 const LOCALE_LABELS: Record<Locale, string> = { en: "English", it: "Italiano" };
 const LOCALE_OPTIONS = LOCALES.map((locale) => ({ value: locale, label: LOCALE_LABELS[locale] }));
 
-export function SiteStep({ onBack }: { onBack?: () => void }) {
+export function SiteStep({ onBack, lang }: { onBack?: () => void; lang: Locale }) {
+  const t = getSetupT(lang).site;
   const router = useRouter();
   const [domain, setDomain] = useState("");
   const [https, setHttps] = useState(true);
-  const [defaultLocale, setDefaultLocale] = useState<Locale>("en");
+  const [defaultLocale, setDefaultLocale] = useState<Locale>(lang);
   const [themePalette, setThemePalette] = useState<PaletteKey>("violet");
   const [themeMode, setThemeMode] = useState<ThemeMode>("dark");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,7 +36,7 @@ export function SiteStep({ onBack }: { onBack?: () => void }) {
 
   async function handleSubmit() {
     if (!domain) {
-      setError("Inserisci un dominio");
+      setError(t.domainRequired);
       return;
     }
     setIsSubmitting(true);
@@ -47,13 +49,13 @@ export function SiteStep({ onBack }: { onBack?: () => void }) {
       });
       const body = await res.json();
       if (!res.ok) {
-        setError(body.error ?? "Qualcosa è andato storto");
+        setError(body.error ?? t.genericError);
         return;
       }
       router.push("/admin/login");
       router.refresh();
     } catch {
-      setError("Qualcosa è andato storto");
+      setError(t.genericError);
     } finally {
       setIsSubmitting(false);
     }
@@ -61,21 +63,21 @@ export function SiteStep({ onBack }: { onBack?: () => void }) {
 
   return (
     <Card className="w-full max-w-lg p-6 sm:p-8">
-      <h1 className="text-xl font-medium tracking-tight text-foreground">Configurazione del sito</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Ultimi dettagli prima di iniziare.</p>
+      <h1 className="text-xl font-medium tracking-tight text-foreground">{t.title}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{t.subtitle}</p>
 
       <div className="mt-6 space-y-6">
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Dominio</label>
+          <label className="mb-2 block text-sm font-medium text-foreground">{t.domain}</label>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input placeholder="example.com" value={domain} onChange={(e) => setDomain(e.target.value)} />
-            <Toggle checked={https} onChange={setHttps} label="Usa HTTPS" />
+            <Toggle checked={https} onChange={setHttps} label={t.useHttps} />
           </div>
-          <p className="mt-1.5 text-xs text-muted-foreground">Rilevato automaticamente — puoi modificarlo.</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">{t.domainHint}</p>
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Lingua principale</label>
+          <label className="mb-2 block text-sm font-medium text-foreground">{t.mainLanguage}</label>
           <Select
             value={defaultLocale}
             onChange={(value) => setDefaultLocale(value as Locale)}
@@ -85,7 +87,7 @@ export function SiteStep({ onBack }: { onBack?: () => void }) {
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Tema</label>
+          <label className="mb-2 block text-sm font-medium text-foreground">{t.theme}</label>
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
               {PALETTE_KEYS.map((key) => (
@@ -105,7 +107,7 @@ export function SiteStep({ onBack }: { onBack?: () => void }) {
             <Toggle
               checked={themeMode === "dark"}
               onChange={(checked) => setThemeMode(checked ? "dark" : "light")}
-              label={themeMode === "dark" ? "Scuro" : "Chiaro"}
+              label={themeMode === "dark" ? t.dark : t.light}
             />
           </div>
         </div>
@@ -115,11 +117,11 @@ export function SiteStep({ onBack }: { onBack?: () => void }) {
         <div className="flex flex-col-reverse gap-3 sm:flex-row">
           {onBack && (
             <Button type="button" variant="secondary" onClick={onBack} className="sm:w-auto">
-              Indietro
+              {t.back}
             </Button>
           )}
           <Button type="button" onClick={handleSubmit} disabled={isSubmitting} className="flex-1">
-            {isSubmitting ? "Salvataggio…" : "Completa il setup"}
+            {isSubmitting ? t.saving : t.finish}
           </Button>
         </div>
       </div>
