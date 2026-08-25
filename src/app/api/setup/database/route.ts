@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSetupStatus } from "@/lib/setup";
-import { testDatabaseConnection, isTargetDatabaseEmpty, provisionDatabase } from "@/lib/db-provision";
+import {
+  testDatabaseConnection,
+  isTargetDatabaseEmpty,
+  provisionDatabase,
+  generateEnvInstructions,
+} from "@/lib/db-provision";
 import { dbSetupSchema } from "@/lib/setup-schema";
 import { isVercelRuntime } from "@/lib/platform";
 
@@ -26,10 +31,12 @@ export async function POST(request: NextRequest) {
   }
 
   // On Vercel the filesystem is read-only and there's no CLI to shell out to at
-  // request time — the schema is already pushed to DATABASE_URL at build time
-  // (see the `vercel-build` script), so there's nothing left to provision here.
+  // request time, and DATABASE_URL can only be made to persist by setting it as
+  // a platform environment variable — something only the user can do from the
+  // Vercel dashboard. Hand back the values to paste there instead of trying
+  // (and failing) to provision anything ourselves.
   if (isVercelRuntime()) {
-    return NextResponse.json({ ok: true, restartRequired: false });
+    return NextResponse.json({ ok: true, manualEnv: generateEnvInstructions(input) });
   }
 
   const empty = await isTargetDatabaseEmpty(input);

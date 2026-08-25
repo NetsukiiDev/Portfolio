@@ -1,11 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Database, Server, CheckCircle2 } from "lucide-react";
+import { Database, Server, CheckCircle2, Copy, Check } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+
+interface ManualEnv {
+  DATABASE_URL: string;
+  JWT_SECRET: string;
+}
 
 type DbType = "sqlite" | "mysql";
 
@@ -37,6 +42,8 @@ export function DatabaseStep({
   const [isCommitting, setIsCommitting] = useState(false);
   const [commitError, setCommitError] = useState<string | null>(null);
   const [waitingForRestart, setWaitingForRestart] = useState(false);
+  const [manualEnv, setManualEnv] = useState<ManualEnv | null>(null);
+  const [copied, setCopied] = useState(false);
 
   function buildPayload() {
     if (dbType === "sqlite") return { type: "sqlite" as const };
@@ -104,7 +111,9 @@ export function DatabaseStep({
         setCommitError(body.error ?? "Configurazione non riuscita");
         return;
       }
-      if (body.restartRequired) {
+      if (body.manualEnv) {
+        setManualEnv(body.manualEnv as ManualEnv);
+      } else if (body.restartRequired) {
         setWaitingForRestart(true);
         await pollUntilReady();
       } else {
@@ -115,6 +124,14 @@ export function DatabaseStep({
     } finally {
       setIsCommitting(false);
     }
+  }
+
+  async function handleCopy() {
+    if (!manualEnv) return;
+    const text = `DATABASE_URL="${manualEnv.DATABASE_URL}"\nJWT_SECRET="${manualEnv.JWT_SECRET}"`;
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   if (alreadyConfigured) {
@@ -128,6 +145,46 @@ export function DatabaseStep({
         <div className="mt-6">
           <Button type="button" onClick={onNext} className="w-full sm:w-auto">
             Avanti
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+
+  if (manualEnv) {
+    const envText = `DATABASE_URL="${manualEnv.DATABASE_URL}"\nJWT_SECRET="${manualEnv.JWT_SECRET}"`;
+    return (
+      <Card className="w-full max-w-lg p-6 sm:p-8">
+        <h1 className="text-xl font-medium tracking-tight text-foreground">Database</h1>
+        <div className="mt-6 flex items-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.06] p-4">
+          <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" />
+          <p className="text-sm text-muted-foreground">Connessione verificata.</p>
+        </div>
+
+        <p className="mt-6 text-sm text-muted-foreground">
+          Vercel non può salvare questi valori da solo. Copiali e incollali in{" "}
+          <span className="text-foreground">Project Settings → Environment Variables</span> sul tuo progetto
+          Vercel, poi fai il redeploy.
+        </p>
+
+        <pre className="mt-4 overflow-x-auto rounded-2xl border border-border bg-surface-wash p-4 text-xs text-foreground">
+          {envText}
+        </pre>
+
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <Button type="button" variant="secondary" onClick={handleCopy} className="sm:flex-1">
+            {copied ? (
+              <>
+                <Check className="h-4 w-4" /> Copiato
+              </>
+            ) : (
+              <>
+                <Copy className="h-4 w-4" /> Copia
+              </>
+            )}
+          </Button>
+          <Button type="button" onClick={onComplete} className="sm:flex-1">
+            Ricontrolla dopo il redeploy
           </Button>
         </div>
       </Card>

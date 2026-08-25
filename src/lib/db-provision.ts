@@ -80,6 +80,17 @@ function runPrismaCommand(args: string[], databaseUrl: string): void {
   });
 }
 
+// Vercel's runtime filesystem is read-only and there's no CLI to shell out to
+// — DATABASE_URL has to be set as a platform environment variable instead,
+// which only the user can do from the Vercel dashboard. This just hands back
+// the values to paste there; nothing is written or provisioned here.
+export function generateEnvInstructions(input: DbSetupInput): { DATABASE_URL: string; JWT_SECRET: string } {
+  return {
+    DATABASE_URL: resolveDatabaseUrl(input),
+    JWT_SECRET: randomBytes(32).toString("base64url"),
+  };
+}
+
 export async function provisionDatabase(input: DbSetupInput): Promise<void> {
   const databaseUrl = resolveDatabaseUrl(input);
   const schemaSource = input.type === "mysql" ? "schema.mysql.prisma" : "schema.sqlite.prisma";

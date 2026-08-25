@@ -12,7 +12,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:use:sqlite": "node -e \"require('fs').copyFileSync('prisma/schema.sqlite.prisma','prisma/schema.prisma')\"",
     "db:use:mysql": "node -e \"require('fs').copyFileSync('prisma/schema.mysql.prisma','prisma/schema.prisma')\"",
-    "vercel-build": "npm run db:use:mysql && prisma generate && prisma db push --accept-data-loss && next build"
+    "vercel-build": "npm run db:use:mysql && prisma generate && node scripts/vercel-db-push.js && next build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1117.0",
