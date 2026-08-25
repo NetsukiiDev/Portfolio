@@ -8,10 +8,10 @@ import { AccountStep } from "@/components/setup/AccountStep";
 import { SiteStep } from "@/components/setup/SiteStep";
 import { SITE_NAME } from "@/lib/constants";
 import type { SetupStep } from "@/lib/setup";
-import type { Locale } from "@/types";
+import type { WizardLang } from "@/lib/setup-translations";
 
 export default function SetupPage() {
-  const [lang, setLang] = useState<Locale | null>(null);
+  const [lang, setLang] = useState<WizardLang | null>(null);
   const [step, setStep] = useState<SetupStep | null>(null);
   const [manualStep, setManualStep] = useState<SetupStep | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);

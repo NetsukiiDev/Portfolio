@@ -5,8 +5,7 @@ import { useForm } from "react-hook-form";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { getSetupT } from "@/lib/setup-translations";
-import type { Locale } from "@/types";
+import { getSetupT, type WizardLang } from "@/lib/setup-translations";
 
 interface AccountFormValues {
   firstName: string;
@@ -23,7 +22,7 @@ export function AccountStep({
 }: {
   onComplete: () => void;
   onBack?: () => void;
-  lang: Locale;
+  lang: WizardLang;
 }) {
   const t = getSetupT(lang).account;
   const [isSubmitting, setIsSubmitting] = useState(false);

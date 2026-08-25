@@ -10,18 +10,23 @@ import { Select } from "@/components/ui/Select";
 import { cn } from "@/lib/cn";
 import { PALETTES, PALETTE_KEYS, type PaletteKey, type ThemeMode } from "@/lib/theme";
 import { LOCALES } from "@/lib/constants";
-import { getSetupT } from "@/lib/setup-translations";
+import { getSetupT, type WizardLang } from "@/lib/setup-translations";
 import type { Locale } from "@/types";
 
 const LOCALE_LABELS: Record<Locale, string> = { en: "English", it: "Italiano" };
 const LOCALE_OPTIONS = LOCALES.map((locale) => ({ value: locale, label: LOCALE_LABELS[locale] }));
 
-export function SiteStep({ onBack, lang }: { onBack?: () => void; lang: Locale }) {
+export function SiteStep({ onBack, lang }: { onBack?: () => void; lang: WizardLang }) {
   const t = getSetupT(lang).site;
   const router = useRouter();
   const [domain, setDomain] = useState("");
   const [https, setHttps] = useState(true);
-  const [defaultLocale, setDefaultLocale] = useState<Locale>(lang);
+  // The site's own content locale only supports the languages it has
+  // translations for (LOCALES), unlike the wider set of wizard UI languages
+  // — default to the chosen wizard language only when it's one of those.
+  const [defaultLocale, setDefaultLocale] = useState<Locale>(
+    (LOCALES as readonly string[]).includes(lang) ? (lang as Locale) : "en",
+  );
   const [themePalette, setThemePalette] = useState<PaletteKey>("violet");
   const [themeMode, setThemeMode] = useState<ThemeMode>("dark");
   const [isSubmitting, setIsSubmitting] = useState(false);

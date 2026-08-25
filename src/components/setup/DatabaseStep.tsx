@@ -6,8 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
-import { getSetupT } from "@/lib/setup-translations";
-import type { Locale } from "@/types";
+import { getSetupT, type WizardLang } from "@/lib/setup-translations";
 
 type DbType = "sqlite" | "mysql";
 
@@ -30,7 +29,7 @@ export function DatabaseStep({
   onComplete: () => void;
   alreadyConfigured?: boolean;
   onNext?: () => void;
-  lang: Locale;
+  lang: WizardLang;
 }) {
   const t = getSetupT(lang).database;
   const [dbType, setDbType] = useState<DbType>("sqlite");

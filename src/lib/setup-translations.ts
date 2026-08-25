@@ -1,11 +1,94 @@
-import type { Locale } from "@/types";
+export const WIZARD_LANGUAGES = [
+  { code: "en", nativeName: "English" },
+  { code: "zh", nativeName: "中文" },
+  { code: "es", nativeName: "Español" },
+  { code: "it", nativeName: "Italiano" },
+  { code: "ar", nativeName: "العربية" },
+  { code: "pt", nativeName: "Português" },
+  { code: "ru", nativeName: "Русский" },
+  { code: "ja", nativeName: "日本語" },
+  { code: "fr", nativeName: "Français" },
+  { code: "de", nativeName: "Deutsch" },
+] as const;
 
-export const setupTranslations = {
+export type WizardLang = (typeof WIZARD_LANGUAGES)[number]["code"];
+
+interface DatabaseText {
+  title: string;
+  subtitle: string;
+  sqliteLabel: string;
+  sqliteHint: string;
+  mysqlLabel: string;
+  mysqlHint: string;
+  host: string;
+  port: string;
+  databaseName: string;
+  user: string;
+  password: string;
+  testConnection: string;
+  testing: string;
+  connectionOk: string;
+  continueLabel: string;
+  committing: string;
+  alreadyConfigured: string;
+  next: string;
+  restarting: string;
+  restartTimeout: string;
+  genericError: string;
+  connectionFailed: string;
+  dbNotEmpty: string;
+  missingField: (field: string) => string;
+  fields: { host: string; port: string; database: string; user: string; password: string };
+}
+
+interface AccountText {
+  title: string;
+  subtitle: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  password: string;
+  confirmPassword: string;
+  required: string;
+  minUsername: string;
+  minPassword: string;
+  passwordMismatch: string;
+  back: string;
+  continueLabel: string;
+  creating: string;
+  genericError: string;
+}
+
+interface SiteText {
+  title: string;
+  subtitle: string;
+  domain: string;
+  useHttps: string;
+  domainHint: string;
+  domainRequired: string;
+  mainLanguage: string;
+  theme: string;
+  dark: string;
+  light: string;
+  back: string;
+  finish: string;
+  saving: string;
+  genericError: string;
+}
+
+interface SetupText {
+  stepper: { database: string; account: string; site: string };
+  database: DatabaseText;
+  account: AccountText;
+  site: SiteText;
+}
+
+function fields(host: string, port: string, database: string, user: string, password: string) {
+  return { host, port, database, user, password };
+}
+
+export const setupTranslations: Record<WizardLang, SetupText> = {
   en: {
-    language: {
-      title: "Setup language",
-      subtitle: "Choose the language for the setup wizard.",
-    },
     stepper: { database: "Database", account: "Account", site: "Site" },
     database: {
       title: "Database",
@@ -31,8 +114,8 @@ export const setupTranslations = {
       genericError: "Setup failed",
       connectionFailed: "Connection failed",
       dbNotEmpty: "The target database already has tables — pick an empty one.",
-      missingField: (field: string) => `Field "${field}" is missing or invalid.`,
-      fields: { host: "Host", port: "Port", database: "Database name", user: "User", password: "Password" },
+      missingField: (field) => `Field "${field}" is missing or invalid.`,
+      fields: fields("Host", "Port", "Database name", "User", "Password"),
     },
     account: {
       title: "Administrator account",
@@ -69,10 +152,6 @@ export const setupTranslations = {
     },
   },
   it: {
-    language: {
-      title: "Lingua del setup",
-      subtitle: "Scegli la lingua della procedura guidata.",
-    },
     stepper: { database: "Database", account: "Account", site: "Sito" },
     database: {
       title: "Database",
@@ -98,8 +177,8 @@ export const setupTranslations = {
       genericError: "Configurazione non riuscita",
       connectionFailed: "Connessione non riuscita",
       dbNotEmpty: "Il database scelto contiene già delle tabelle — scegline uno vuoto.",
-      missingField: (field: string) => `Campo "${field}" mancante o non valido.`,
-      fields: { host: "Host", port: "Porta", database: "Nome database", user: "Utente", password: "Password" },
+      missingField: (field) => `Campo "${field}" mancante o non valido.`,
+      fields: fields("Host", "Porta", "Nome database", "Utente", "Password"),
     },
     account: {
       title: "Account amministratore",
@@ -135,8 +214,512 @@ export const setupTranslations = {
       genericError: "Qualcosa è andato storto",
     },
   },
-} satisfies Record<Locale, unknown>;
+  zh: {
+    stepper: { database: "数据库", account: "账户", site: "网站" },
+    database: {
+      title: "数据库",
+      subtitle: "选择网站内容的存储位置。",
+      sqliteLabel: "SQLite",
+      sqliteHint: "推荐，无需配置",
+      mysqlLabel: "MySQL / MariaDB",
+      mysqlHint: "外部服务器",
+      host: "主机",
+      port: "端口",
+      databaseName: "数据库名称",
+      user: "用户名",
+      password: "密码",
+      testConnection: "测试连接",
+      testing: "测试中…",
+      connectionOk: "连接成功。",
+      continueLabel: "继续",
+      committing: "正在设置…",
+      alreadyConfigured: "数据库已配置完成。",
+      next: "下一步",
+      restarting: "服务器正在重启以应用新配置…",
+      restartTimeout: "服务器未完成重启。请手动重启并刷新页面。",
+      genericError: "设置失败",
+      connectionFailed: "连接失败",
+      dbNotEmpty: "目标数据库中已存在表 — 请选择一个空数据库。",
+      missingField: (field) => `字段"${field}"缺失或无效。`,
+      fields: fields("主机", "端口", "数据库名称", "用户名", "密码"),
+    },
+    account: {
+      title: "管理员账户",
+      subtitle: "创建用于登录管理面板的账户。",
+      firstName: "名",
+      lastName: "姓",
+      username: "用户名",
+      password: "密码",
+      confirmPassword: "确认密码",
+      required: "必填项",
+      minUsername: "至少3个字符",
+      minPassword: "至少8个字符",
+      passwordMismatch: "两次输入的密码不一致",
+      back: "返回",
+      continueLabel: "继续",
+      creating: "正在创建…",
+      genericError: "出错了",
+    },
+    site: {
+      title: "网站配置",
+      subtitle: "开始前的最后几项设置。",
+      domain: "域名",
+      useHttps: "使用 HTTPS",
+      domainHint: "自动检测 — 你可以修改它。",
+      domainRequired: "请输入域名",
+      mainLanguage: "主要语言",
+      theme: "主题",
+      dark: "深色",
+      light: "浅色",
+      back: "返回",
+      finish: "完成设置",
+      saving: "保存中…",
+      genericError: "出错了",
+    },
+  },
+  es: {
+    stepper: { database: "Base de datos", account: "Cuenta", site: "Sitio" },
+    database: {
+      title: "Base de datos",
+      subtitle: "Elige dónde se almacenará el contenido del sitio.",
+      sqliteLabel: "SQLite",
+      sqliteHint: "Recomendado, sin configuración",
+      mysqlLabel: "MySQL / MariaDB",
+      mysqlHint: "Servidor externo",
+      host: "Host",
+      port: "Puerto",
+      databaseName: "Nombre de la base de datos",
+      user: "Usuario",
+      password: "Contraseña",
+      testConnection: "Probar conexión",
+      testing: "Probando…",
+      connectionOk: "Conexión exitosa.",
+      continueLabel: "Continuar",
+      committing: "Configurando…",
+      alreadyConfigured: "La base de datos ya está configurada.",
+      next: "Siguiente",
+      restarting: "El servidor se está reiniciando para aplicar la nueva configuración…",
+      restartTimeout: "El servidor no terminó de reiniciarse. Reinícialo manualmente y recarga la página.",
+      genericError: "Error en la configuración",
+      connectionFailed: "Conexión fallida",
+      dbNotEmpty: "La base de datos elegida ya tiene tablas — elige una vacía.",
+      missingField: (field) => `El campo "${field}" falta o no es válido.`,
+      fields: fields("Host", "Puerto", "Nombre de la base de datos", "Usuario", "Contraseña"),
+    },
+    account: {
+      title: "Cuenta de administrador",
+      subtitle: "Crea la cuenta que usarás para acceder al panel.",
+      firstName: "Nombre",
+      lastName: "Apellido",
+      username: "Nombre de usuario",
+      password: "Contraseña",
+      confirmPassword: "Confirmar contraseña",
+      required: "Obligatorio",
+      minUsername: "Al menos 3 caracteres",
+      minPassword: "Al menos 8 caracteres",
+      passwordMismatch: "Las contraseñas no coinciden",
+      back: "Atrás",
+      continueLabel: "Continuar",
+      creating: "Creando…",
+      genericError: "Algo salió mal",
+    },
+    site: {
+      title: "Configuración del sitio",
+      subtitle: "Unos últimos detalles antes de empezar.",
+      domain: "Dominio",
+      useHttps: "Usar HTTPS",
+      domainHint: "Detectado automáticamente — puedes cambiarlo.",
+      domainRequired: "Introduce un dominio",
+      mainLanguage: "Idioma principal",
+      theme: "Tema",
+      dark: "Oscuro",
+      light: "Claro",
+      back: "Atrás",
+      finish: "Finalizar configuración",
+      saving: "Guardando…",
+      genericError: "Algo salió mal",
+    },
+  },
+  ar: {
+    stepper: { database: "قاعدة البيانات", account: "الحساب", site: "الموقع" },
+    database: {
+      title: "قاعدة البيانات",
+      subtitle: "اختر مكان تخزين محتوى الموقع.",
+      sqliteLabel: "SQLite",
+      sqliteHint: "موصى به، لا يتطلب إعدادًا",
+      mysqlLabel: "MySQL / MariaDB",
+      mysqlHint: "خادم خارجي",
+      host: "المضيف",
+      port: "المنفذ",
+      databaseName: "اسم قاعدة البيانات",
+      user: "المستخدم",
+      password: "كلمة المرور",
+      testConnection: "اختبار الاتصال",
+      testing: "جارٍ الاختبار…",
+      connectionOk: "تم الاتصال بنجاح.",
+      continueLabel: "متابعة",
+      committing: "جارٍ الإعداد…",
+      alreadyConfigured: "تم إعداد قاعدة البيانات بالفعل.",
+      next: "التالي",
+      restarting: "يعيد الخادم التشغيل لتطبيق الإعدادات الجديدة…",
+      restartTimeout: "لم يكمل الخادم إعادة التشغيل. أعد تشغيله يدويًا وأعد تحميل الصفحة.",
+      genericError: "فشل الإعداد",
+      connectionFailed: "فشل الاتصال",
+      dbNotEmpty: "قاعدة البيانات المستهدفة تحتوي بالفعل على جداول — اختر واحدة فارغة.",
+      missingField: (field) => `الحقل "${field}" مفقود أو غير صالح.`,
+      fields: fields("المضيف", "المنفذ", "اسم قاعدة البيانات", "المستخدم", "كلمة المرور"),
+    },
+    account: {
+      title: "حساب المسؤول",
+      subtitle: "أنشئ الحساب الذي ستستخدمه لتسجيل الدخول إلى اللوحة.",
+      firstName: "الاسم الأول",
+      lastName: "اسم العائلة",
+      username: "اسم المستخدم",
+      password: "كلمة المرور",
+      confirmPassword: "تأكيد كلمة المرور",
+      required: "مطلوب",
+      minUsername: "3 أحرف على الأقل",
+      minPassword: "8 أحرف على الأقل",
+      passwordMismatch: "كلمتا المرور غير متطابقتين",
+      back: "رجوع",
+      continueLabel: "متابعة",
+      creating: "جارٍ الإنشاء…",
+      genericError: "حدث خطأ ما",
+    },
+    site: {
+      title: "إعدادات الموقع",
+      subtitle: "بضعة تفاصيل أخيرة قبل البدء.",
+      domain: "النطاق",
+      useHttps: "استخدام HTTPS",
+      domainHint: "تم اكتشافه تلقائيًا — يمكنك تغييره.",
+      domainRequired: "أدخل نطاقًا",
+      mainLanguage: "اللغة الرئيسية",
+      theme: "المظهر",
+      dark: "داكن",
+      light: "فاتح",
+      back: "رجوع",
+      finish: "إنهاء الإعداد",
+      saving: "جارٍ الحفظ…",
+      genericError: "حدث خطأ ما",
+    },
+  },
+  pt: {
+    stepper: { database: "Banco de dados", account: "Conta", site: "Site" },
+    database: {
+      title: "Banco de dados",
+      subtitle: "Escolha onde o conteúdo do site será armazenado.",
+      sqliteLabel: "SQLite",
+      sqliteHint: "Recomendado, sem configuração necessária",
+      mysqlLabel: "MySQL / MariaDB",
+      mysqlHint: "Servidor externo",
+      host: "Host",
+      port: "Porta",
+      databaseName: "Nome do banco de dados",
+      user: "Usuário",
+      password: "Senha",
+      testConnection: "Testar conexão",
+      testing: "Testando…",
+      connectionOk: "Conexão bem-sucedida.",
+      continueLabel: "Continuar",
+      committing: "Configurando…",
+      alreadyConfigured: "O banco de dados já está configurado.",
+      next: "Próximo",
+      restarting: "O servidor está reiniciando para aplicar a nova configuração…",
+      restartTimeout: "O servidor não terminou de reiniciar. Reinicie-o manualmente e recarregue a página.",
+      genericError: "Falha na configuração",
+      connectionFailed: "Falha na conexão",
+      dbNotEmpty: "O banco de dados escolhido já contém tabelas — escolha um vazio.",
+      missingField: (field) => `O campo "${field}" está ausente ou inválido.`,
+      fields: fields("Host", "Porta", "Nome do banco de dados", "Usuário", "Senha"),
+    },
+    account: {
+      title: "Conta de administrador",
+      subtitle: "Crie a conta que você usará para acessar o painel.",
+      firstName: "Nome",
+      lastName: "Sobrenome",
+      username: "Nome de usuário",
+      password: "Senha",
+      confirmPassword: "Confirmar senha",
+      required: "Obrigatório",
+      minUsername: "Pelo menos 3 caracteres",
+      minPassword: "Pelo menos 8 caracteres",
+      passwordMismatch: "As senhas não coincidem",
+      back: "Voltar",
+      continueLabel: "Continuar",
+      creating: "Criando…",
+      genericError: "Algo deu errado",
+    },
+    site: {
+      title: "Configuração do site",
+      subtitle: "Alguns últimos detalhes antes de começar.",
+      domain: "Domínio",
+      useHttps: "Usar HTTPS",
+      domainHint: "Detectado automaticamente — você pode alterá-lo.",
+      domainRequired: "Insira um domínio",
+      mainLanguage: "Idioma principal",
+      theme: "Tema",
+      dark: "Escuro",
+      light: "Claro",
+      back: "Voltar",
+      finish: "Concluir configuração",
+      saving: "Salvando…",
+      genericError: "Algo deu errado",
+    },
+  },
+  ru: {
+    stepper: { database: "База данных", account: "Аккаунт", site: "Сайт" },
+    database: {
+      title: "База данных",
+      subtitle: "Выберите, где будет храниться содержимое сайта.",
+      sqliteLabel: "SQLite",
+      sqliteHint: "Рекомендуется, настройка не требуется",
+      mysqlLabel: "MySQL / MariaDB",
+      mysqlHint: "Внешний сервер",
+      host: "Хост",
+      port: "Порт",
+      databaseName: "Имя базы данных",
+      user: "Пользователь",
+      password: "Пароль",
+      testConnection: "Проверить соединение",
+      testing: "Проверка…",
+      connectionOk: "Соединение установлено.",
+      continueLabel: "Продолжить",
+      committing: "Настройка…",
+      alreadyConfigured: "База данных уже настроена.",
+      next: "Далее",
+      restarting: "Сервер перезапускается для применения новой конфигурации…",
+      restartTimeout: "Сервер не завершил перезапуск. Перезапустите его вручную и перезагрузите страницу.",
+      genericError: "Ошибка настройки",
+      connectionFailed: "Не удалось подключиться",
+      dbNotEmpty: "В выбранной базе данных уже есть таблицы — выберите пустую.",
+      missingField: (field) => `Поле "${field}" отсутствует или недействительно.`,
+      fields: fields("Хост", "Порт", "Имя базы данных", "Пользователь", "Пароль"),
+    },
+    account: {
+      title: "Учётная запись администратора",
+      subtitle: "Создайте учётную запись для входа в панель управления.",
+      firstName: "Имя",
+      lastName: "Фамилия",
+      username: "Имя пользователя",
+      password: "Пароль",
+      confirmPassword: "Подтвердите пароль",
+      required: "Обязательное поле",
+      minUsername: "Минимум 3 символа",
+      minPassword: "Минимум 8 символов",
+      passwordMismatch: "Пароли не совпадают",
+      back: "Назад",
+      continueLabel: "Продолжить",
+      creating: "Создание…",
+      genericError: "Что-то пошло не так",
+    },
+    site: {
+      title: "Настройка сайта",
+      subtitle: "Ещё несколько деталей перед началом.",
+      domain: "Домен",
+      useHttps: "Использовать HTTPS",
+      domainHint: "Определено автоматически — вы можете изменить это.",
+      domainRequired: "Введите домен",
+      mainLanguage: "Основной язык",
+      theme: "Тема",
+      dark: "Тёмная",
+      light: "Светлая",
+      back: "Назад",
+      finish: "Завершить настройку",
+      saving: "Сохранение…",
+      genericError: "Что-то пошло не так",
+    },
+  },
+  ja: {
+    stepper: { database: "データベース", account: "アカウント", site: "サイト" },
+    database: {
+      title: "データベース",
+      subtitle: "サイトのコンテンツを保存する場所を選択してください。",
+      sqliteLabel: "SQLite",
+      sqliteHint: "推奨、設定不要",
+      mysqlLabel: "MySQL / MariaDB",
+      mysqlHint: "外部サーバー",
+      host: "ホスト",
+      port: "ポート",
+      databaseName: "データベース名",
+      user: "ユーザー",
+      password: "パスワード",
+      testConnection: "接続をテスト",
+      testing: "テスト中…",
+      connectionOk: "接続に成功しました。",
+      continueLabel: "続ける",
+      committing: "設定中…",
+      alreadyConfigured: "データベースはすでに設定されています。",
+      next: "次へ",
+      restarting: "新しい設定を適用するためサーバーを再起動しています…",
+      restartTimeout: "サーバーの再起動が完了しませんでした。手動で再起動してページを再読み込みしてください。",
+      genericError: "設定に失敗しました",
+      connectionFailed: "接続に失敗しました",
+      dbNotEmpty: "選択したデータベースにはすでにテーブルがあります — 空のデータベースを選択してください。",
+      missingField: (field) => `フィールド「${field}」が未入力または無効です。`,
+      fields: fields("ホスト", "ポート", "データベース名", "ユーザー", "パスワード"),
+    },
+    account: {
+      title: "管理者アカウント",
+      subtitle: "パネルへのログインに使用するアカウントを作成してください。",
+      firstName: "名",
+      lastName: "姓",
+      username: "ユーザー名",
+      password: "パスワード",
+      confirmPassword: "パスワードの確認",
+      required: "必須項目です",
+      minUsername: "3文字以上",
+      minPassword: "8文字以上",
+      passwordMismatch: "パスワードが一致しません",
+      back: "戻る",
+      continueLabel: "続ける",
+      creating: "作成中…",
+      genericError: "問題が発生しました",
+    },
+    site: {
+      title: "サイト設定",
+      subtitle: "開始前の最後の詳細設定です。",
+      domain: "ドメイン",
+      useHttps: "HTTPSを使用",
+      domainHint: "自動検出されました — 変更できます。",
+      domainRequired: "ドメインを入力してください",
+      mainLanguage: "メイン言語",
+      theme: "テーマ",
+      dark: "ダーク",
+      light: "ライト",
+      back: "戻る",
+      finish: "設定を完了",
+      saving: "保存中…",
+      genericError: "問題が発生しました",
+    },
+  },
+  fr: {
+    stepper: { database: "Base de données", account: "Compte", site: "Site" },
+    database: {
+      title: "Base de données",
+      subtitle: "Choisissez où le contenu du site sera stocké.",
+      sqliteLabel: "SQLite",
+      sqliteHint: "Recommandé, aucune configuration requise",
+      mysqlLabel: "MySQL / MariaDB",
+      mysqlHint: "Serveur externe",
+      host: "Hôte",
+      port: "Port",
+      databaseName: "Nom de la base de données",
+      user: "Utilisateur",
+      password: "Mot de passe",
+      testConnection: "Tester la connexion",
+      testing: "Test en cours…",
+      connectionOk: "Connexion réussie.",
+      continueLabel: "Continuer",
+      committing: "Configuration…",
+      alreadyConfigured: "La base de données est déjà configurée.",
+      next: "Suivant",
+      restarting: "Le serveur redémarre pour appliquer la nouvelle configuration…",
+      restartTimeout: "Le serveur n'a pas terminé de redémarrer. Redémarrez-le manuellement et rechargez la page.",
+      genericError: "Échec de la configuration",
+      connectionFailed: "Échec de la connexion",
+      dbNotEmpty: "La base de données cible contient déjà des tables — choisissez-en une vide.",
+      missingField: (field) => `Le champ « ${field} » est manquant ou invalide.`,
+      fields: fields("Hôte", "Port", "Nom de la base de données", "Utilisateur", "Mot de passe"),
+    },
+    account: {
+      title: "Compte administrateur",
+      subtitle: "Créez le compte que vous utiliserez pour accéder au panneau.",
+      firstName: "Prénom",
+      lastName: "Nom",
+      username: "Nom d'utilisateur",
+      password: "Mot de passe",
+      confirmPassword: "Confirmer le mot de passe",
+      required: "Obligatoire",
+      minUsername: "Au moins 3 caractères",
+      minPassword: "Au moins 8 caractères",
+      passwordMismatch: "Les mots de passe ne correspondent pas",
+      back: "Retour",
+      continueLabel: "Continuer",
+      creating: "Création…",
+      genericError: "Une erreur est survenue",
+    },
+    site: {
+      title: "Configuration du site",
+      subtitle: "Quelques derniers détails avant de commencer.",
+      domain: "Domaine",
+      useHttps: "Utiliser HTTPS",
+      domainHint: "Détecté automatiquement — vous pouvez le modifier.",
+      domainRequired: "Entrez un domaine",
+      mainLanguage: "Langue principale",
+      theme: "Thème",
+      dark: "Sombre",
+      light: "Clair",
+      back: "Retour",
+      finish: "Terminer la configuration",
+      saving: "Enregistrement…",
+      genericError: "Une erreur est survenue",
+    },
+  },
+  de: {
+    stepper: { database: "Datenbank", account: "Konto", site: "Website" },
+    database: {
+      title: "Datenbank",
+      subtitle: "Wähle, wo die Inhalte der Website gespeichert werden.",
+      sqliteLabel: "SQLite",
+      sqliteHint: "Empfohlen, keine Einrichtung nötig",
+      mysqlLabel: "MySQL / MariaDB",
+      mysqlHint: "Externer Server",
+      host: "Host",
+      port: "Port",
+      databaseName: "Datenbankname",
+      user: "Benutzer",
+      password: "Passwort",
+      testConnection: "Verbindung testen",
+      testing: "Wird getestet…",
+      connectionOk: "Verbindung erfolgreich.",
+      continueLabel: "Weiter",
+      committing: "Wird eingerichtet…",
+      alreadyConfigured: "Die Datenbank ist bereits konfiguriert.",
+      next: "Weiter",
+      restarting: "Der Server wird neu gestartet, um die neue Konfiguration zu übernehmen…",
+      restartTimeout: "Der Server hat den Neustart nicht abgeschlossen. Starte ihn manuell neu und lade die Seite neu.",
+      genericError: "Einrichtung fehlgeschlagen",
+      connectionFailed: "Verbindung fehlgeschlagen",
+      dbNotEmpty: "Die Zieldatenbank enthält bereits Tabellen — wähle eine leere.",
+      missingField: (field) => `Feld „${field}" fehlt oder ist ungültig.`,
+      fields: fields("Host", "Port", "Datenbankname", "Benutzer", "Passwort"),
+    },
+    account: {
+      title: "Administratorkonto",
+      subtitle: "Erstelle das Konto, mit dem du dich im Panel anmeldest.",
+      firstName: "Vorname",
+      lastName: "Nachname",
+      username: "Benutzername",
+      password: "Passwort",
+      confirmPassword: "Passwort bestätigen",
+      required: "Erforderlich",
+      minUsername: "Mindestens 3 Zeichen",
+      minPassword: "Mindestens 8 Zeichen",
+      passwordMismatch: "Passwörter stimmen nicht überein",
+      back: "Zurück",
+      continueLabel: "Weiter",
+      creating: "Wird erstellt…",
+      genericError: "Etwas ist schiefgelaufen",
+    },
+    site: {
+      title: "Website-Konfiguration",
+      subtitle: "Ein paar letzte Details, bevor es losgeht.",
+      domain: "Domain",
+      useHttps: "HTTPS verwenden",
+      domainHint: "Automatisch erkannt — du kannst sie ändern.",
+      domainRequired: "Gib eine Domain ein",
+      mainLanguage: "Hauptsprache",
+      theme: "Design",
+      dark: "Dunkel",
+      light: "Hell",
+      back: "Zurück",
+      finish: "Einrichtung abschließen",
+      saving: "Wird gespeichert…",
+      genericError: "Etwas ist schiefgelaufen",
+    },
+  },
+};
 
-export function getSetupT(lang: Locale) {
+export function getSetupT(lang: WizardLang): SetupText {
   return setupTranslations[lang];
 }

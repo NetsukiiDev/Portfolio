@@ -1,9 +1,8 @@
 import { cn } from "@/lib/cn";
-import { getSetupT } from "@/lib/setup-translations";
+import { getSetupT, type WizardLang } from "@/lib/setup-translations";
 import type { SetupStep } from "@/lib/setup";
-import type { Locale } from "@/types";
 
-export function SetupStepper({ current, lang }: { current: SetupStep; lang: Locale }) {
+export function SetupStepper({ current, lang }: { current: SetupStep; lang: WizardLang }) {
   const t = getSetupT(lang);
   const steps: { key: Exclude<SetupStep, "complete">; label: string }[] = [
     { key: "database", label: t.stepper.database },
