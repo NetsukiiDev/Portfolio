@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Project {
+  id         String   @id
+  slug       String   @unique
+  featured   Boolean  @default(false)
+  order      Int      @default(0)
+  category   String
+  images     Json
+  links      Json
+  techStack  Json
+  translations Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model BlogPost {
+  id          String    @id
+  slug        String    @unique
+  status      String
+  coverImage  String
+  tags        Json
+  readingTime Int
+  translations Json
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  publishedAt DateTime?
+}
+
+model SkillCategory {
+  id           String  @id
+  order        Int     @default(0)
+  translations Json
+  skills       Skill[]
+}
+
+model Skill {
+  id               String        @id
+  categoryId       String
+  category         SkillCategory @relation(fields: [categoryId], references: [id])
+  icon             String
+  proficiency      Int
+  yearsOfExperience Int
+  order            Int           @default(0)
+  translations     Json
+
+  @@index([categoryId])
+}
+
+model Experience {
+  id           String    @id
+  type         String
+  startDate    String
+  endDate      String?
+  current      Boolean   @default(false)
+  order        Int       @default(0)
+  company      String
+  logo         String
+  website      String?
+  translations Json
+}
+
+model AiImage {
+  id             String   @id
+  image          String
+  thumbnail      String
+  tags           Json
+  model          String
+  sampler        String
+  steps          Int
+  cfgScale       Float
+  seed           Int
+  negativePrompt String
+  loras          Json
+  translations   Json
+  createdAt      DateTime @default(now())
+}
+
+model Settings {
+  id               String    @id @default("singleton")
+  personal         Json
+  social           Json
+  seo              Json
+  contactForm      Json
+  maintenance      Json
+  defaultLocale    String    @default("en")
+  themePalette     String    @default("violet")
+  themeMode        String    @default("dark")
+  domain           String    @default("")
+  https            Boolean   @default(true)
+  setupCompletedAt DateTime?
+}
+
+model ContactMessage {
+  id        String   @id
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model AdminAccount {
+  id           String   @id @default("singleton")
+  firstName    String   @default("")
+  lastName     String   @default("")
+  username     String   @unique
+  passwordHash String
+  updatedAt    DateTime @updatedAt
+}

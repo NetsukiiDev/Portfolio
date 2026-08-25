@@ -1,0 +1,134 @@
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(3deg);
+  }
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes drift-1 {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 340px 170px;
+  }
+}
+
+@keyframes drift-2 {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -220px 110px;
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 9s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-drift-1 {
+  animation: drift-1 90s linear infinite;
+}
+
+.animate-drift-2 {
+  animation: drift-2 70s linear infinite;
+}
+
+.starfield-layer-1 {
+  background-image:
+    radial-gradient(1.5px 1.5px at 15% 25%, rgba(245, 245, 247, 0.9), transparent),
+    radial-gradient(1px 1px at 45% 10%, rgba(245, 245, 247, 0.6), transparent),
+    radial-gradient(1.5px 1.5px at 70% 55%, rgba(245, 245, 247, 0.8), transparent),
+    radial-gradient(1px 1px at 90% 20%, rgba(245, 245, 247, 0.5), transparent),
+    radial-gradient(1px 1px at 25% 75%, rgba(245, 245, 247, 0.6), transparent),
+    radial-gradient(1.5px 1.5px at 60% 85%, rgba(245, 245, 247, 0.7), transparent),
+    radial-gradient(1px 1px at 5% 55%, rgba(245, 245, 247, 0.4), transparent),
+    radial-gradient(1px 1px at 85% 80%, rgba(245, 245, 247, 0.5), transparent);
+  background-size: 340px 340px;
+  background-repeat: repeat;
+}
+
+.starfield-layer-2 {
+  background-image:
+    radial-gradient(1px 1px at 30% 40%, rgba(245, 245, 247, 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 65% 15%, rgba(245, 245, 247, 0.7), transparent),
+    radial-gradient(1px 1px at 10% 85%, rgba(245, 245, 247, 0.4), transparent),
+    radial-gradient(1px 1px at 80% 60%, rgba(245, 245, 247, 0.6), transparent),
+    radial-gradient(1.5px 1.5px at 50% 95%, rgba(245, 245, 247, 0.5), transparent);
+  background-size: 220px 220px;
+  background-repeat: repeat;
+}

@@ -36,6 +36,20 @@ yarn-error.log*
 # vercel
 .vercel
 
+# user-uploaded content (admin CMS uploads)
+/public/uploads
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# local SQLite database (SQLite is the default provider; MariaDB config lives outside git anyway)
+/prisma/dev.db
+/prisma/dev.db-journal
+/prisma/dev.db-wal
+/prisma/dev.db-shm
+
+# personal/local Claude Code settings (not meant to be shared)
+.claude/settings.local.json
