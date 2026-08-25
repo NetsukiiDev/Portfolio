@@ -97,6 +97,21 @@ export function DatabaseStep({
     setWaitingForRestart(false);
   }
 
+  function envTextFor(env: ManualEnv) {
+    return `DATABASE_URL="${env.DATABASE_URL}"\nJWT_SECRET="${env.JWT_SECRET}"`;
+  }
+
+  async function copyEnvToClipboard(env: ManualEnv) {
+    try {
+      await navigator.clipboard.writeText(envTextFor(env));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard access can be denied by the browser — the panel still shows
+      // the values so the user can select and copy them manually.
+    }
+  }
+
   async function handleContinue() {
     setIsCommitting(true);
     setCommitError(null);
@@ -112,7 +127,9 @@ export function DatabaseStep({
         return;
       }
       if (body.manualEnv) {
-        setManualEnv(body.manualEnv as ManualEnv);
+        const env = body.manualEnv as ManualEnv;
+        setManualEnv(env);
+        await copyEnvToClipboard(env);
       } else if (body.restartRequired) {
         setWaitingForRestart(true);
         await pollUntilReady();
@@ -128,10 +145,7 @@ export function DatabaseStep({
 
   async function handleCopy() {
     if (!manualEnv) return;
-    const text = `DATABASE_URL="${manualEnv.DATABASE_URL}"\nJWT_SECRET="${manualEnv.JWT_SECRET}"`;
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    await copyEnvToClipboard(manualEnv);
   }
 
   if (alreadyConfigured) {
@@ -152,23 +166,24 @@ export function DatabaseStep({
   }
 
   if (manualEnv) {
-    const envText = `DATABASE_URL="${manualEnv.DATABASE_URL}"\nJWT_SECRET="${manualEnv.JWT_SECRET}"`;
     return (
       <Card className="w-full max-w-lg p-6 sm:p-8">
         <h1 className="text-xl font-medium tracking-tight text-foreground">Database</h1>
         <div className="mt-6 flex items-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.06] p-4">
           <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" />
-          <p className="text-sm text-muted-foreground">Connessione verificata.</p>
+          <p className="text-sm text-muted-foreground">
+            {copied ? "Connessione verificata, dati copiati negli appunti." : "Connessione verificata."}
+          </p>
         </div>
 
         <p className="mt-6 text-sm text-muted-foreground">
-          Vercel non può salvare questi valori da solo. Copiali e incollali in{" "}
+          Vercel non può salvare questi valori da solo. Incollali in{" "}
           <span className="text-foreground">Project Settings → Environment Variables</span> sul tuo progetto
           Vercel, poi fai il redeploy.
         </p>
 
         <pre className="mt-4 overflow-x-auto rounded-2xl border border-border bg-surface-wash p-4 text-xs text-foreground">
-          {envText}
+          {envTextFor(manualEnv)}
         </pre>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
