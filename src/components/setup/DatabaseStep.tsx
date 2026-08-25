@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Database, Server, CheckCircle2, Copy, Check, Download } from "lucide-react";
+import { Database, Server, CheckCircle2, Copy, Check, Download, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -42,8 +42,9 @@ export function DatabaseStep({
   const [isCommitting, setIsCommitting] = useState(false);
   const [commitError, setCommitError] = useState<string | null>(null);
   const [waitingForRestart, setWaitingForRestart] = useState(false);
-  const [manualEnv, setManualEnv] = useState<ManualEnv | null>(null);
   const [copied, setCopied] = useState(false);
+  const [realCheckState, setRealCheckState] = useState<"idle" | "checking" | "ok" | "error">("idle");
+  const [realCheckError, setRealCheckError] = useState<string | null>(null);
 
   function buildPayload() {
     if (dbType === "sqlite") return { type: "sqlite" as const };
@@ -107,8 +108,9 @@ export function DatabaseStep({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Clipboard access can be denied by the browser — the panel still shows
-      // the values so the user can select and copy them manually.
+      // Clipboard access can be denied by the browser — nothing else to fall
+      // back to here since there's no on-screen text to select manually
+      // (use "Scarica .env" instead).
     }
   }
 
@@ -126,11 +128,7 @@ export function DatabaseStep({
         setCommitError(body.error ?? "Configurazione non riuscita");
         return;
       }
-      if (body.manualEnv) {
-        const env = body.manualEnv as ManualEnv;
-        setManualEnv(env);
-        await copyEnvToClipboard(env);
-      } else if (body.restartRequired) {
+      if (body.restartRequired) {
         setWaitingForRestart(true);
         await pollUntilReady();
       } else {
@@ -147,7 +145,7 @@ export function DatabaseStep({
   // test succeeding from here — this server's network path (or the target
   // database's firewall) may differ from the one the real deploy uses once
   // DATABASE_URL is actually set. The user fills the form, grabs the values,
-  // pastes them into Vercel, redeploys, and finds out there.
+  // pastes them into Vercel, redeploys, and verifies on the right instead.
   async function generateManualEnv(): Promise<ManualEnv | null> {
     setCommitError(null);
     try {
@@ -184,10 +182,7 @@ export function DatabaseStep({
     setIsCommitting(true);
     try {
       const env = await generateManualEnv();
-      if (env) {
-        setManualEnv(env);
-        await copyEnvToClipboard(env);
-      }
+      if (env) await copyEnvToClipboard(env);
     } finally {
       setIsCommitting(false);
     }
@@ -197,18 +192,35 @@ export function DatabaseStep({
     setIsCommitting(true);
     try {
       const env = await generateManualEnv();
-      if (env) {
-        setManualEnv(env);
-        downloadEnvFile(env);
-      }
+      if (env) downloadEnvFile(env);
     } finally {
       setIsCommitting(false);
     }
   }
 
-  async function handleCopy() {
-    if (!manualEnv) return;
-    await copyEnvToClipboard(manualEnv);
+  // Checks whether the *real* deployment is now working — i.e. whether the
+  // values were pasted into Vercel's dashboard and a redeploy picked them up
+  // — as opposed to the form fields, which is all handleTest() can see.
+  async function handleRealCheck() {
+    if (realCheckState === "ok") {
+      onComplete();
+      return;
+    }
+    setRealCheckState("checking");
+    setRealCheckError(null);
+    try {
+      const res = await fetch("/api/setup/status");
+      const body = await res.json();
+      if (body.step && body.step !== "database") {
+        setRealCheckState("ok");
+      } else {
+        setRealCheckState("error");
+        setRealCheckError("Non ancora raggiungibile. Hai incollato i valori su Vercel e rifatto il deploy?");
+      }
+    } catch {
+      setRealCheckState("error");
+      setRealCheckError("Non ancora raggiungibile. Hai incollato i valori su Vercel e rifatto il deploy?");
+    }
   }
 
   if (alreadyConfigured) {
@@ -228,45 +240,113 @@ export function DatabaseStep({
     );
   }
 
-  if (manualEnv) {
-    return (
-      <Card className="w-full max-w-lg p-6 sm:p-8">
-        <h1 className="text-xl font-medium tracking-tight text-foreground">Database</h1>
-        <div className="mt-6 flex items-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.06] p-4">
-          <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" />
-          <p className="text-sm text-muted-foreground">Dati generati.</p>
+  if (isVercel) {
+    const mysqlFields = (
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Input
+            placeholder="Host"
+            value={mysql.host}
+            onChange={(e) => setMysql({ ...mysql, host: e.target.value })}
+          />
+          <Input
+            placeholder="Porta"
+            value={mysql.port}
+            onChange={(e) => setMysql({ ...mysql, port: e.target.value })}
+          />
         </div>
+        <Input
+          placeholder="Nome database"
+          value={mysql.database}
+          onChange={(e) => setMysql({ ...mysql, database: e.target.value })}
+        />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Input
+            placeholder="Utente"
+            value={mysql.user}
+            onChange={(e) => setMysql({ ...mysql, user: e.target.value })}
+          />
+          <Input
+            type="password"
+            placeholder="Password"
+            value={mysql.password}
+            onChange={(e) => setMysql({ ...mysql, password: e.target.value })}
+          />
+        </div>
+      </div>
+    );
 
-        <p className="mt-6 text-sm text-muted-foreground">
-          Vercel non può salvare questi valori da solo. Incollali (o importa il file scaricato) in{" "}
-          <span className="text-foreground">Project Settings → Environment Variables</span> sul tuo progetto
-          Vercel, poi fai il redeploy.
+    return (
+      <Card className="w-full max-w-3xl p-6 sm:p-8">
+        <h1 className="text-xl font-medium tracking-tight text-foreground">Database</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Vercel richiede un database MySQL/MariaDB esterno raggiungibile in rete.
         </p>
 
-        <pre className="mt-4 overflow-x-auto rounded-2xl border border-border bg-surface-wash p-4 text-xs text-foreground">
-          {envTextFor(manualEnv)}
-        </pre>
+        <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div>
+            <h2 className="text-sm font-medium text-foreground">1. Genera i valori</h2>
+            <div className="mt-4">{mysqlFields}</div>
 
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <Button type="button" variant="secondary" onClick={handleCopy} className="sm:flex-1">
-            {copied ? (
-              <>
-                <Check className="h-4 w-4" /> Copiato
-              </>
-            ) : (
-              <>
-                <Copy className="h-4 w-4" /> Copia
-              </>
-            )}
-          </Button>
-          <Button type="button" variant="secondary" onClick={() => downloadEnvFile(manualEnv)} className="sm:flex-1">
-            <Download className="h-4 w-4" /> Scarica
-          </Button>
-        </div>
-        <div className="mt-3">
-          <Button type="button" onClick={onComplete} className="w-full">
-            Ricontrolla dopo il redeploy
-          </Button>
+            {commitError && <p className="mt-4 text-sm text-red-400">{commitError}</p>}
+
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+              <Button type="button" onClick={handleCopyEnv} disabled={isCommitting} className="sm:flex-1">
+                {isCommitting ? (
+                  "Generazione…"
+                ) : copied ? (
+                  <>
+                    <Check className="h-4 w-4" /> Copiato
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4" /> Copia .env
+                  </>
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleDownloadEnv}
+                disabled={isCommitting}
+                className="sm:flex-1"
+              >
+                {isCommitting ? "Generazione…" : <><Download className="h-4 w-4" /> Scarica .env</>}
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex flex-col rounded-2xl border border-border bg-surface-wash p-5">
+            <h2 className="text-sm font-medium text-foreground">2. Verifica</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Incolla i valori in{" "}
+              <span className="text-foreground">Project Settings → Environment Variables</span> sul tuo
+              progetto Vercel (o importa il file scaricato), poi fai il redeploy. Quando è pronto, verifica qui.
+            </p>
+
+            <div className="mt-auto pt-4">
+              {realCheckState === "error" && <p className="mb-3 text-sm text-red-400">{realCheckError}</p>}
+              {realCheckState === "ok" && (
+                <p className="mb-3 text-sm text-emerald-400">Connessione riuscita.</p>
+              )}
+              <Button
+                type="button"
+                onClick={handleRealCheck}
+                disabled={realCheckState === "checking"}
+                className="w-full"
+              >
+                {realCheckState === "checking" ? (
+                  "Verifica…"
+                ) : realCheckState === "ok" ? (
+                  <>
+                    Avanti <ArrowRight className="h-4 w-4" />
+                  </>
+                ) : (
+                  "Verifica connessione"
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
       </Card>
     );
@@ -275,46 +355,40 @@ export function DatabaseStep({
   return (
     <Card className="w-full max-w-lg p-6 sm:p-8">
       <h1 className="text-xl font-medium tracking-tight text-foreground">Database</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        {isVercel
-          ? "Vercel richiede un database MySQL/MariaDB esterno raggiungibile in rete."
-          : "Scegli dove verranno salvati i contenuti del sito."}
-      </p>
+      <p className="mt-1 text-sm text-muted-foreground">Scegli dove verranno salvati i contenuti del sito.</p>
 
-      {!isVercel && (
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              setDbType("sqlite");
-              setTestState("idle");
-            }}
-            className={cn(
-              "flex flex-col items-center gap-2 rounded-2xl border p-4 text-sm transition-colors",
-              dbType === "sqlite" ? "border-accent bg-surface-wash text-foreground" : "border-border text-muted-foreground hover:bg-surface-wash",
-            )}
-          >
-            <Database className="h-5 w-5" />
-            SQLite
-            <span className="text-xs text-muted-foreground">Consigliato, nessun setup</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setDbType("mysql");
-              setTestState("idle");
-            }}
-            className={cn(
-              "flex flex-col items-center gap-2 rounded-2xl border p-4 text-sm transition-colors",
-              dbType === "mysql" ? "border-accent bg-surface-wash text-foreground" : "border-border text-muted-foreground hover:bg-surface-wash",
-            )}
-          >
-            <Server className="h-5 w-5" />
-            MySQL / MariaDB
-            <span className="text-xs text-muted-foreground">Server esterno</span>
-          </button>
-        </div>
-      )}
+      <div className="mt-6 grid grid-cols-2 gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            setDbType("sqlite");
+            setTestState("idle");
+          }}
+          className={cn(
+            "flex flex-col items-center gap-2 rounded-2xl border p-4 text-sm transition-colors",
+            dbType === "sqlite" ? "border-accent bg-surface-wash text-foreground" : "border-border text-muted-foreground hover:bg-surface-wash",
+          )}
+        >
+          <Database className="h-5 w-5" />
+          SQLite
+          <span className="text-xs text-muted-foreground">Consigliato, nessun setup</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setDbType("mysql");
+            setTestState("idle");
+          }}
+          className={cn(
+            "flex flex-col items-center gap-2 rounded-2xl border p-4 text-sm transition-colors",
+            dbType === "mysql" ? "border-accent bg-surface-wash text-foreground" : "border-border text-muted-foreground hover:bg-surface-wash",
+          )}
+        >
+          <Server className="h-5 w-5" />
+          MySQL / MariaDB
+          <span className="text-xs text-muted-foreground">Server esterno</span>
+        </button>
+      </div>
 
       {dbType === "mysql" && (
         <div className="mt-6 space-y-4">
@@ -358,47 +432,25 @@ export function DatabaseStep({
         <p className="mt-4 text-sm text-muted-foreground">Il server si sta riavviando per applicare la nuova configurazione…</p>
       )}
 
-      {isVercel ? (
-        <div className="mt-6 space-y-3">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={handleTest}
-            disabled={testState === "testing"}
-            className="w-full"
-          >
-            {testState === "testing" ? "Verifica…" : "Verifica connessione (opzionale)"}
-          </Button>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button type="button" onClick={handleCopyEnv} disabled={isCommitting} className="sm:flex-1">
-              {isCommitting ? "Generazione…" : <><Copy className="h-4 w-4" /> Copia .env</>}
-            </Button>
-            <Button type="button" onClick={handleDownloadEnv} disabled={isCommitting} className="sm:flex-1">
-              {isCommitting ? "Generazione…" : <><Download className="h-4 w-4" /> Scarica .env</>}
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={handleTest}
-            disabled={testState === "testing"}
-            className="sm:flex-1"
-          >
-            {testState === "testing" ? "Verifica…" : "Verifica connessione"}
-          </Button>
-          <Button
-            type="button"
-            onClick={handleContinue}
-            disabled={isCommitting || waitingForRestart}
-            className="sm:flex-1"
-          >
-            {isCommitting ? "Configurazione…" : "Continua"}
-          </Button>
-        </div>
-      )}
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={handleTest}
+          disabled={testState === "testing"}
+          className="sm:flex-1"
+        >
+          {testState === "testing" ? "Verifica…" : "Verifica connessione"}
+        </Button>
+        <Button
+          type="button"
+          onClick={handleContinue}
+          disabled={isCommitting || waitingForRestart}
+          className="sm:flex-1"
+        >
+          {isCommitting ? "Configurazione…" : "Continua"}
+        </Button>
+      </div>
     </Card>
   );
 }
