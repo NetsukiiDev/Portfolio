@@ -288,9 +288,23 @@ export function DatabaseStep({
             <h2 className="text-sm font-medium text-foreground">1. Genera i valori</h2>
             <div className="mt-4">{mysqlFields}</div>
 
+            {testState === "ok" && <p className="mt-4 text-sm text-emerald-400">Connessione riuscita.</p>}
+            {testState === "error" && <p className="mt-4 text-sm text-red-400">{testError}</p>}
             {commitError && <p className="mt-4 text-sm text-red-400">{commitError}</p>}
 
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-4">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleTest}
+                disabled={testState === "testing"}
+                className="w-full"
+              >
+                {testState === "testing" ? "Verifica…" : "Test di connessione"}
+              </Button>
+            </div>
+
+            <div className="mt-3 flex flex-col gap-3 sm:flex-row">
               <Button type="button" onClick={handleCopyEnv} disabled={isCommitting} className="sm:flex-1">
                 {isCommitting ? (
                   "Generazione…"
