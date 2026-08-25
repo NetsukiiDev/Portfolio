@@ -1,5 +1,6 @@
 import type { Locale } from "./index";
 import type { PaletteKey, ThemeMode } from "@/lib/theme";
+import type { StorageSettings } from "@/lib/storage/types";
 
 export interface Settings {
   site: {
@@ -9,6 +10,7 @@ export interface Settings {
     themePalette: PaletteKey;
     themeMode: ThemeMode;
   };
+  storage: StorageSettings;
   personal: {
     translations: Record<
       Locale,

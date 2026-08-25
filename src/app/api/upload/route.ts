@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { requireAuth } from "@/app/api/lib/auth-check";
+import { uploadFile } from "@/lib/storage";
 import { UPLOAD_FOLDERS, ALLOWED_UPLOAD_EXTENSIONS, MAX_UPLOAD_SIZE_BYTES } from "@/lib/constants";
 
 export async function POST(request: NextRequest) {
@@ -33,12 +33,8 @@ export async function POST(request: NextRequest) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  const uploadDir = path.join(process.cwd(), "public", "uploads", folder);
-  await mkdir(uploadDir, { recursive: true });
-
   const safeFilename = `${uuidv4()}${extension}`;
-  const filePath = path.join(uploadDir, safeFilename);
-  await writeFile(filePath, buffer);
+  const url = await uploadFile(buffer, folder, safeFilename, file.type || "application/octet-stream");
 
-  return NextResponse.json({ url: `/uploads/${folder}/${safeFilename}` });
+  return NextResponse.json({ url });
 }

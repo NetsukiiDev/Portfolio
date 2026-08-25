@@ -48,6 +48,21 @@ Switching the database after the app has been running for a while (`next start` 
 
 Log in at `/admin/login` with the username and password created during setup. From there you can manage every content type (projects, skills, experience, blog, AI gallery, settings) and your own account (`/admin/account` — profile and password).
 
+## Deploying to Vercel
+
+Vercel's runtime filesystem is read-only and ephemeral, so two things work differently there than on a self-hosted server:
+
+- **Database**: SQLite can't persist. The app detects it's running on Vercel (`process.env.VERCEL`) and the setup wizard hides the SQLite option, requiring MySQL/MariaDB instead — a free tier from PlanetScale, Railway, etc. works fine.
+- **File uploads**: the local `public/uploads` storage doesn't work either. Connect a **Vercel Blob** store from the project's Storage tab (zero extra config — the app picks up `BLOB_READ_WRITE_TOKEN` automatically) or configure **S3/MinIO** credentials from `/admin/settings` → Storage after your first login.
+
+Before the first deploy:
+
+1. In Project Settings → Environment Variables, set `DATABASE_URL` (a `mysql://` connection string) and `JWT_SECRET`.
+2. Deploy. The build runs `vercel-build` (see `package.json`), which forces the MySQL Prisma schema, generates the client, and runs `prisma db push` against `DATABASE_URL` — the database tables are ready by the time the deploy goes live.
+3. Visit the deployed site — you're sent to `/setup` for the Account and Site steps (the Database step is already satisfied).
+
+If you use S3 or a self-hosted MinIO with your own public domain (rather than the built-in `publicUrlBase` on a CDN Vercel already trusts), add that hostname to `images.remotePatterns` in `next.config.ts` so `next/image` is allowed to serve it.
+
 ## Scripts
 
 | Script | What it does |

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSetupStatus } from "@/lib/setup";
 import { testDatabaseConnection, isTargetDatabaseEmpty, provisionDatabase } from "@/lib/db-provision";
 import { dbSetupSchema } from "@/lib/setup-schema";
+import { isVercelRuntime } from "@/lib/platform";
 
 export async function POST(request: NextRequest) {
   const status = await getSetupStatus();
@@ -15,9 +16,20 @@ export async function POST(request: NextRequest) {
   }
   const input = parsed.data;
 
+  if (isVercelRuntime() && input.type === "sqlite") {
+    return NextResponse.json({ ok: false, error: "SQLite non è supportato su Vercel." }, { status: 400 });
+  }
+
   const connectionResult = await testDatabaseConnection(input);
   if (!connectionResult.ok) {
     return NextResponse.json(connectionResult, { status: 400 });
+  }
+
+  // On Vercel the filesystem is read-only and there's no CLI to shell out to at
+  // request time — the schema is already pushed to DATABASE_URL at build time
+  // (see the `vercel-build` script), so there's nothing left to provision here.
+  if (isVercelRuntime()) {
+    return NextResponse.json({ ok: true, restartRequired: false });
   }
 
   const empty = await isTargetDatabaseEmpty(input);

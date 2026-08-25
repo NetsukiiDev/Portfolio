@@ -11,6 +11,7 @@ import {
   DEFAULT_CONTACT_FORM,
   DEFAULT_MAINTENANCE,
 } from "@/lib/default-settings";
+import { DEFAULT_STORAGE_SETTINGS } from "@/lib/storage/types";
 import type { Prisma } from "@/generated/prisma/client";
 
 function toJson<T>(value: T): Prisma.InputJsonValue {
@@ -51,6 +52,7 @@ export async function POST(request: NextRequest) {
       seo: toJson(seo),
       contactForm: toJson(DEFAULT_CONTACT_FORM),
       maintenance: toJson(DEFAULT_MAINTENANCE),
+      storage: toJson(DEFAULT_STORAGE_SETTINGS),
       domain,
       https,
       defaultLocale,

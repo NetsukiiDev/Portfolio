@@ -11,6 +11,7 @@ import type { SetupStep } from "@/lib/setup";
 export default function SetupPage() {
   const [step, setStep] = useState<SetupStep | null>(null);
   const [manualStep, setManualStep] = useState<SetupStep | null>(null);
+  const [isVercel, setIsVercel] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -20,6 +21,7 @@ export default function SetupPage() {
       .then((body) => {
         if (!cancelled) {
           setStep(body.step as SetupStep);
+          setIsVercel(Boolean(body.isVercel));
           setManualStep(null);
         }
       });
@@ -48,6 +50,7 @@ export default function SetupPage() {
           onComplete={refreshStatus}
           alreadyConfigured={step !== "database"}
           onNext={() => setManualStep("account")}
+          isVercel={isVercel}
         />
       )}
       {displayedStep === "account" && (

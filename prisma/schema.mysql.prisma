@@ -99,6 +99,7 @@ model Settings {
   themeMode        String    @default("dark")
   domain           String    @default("")
   https            Boolean   @default(true)
+  storage          Json?
   setupCompletedAt DateTime?
 }
 

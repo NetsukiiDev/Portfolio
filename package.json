@@ -11,13 +11,16 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:use:sqlite": "node -e \"require('fs').copyFileSync('prisma/schema.sqlite.prisma','prisma/schema.prisma')\"",
-    "db:use:mysql": "node -e \"require('fs').copyFileSync('prisma/schema.mysql.prisma','prisma/schema.prisma')\""
+    "db:use:mysql": "node -e \"require('fs').copyFileSync('prisma/schema.mysql.prisma','prisma/schema.prisma')\"",
+    "vercel-build": "npm run db:use:mysql && prisma generate && prisma db push --accept-data-loss && next build"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1117.0",
     "@hookform/resolvers": "^5.4.0",
     "@prisma/adapter-better-sqlite3": "^7.9.1",
     "@prisma/adapter-mariadb": "^7.9.1",
     "@prisma/client": "^7.9.1",
+    "@vercel/blob": "^2.8.0",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^13.0.3",
     "clsx": "^2.1.1",

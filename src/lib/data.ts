@@ -1,6 +1,8 @@
 import { cache } from "react";
 import { prisma } from "./prisma";
 import { isPaletteKey, isThemeMode } from "./theme";
+import { DEFAULT_STORAGE_SETTINGS } from "./storage/types";
+import type { StorageSettings } from "./storage/types";
 import type { Prisma } from "@/generated/prisma/client";
 import type {
   Project,
@@ -432,6 +434,16 @@ export async function deleteAiImage(id: string): Promise<void> {
 
 const SETTINGS_ID = "singleton";
 
+function mergeStorageSettings(stored: unknown): StorageSettings {
+  const value = (stored ?? {}) as Partial<StorageSettings>;
+  return {
+    ...DEFAULT_STORAGE_SETTINGS,
+    ...value,
+    s3: { ...DEFAULT_STORAGE_SETTINGS.s3, ...value.s3 },
+    vercelBlob: { ...DEFAULT_STORAGE_SETTINGS.vercelBlob, ...value.vercelBlob },
+  };
+}
+
 export const getSettings = cache(async (): Promise<Settings> => {
   const row = await prisma.settings.findUniqueOrThrow({ where: { id: SETTINGS_ID } });
   return {
@@ -442,6 +454,7 @@ export const getSettings = cache(async (): Promise<Settings> => {
       themePalette: isPaletteKey(row.themePalette) ? row.themePalette : "violet",
       themeMode: isThemeMode(row.themeMode) ? row.themeMode : "dark",
     },
+    storage: mergeStorageSettings(row.storage),
     personal: row.personal as Settings["personal"],
     social: row.social as Settings["social"],
     seo: row.seo as Settings["seo"],
@@ -459,6 +472,7 @@ export async function saveSettings(data: Settings): Promise<void> {
       https: data.site.https,
       themePalette: data.site.themePalette,
       themeMode: data.site.themeMode,
+      storage: toJson(data.storage),
       personal: toJson(data.personal),
       social: toJson(data.social),
       seo: toJson({

@@ -15,10 +15,17 @@ import { useToast } from "@/context/ToastContext";
 import { cn } from "@/lib/cn";
 import { PALETTES, PALETTE_KEYS, type PaletteKey, type ThemeMode } from "@/lib/theme";
 import { LOCALES } from "@/lib/constants";
+import type { StorageProviderKey } from "@/lib/storage/types";
 import type { Settings, Locale } from "@/types";
 
 const LOCALE_LABELS: Record<Locale, string> = { en: "English", it: "Italiano" };
 const LOCALE_OPTIONS = LOCALES.map((locale) => ({ value: locale, label: LOCALE_LABELS[locale] }));
+
+const STORAGE_PROVIDER_OPTIONS: { value: StorageProviderKey; label: string }[] = [
+  { value: "local", label: "Locale (disco del server)" },
+  { value: "vercel-blob", label: "Vercel Blob" },
+  { value: "s3", label: "S3 o MinIO" },
+];
 
 const RESET_TARGETS: { type: string; label: string; description: string }[] = [
   { type: "projects", label: "Reimposta progetti", description: "Elimina tutti i progetti e le relative immagini caricate." },
@@ -71,6 +78,15 @@ interface SettingsFormValues {
   maintenanceEnabled: boolean;
   maintenanceMessageEn: string;
   maintenanceMessageIt: string;
+  storageProvider: StorageProviderKey;
+  s3Endpoint: string;
+  s3Region: string;
+  s3Bucket: string;
+  s3AccessKeyId: string;
+  s3SecretAccessKey: string;
+  s3ForcePathStyle: boolean;
+  s3PublicUrlBase: string;
+  vercelBlobToken: string;
 }
 
 function toFormValues(settings: Settings): SettingsFormValues {
@@ -108,6 +124,15 @@ function toFormValues(settings: Settings): SettingsFormValues {
     maintenanceEnabled: settings.maintenance.enabled,
     maintenanceMessageEn: settings.maintenance.translations.en.message,
     maintenanceMessageIt: settings.maintenance.translations.it.message,
+    storageProvider: settings.storage.provider,
+    s3Endpoint: settings.storage.s3.endpoint,
+    s3Region: settings.storage.s3.region,
+    s3Bucket: settings.storage.s3.bucket,
+    s3AccessKeyId: settings.storage.s3.accessKeyId,
+    s3SecretAccessKey: settings.storage.s3.secretAccessKey,
+    s3ForcePathStyle: settings.storage.s3.forcePathStyle,
+    s3PublicUrlBase: settings.storage.s3.publicUrlBase,
+    vercelBlobToken: settings.storage.vercelBlob.token,
   };
 }
 
@@ -121,6 +146,7 @@ export function SettingsForm({ settings }: { settings: Settings }) {
 
   const avatar = watch("avatar");
   const ogImage = watch("ogImage");
+  const storageProvider = watch("storageProvider");
 
   async function onSubmit(values: SettingsFormValues) {
     setIsSubmitting(true);
@@ -178,6 +204,21 @@ export function SettingsForm({ settings }: { settings: Settings }) {
           it: { message: values.maintenanceMessageIt },
         },
       },
+      storage: {
+        provider: values.storageProvider,
+        s3: {
+          endpoint: values.s3Endpoint,
+          region: values.s3Region,
+          bucket: values.s3Bucket,
+          accessKeyId: values.s3AccessKeyId,
+          secretAccessKey: values.s3SecretAccessKey,
+          forcePathStyle: values.s3ForcePathStyle,
+          publicUrlBase: values.s3PublicUrlBase,
+        },
+        vercelBlob: {
+          token: values.vercelBlobToken,
+        },
+      },
     };
 
     try {
@@ -203,6 +244,7 @@ export function SettingsForm({ settings }: { settings: Settings }) {
           <TabsTrigger value="social">Social</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
           <TabsTrigger value="site">Site</TabsTrigger>
+          <TabsTrigger value="storage">Storage</TabsTrigger>
           <TabsTrigger value="reset">Reset</TabsTrigger>
         </TabsList>
 
@@ -371,6 +413,65 @@ export function SettingsForm({ settings }: { settings: Settings }) {
               <Input {...register("maintenanceMessageEn")} placeholder="Maintenance message (English)" />
               <Input {...register("maintenanceMessageIt")} placeholder="Maintenance message (Italiano)" />
             </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="storage">
+          <div className="space-y-6">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-foreground">Provider</label>
+              <Controller
+                control={control}
+                name="storageProvider"
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onChange={(value) => field.onChange(value as StorageProviderKey)}
+                    options={STORAGE_PROVIDER_OPTIONS}
+                    className="max-w-xs"
+                  />
+                )}
+              />
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Dove vengono salvate le immagini caricate (avatar, copertine, galleria AI). &quot;Locale&quot;
+                funziona solo su hosting con disco persistente — non su Vercel.
+              </p>
+            </div>
+
+            {storageProvider === "vercel-blob" && (
+              <div>
+                <Input {...register("vercelBlobToken")} type="password" placeholder="BLOB_READ_WRITE_TOKEN" />
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  Lascia vuoto per usare automaticamente il token di uno Store Blob collegato al progetto Vercel.
+                </p>
+              </div>
+            )}
+
+            {storageProvider === "s3" && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <Input {...register("s3Endpoint")} placeholder="Endpoint (vuoto = AWS S3, oppure URL MinIO)" />
+                  <Input {...register("s3Region")} placeholder="Region" />
+                </div>
+                <Input {...register("s3Bucket")} placeholder="Bucket" />
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <Input {...register("s3AccessKeyId")} placeholder="Access key ID" />
+                  <Input {...register("s3SecretAccessKey")} type="password" placeholder="Secret access key" />
+                </div>
+                <Input {...register("s3PublicUrlBase")} placeholder="URL pubblico personalizzato (opzionale)" />
+                <Controller
+                  control={control}
+                  name="s3ForcePathStyle"
+                  render={({ field }) => (
+                    <Toggle
+                      checked={field.value}
+                      onChange={field.onChange}
+                      label="Path-style URLs (richiesto per MinIO)"
+                    />
+                  )}
+                />
+              </div>
+            )}
           </div>
         </TabsContent>
 

@@ -23,12 +23,14 @@ export function DatabaseStep({
   onComplete,
   alreadyConfigured = false,
   onNext,
+  isVercel = false,
 }: {
   onComplete: () => void;
   alreadyConfigured?: boolean;
   onNext?: () => void;
+  isVercel?: boolean;
 }) {
-  const [dbType, setDbType] = useState<DbType>("sqlite");
+  const [dbType, setDbType] = useState<DbType>(isVercel ? "mysql" : "sqlite");
   const [mysql, setMysql] = useState<MysqlFields>(EMPTY_MYSQL);
   const [testState, setTestState] = useState<"idle" | "testing" | "ok" | "error">("idle");
   const [testError, setTestError] = useState<string | null>(null);
@@ -135,40 +137,46 @@ export function DatabaseStep({
   return (
     <Card className="w-full max-w-lg p-6 sm:p-8">
       <h1 className="text-xl font-medium tracking-tight text-foreground">Database</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Scegli dove verranno salvati i contenuti del sito.</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {isVercel
+          ? "Vercel richiede un database MySQL/MariaDB esterno raggiungibile in rete."
+          : "Scegli dove verranno salvati i contenuti del sito."}
+      </p>
 
-      <div className="mt-6 grid grid-cols-2 gap-3">
-        <button
-          type="button"
-          onClick={() => {
-            setDbType("sqlite");
-            setTestState("idle");
-          }}
-          className={cn(
-            "flex flex-col items-center gap-2 rounded-2xl border p-4 text-sm transition-colors",
-            dbType === "sqlite" ? "border-accent bg-surface-wash text-foreground" : "border-border text-muted-foreground hover:bg-surface-wash",
-          )}
-        >
-          <Database className="h-5 w-5" />
-          SQLite
-          <span className="text-xs text-muted-foreground">Consigliato, nessun setup</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setDbType("mysql");
-            setTestState("idle");
-          }}
-          className={cn(
-            "flex flex-col items-center gap-2 rounded-2xl border p-4 text-sm transition-colors",
-            dbType === "mysql" ? "border-accent bg-surface-wash text-foreground" : "border-border text-muted-foreground hover:bg-surface-wash",
-          )}
-        >
-          <Server className="h-5 w-5" />
-          MySQL / MariaDB
-          <span className="text-xs text-muted-foreground">Server esterno</span>
-        </button>
-      </div>
+      {!isVercel && (
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setDbType("sqlite");
+              setTestState("idle");
+            }}
+            className={cn(
+              "flex flex-col items-center gap-2 rounded-2xl border p-4 text-sm transition-colors",
+              dbType === "sqlite" ? "border-accent bg-surface-wash text-foreground" : "border-border text-muted-foreground hover:bg-surface-wash",
+            )}
+          >
+            <Database className="h-5 w-5" />
+            SQLite
+            <span className="text-xs text-muted-foreground">Consigliato, nessun setup</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setDbType("mysql");
+              setTestState("idle");
+            }}
+            className={cn(
+              "flex flex-col items-center gap-2 rounded-2xl border p-4 text-sm transition-colors",
+              dbType === "mysql" ? "border-accent bg-surface-wash text-foreground" : "border-border text-muted-foreground hover:bg-surface-wash",
+            )}
+          >
+            <Server className="h-5 w-5" />
+            MySQL / MariaDB
+            <span className="text-xs text-muted-foreground">Server esterno</span>
+          </button>
+        </div>
+      )}
 
       {dbType === "mysql" && (
         <div className="mt-6 space-y-4">

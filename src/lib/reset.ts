@@ -1,6 +1,5 @@
-import { rm } from "fs/promises";
-import path from "path";
 import { prisma } from "./prisma";
+import { deleteStorageFolder } from "./storage";
 
 export type ResetContentType = "projects" | "blog" | "skills" | "experience" | "ai-gallery";
 
@@ -14,9 +13,14 @@ const UPLOAD_FOLDER_BY_TYPE: Record<ResetContentType, string | null> = {
   "ai-gallery": "ai-gallery",
 };
 
-async function clearUploadFolder(folder: string): Promise<void> {
-  const dir = path.join(process.cwd(), "public", "uploads", folder);
-  await rm(dir, { recursive: true, force: true });
+// Best-effort: a misconfigured/unreachable external storage provider shouldn't
+// block clearing the database rows the admin actually asked to reset.
+async function tryDeleteStorageFolder(folder: string): Promise<void> {
+  try {
+    await deleteStorageFolder(folder);
+  } catch (error) {
+    console.error(`Failed to delete storage folder "${folder}":`, error);
+  }
 }
 
 export async function resetContent(type: ResetContentType): Promise<void> {
@@ -40,10 +44,16 @@ export async function resetContent(type: ResetContentType): Promise<void> {
   }
 
   const folder = UPLOAD_FOLDER_BY_TYPE[type];
-  if (folder) await clearUploadFolder(folder);
+  if (folder) await tryDeleteStorageFolder(folder);
 }
 
 export async function resetSite(): Promise<void> {
+  // Clear uploaded files first — deleteStorageFolder needs the Settings row
+  // (for the active storage provider) to still exist to read its config.
+  await Promise.all(
+    ["projects", "blog", "ai-gallery", "experience", "settings"].map((folder) => tryDeleteStorageFolder(folder)),
+  );
+
   await prisma.contactMessage.deleteMany({});
   await prisma.aiImage.deleteMany({});
   await prisma.experience.deleteMany({});
@@ -53,8 +63,4 @@ export async function resetSite(): Promise<void> {
   await prisma.project.deleteMany({});
   await prisma.settings.deleteMany({});
   await prisma.adminAccount.deleteMany({});
-
-  await Promise.all(
-    ["projects", "blog", "ai-gallery", "experience", "settings"].map((folder) => clearUploadFolder(folder)),
-  );
 }
