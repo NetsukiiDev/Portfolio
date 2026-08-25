@@ -33,22 +33,15 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const method = request.method;
 
-  // `/api/setup/*` routes check `getSetupStatus()` themselves and return JSON
-  // either way — redirecting an API fetch here would be meaningless, and
-  // calling it again in this gate would just double the wait when the
-  // database is unreachable (each call pays its own connection timeout).
-  const isApiSetupRoute = pathname.startsWith("/api/setup");
+  const isSetupRoute = pathname === "/setup" || pathname.startsWith("/api/setup");
+  const setupStatus = await getSetupStatus();
 
-  if (!isApiSetupRoute) {
-    const setupStatus = await getSetupStatus();
-
-    if (setupStatus !== "complete") {
-      if (pathname !== "/setup") {
-        return NextResponse.redirect(new URL("/setup", request.url));
-      }
-    } else if (pathname === "/setup") {
-      return NextResponse.redirect(new URL("/", request.url));
+  if (setupStatus !== "complete") {
+    if (!isSetupRoute) {
+      return NextResponse.redirect(new URL("/setup", request.url));
     }
+  } else if (pathname === "/setup") {
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   if (ADMIN_ROUTES.some((route) => pathname.startsWith(route))) {

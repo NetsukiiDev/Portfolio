@@ -23,7 +23,6 @@ const LOCALE_OPTIONS = LOCALES.map((locale) => ({ value: locale, label: LOCALE_L
 
 const STORAGE_PROVIDER_OPTIONS: { value: StorageProviderKey; label: string }[] = [
   { value: "local", label: "Locale (disco del server)" },
-  { value: "vercel-blob", label: "Vercel Blob" },
   { value: "s3", label: "S3 o MinIO" },
 ];
 
@@ -86,7 +85,6 @@ interface SettingsFormValues {
   s3SecretAccessKey: string;
   s3ForcePathStyle: boolean;
   s3PublicUrlBase: string;
-  vercelBlobToken: string;
 }
 
 function toFormValues(settings: Settings): SettingsFormValues {
@@ -132,7 +130,6 @@ function toFormValues(settings: Settings): SettingsFormValues {
     s3SecretAccessKey: settings.storage.s3.secretAccessKey,
     s3ForcePathStyle: settings.storage.s3.forcePathStyle,
     s3PublicUrlBase: settings.storage.s3.publicUrlBase,
-    vercelBlobToken: settings.storage.vercelBlob.token,
   };
 }
 
@@ -214,9 +211,6 @@ export function SettingsForm({ settings }: { settings: Settings }) {
           secretAccessKey: values.s3SecretAccessKey,
           forcePathStyle: values.s3ForcePathStyle,
           publicUrlBase: values.s3PublicUrlBase,
-        },
-        vercelBlob: {
-          token: values.vercelBlobToken,
         },
       },
     };
@@ -433,19 +427,9 @@ export function SettingsForm({ settings }: { settings: Settings }) {
                 )}
               />
               <p className="mt-1.5 text-xs text-muted-foreground">
-                Dove vengono salvate le immagini caricate (avatar, copertine, galleria AI). &quot;Locale&quot;
-                funziona solo su hosting con disco persistente — non su Vercel.
+                Dove vengono salvate le immagini caricate (avatar, copertine, galleria AI).
               </p>
             </div>
-
-            {storageProvider === "vercel-blob" && (
-              <div>
-                <Input {...register("vercelBlobToken")} type="password" placeholder="BLOB_READ_WRITE_TOKEN" />
-                <p className="mt-1.5 text-xs text-muted-foreground">
-                  Lascia vuoto per usare automaticamente il token di uno Store Blob collegato al progetto Vercel.
-                </p>
-              </div>
-            )}
 
             {storageProvider === "s3" && (
               <div className="space-y-4">

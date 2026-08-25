@@ -440,7 +440,6 @@ function mergeStorageSettings(stored: unknown): StorageSettings {
     ...DEFAULT_STORAGE_SETTINGS,
     ...value,
     s3: { ...DEFAULT_STORAGE_SETTINGS.s3, ...value.s3 },
-    vercelBlob: { ...DEFAULT_STORAGE_SETTINGS.vercelBlob, ...value.vercelBlob },
   };
 }
 

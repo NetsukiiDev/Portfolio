@@ -22,9 +22,6 @@ export async function PUT(request: NextRequest) {
   if (body.storage.s3.secretAccessKey === SECRET_MASK) {
     body.storage.s3.secretAccessKey = current.storage.s3.secretAccessKey;
   }
-  if (body.storage.vercelBlob.token === SECRET_MASK) {
-    body.storage.vercelBlob.token = current.storage.vercelBlob.token;
-  }
 
   await saveSettings(body);
 

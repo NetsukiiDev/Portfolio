@@ -1,7 +1,6 @@
 import { getSettings } from "@/lib/data";
 import { localStorage } from "./local";
 import { createS3Storage } from "./s3";
-import { createVercelBlobStorage } from "./vercel-blob";
 import type { StorageDriver } from "./types";
 
 async function getDriver(): Promise<StorageDriver> {
@@ -9,8 +8,6 @@ async function getDriver(): Promise<StorageDriver> {
   switch (storage.provider) {
     case "s3":
       return createS3Storage(storage.s3);
-    case "vercel-blob":
-      return createVercelBlobStorage(storage.vercelBlob);
     default:
       return localStorage;
   }

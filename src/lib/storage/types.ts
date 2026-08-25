@@ -1,4 +1,4 @@
-export type StorageProviderKey = "local" | "vercel-blob" | "s3";
+export type StorageProviderKey = "local" | "s3";
 
 export interface StorageSettings {
   provider: StorageProviderKey;
@@ -10,9 +10,6 @@ export interface StorageSettings {
     secretAccessKey: string;
     forcePathStyle: boolean;
     publicUrlBase: string;
-  };
-  vercelBlob: {
-    token: string;
   };
 }
 
@@ -27,9 +24,6 @@ export const DEFAULT_STORAGE_SETTINGS: StorageSettings = {
     forcePathStyle: false,
     publicUrlBase: "",
   },
-  vercelBlob: {
-    token: "",
-  },
 };
 
 export interface StorageDriver {
@@ -43,6 +37,5 @@ export function maskStorageSecrets(storage: StorageSettings): StorageSettings {
   return {
     ...storage,
     s3: { ...storage.s3, secretAccessKey: storage.s3.secretAccessKey ? SECRET_MASK : "" },
-    vercelBlob: { ...storage.vercelBlob, token: storage.vercelBlob.token ? SECRET_MASK : "" },
   };
 }

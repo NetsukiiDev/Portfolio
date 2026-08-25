@@ -48,24 +48,6 @@ Switching the database after the app has been running for a while (`next start` 
 
 Log in at `/admin/login` with the username and password created during setup. From there you can manage every content type (projects, skills, experience, blog, AI gallery, settings) and your own account (`/admin/account` — profile and password).
 
-## Deploying to Vercel
-
-Vercel's runtime filesystem is read-only and ephemeral, so two things work differently there than on a self-hosted server:
-
-- **Database**: SQLite can't persist. The app detects it's running on Vercel (`process.env.VERCEL`) and the setup wizard hides the SQLite option, requiring MySQL/MariaDB instead — a free tier from PlanetScale, Railway, etc. works fine.
-- **File uploads**: the local `public/uploads` storage doesn't work either. Connect a **Vercel Blob** store from the project's Storage tab (zero extra config — the app picks up `BLOB_READ_WRITE_TOKEN` automatically) or configure **S3/MinIO** credentials from `/admin/settings` → Storage after your first login.
-
-You don't need a database ready before the first deploy — the build always succeeds:
-
-1. Deploy the project as-is. `vercel-build` (see `package.json`) forces the MySQL Prisma schema and generates the client; if `DATABASE_URL` isn't set yet it skips `prisma db push` and logs a note instead of failing the build.
-2. Visit the deployed site — you're sent to `/setup`. Fill in the Database step with your MySQL/MariaDB connection details (PlanetScale, Railway, etc. all work) and click **Verifica connessione**.
-3. Once the connection succeeds, the wizard shows a `DATABASE_URL`/`JWT_SECRET` pair to copy — Vercel's serverless runtime can't save these itself. Paste them into Project Settings → Environment Variables, then redeploy so `vercel-build` can run `prisma db push` against the now-configured database.
-4. After the redeploy, `/setup` continues with the Account and Site steps.
-
-If you'd rather not wait for a redeploy each time, you can instead set `DATABASE_URL` and `JWT_SECRET` in Project Settings → Environment Variables *before* the first deploy — the Database step will then detect it's already configured and skip straight to Account.
-
-If you use S3 or a self-hosted MinIO with your own public domain (rather than the built-in `publicUrlBase` on a CDN Vercel already trusts), add that hostname to `images.remotePatterns` in `next.config.ts` so `next/image` is allowed to serve it.
-
 ## Scripts
 
 | Script | What it does |

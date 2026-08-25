@@ -16,10 +16,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Every page reads admin-editable content straight from the database, and on
-// Vercel that database may not even exist yet at build time (pre-setup). Both
-// rule out static generation: content must be fetched per-request, not baked
-// in once at build time.
+// Every page reads admin-editable content straight from the database, which
+// may not even be set up yet at build time (pre-/setup). Both rule out static
+// generation: content must be fetched per-request, not baked in once at build.
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
