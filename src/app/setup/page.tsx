@@ -59,6 +59,7 @@ export default function SetupPage() {
           onComplete={refreshStatus}
           alreadyConfigured={step !== "database"}
           onNext={() => setManualStep("account")}
+          onBack={() => setLang(null)}
           lang={lang}
         />
       )}
