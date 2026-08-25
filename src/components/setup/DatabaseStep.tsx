@@ -293,7 +293,7 @@ export function DatabaseStep({
           disabled={isCommitting || waitingForRestart}
           className="sm:flex-1"
         >
-          {isCommitting ? "Configurazione…" : "Continua"}
+          {isCommitting ? "Configurazione…" : isVercel ? "Copia dati .env" : "Continua"}
         </Button>
       </div>
     </Card>
