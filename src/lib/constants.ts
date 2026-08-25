@@ -3,7 +3,7 @@ import type { translations } from "./translations";
 
 type NavKey = keyof (typeof translations)["en"]["nav"];
 
-export const SITE_NAME = "Andrea Trupia";
+export const SITE_NAME = "Portfolio";
 export const DEFAULT_LOCALE: Locale = "en";
 export const LOCALES: Locale[] = ["en", "it"];
 

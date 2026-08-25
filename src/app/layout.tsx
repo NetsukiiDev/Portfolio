@@ -32,13 +32,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: {
-      default: `${SITE_NAME} — Portfolio`,
+      default: SITE_NAME,
       template: `%s — ${SITE_NAME}`,
     },
     description: "Full-Stack Developer Portfolio",
     metadataBase: new URL(siteUrl),
     openGraph: {
-      title: `${SITE_NAME} — Portfolio`,
+      title: SITE_NAME,
       description: "Full-Stack Developer Portfolio",
       type: "website",
       url: siteUrl,
