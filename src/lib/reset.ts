@@ -1,3 +1,5 @@
+import { unlink } from "fs/promises";
+import path from "path";
 import { prisma } from "./prisma";
 import { deleteStorageFolder } from "./storage";
 import { runPrismaCommand } from "./db-provision";
@@ -65,17 +67,30 @@ export async function resetSite(): Promise<void> {
   await prisma.settings.deleteMany({});
   await prisma.adminAccount.deleteMany({});
 
-  // Drop and recreate every table from the current schema, not just their
-  // rows — a full site reset should leave no trace of the previous schema
-  // state either. Data is already cleared above, so this can't lose rows
-  // that matter even if it fails partway through.
+  // Wipe the schema itself, not just rows — a full site reset should send
+  // the setup wizard all the way back to the Database step, not straight to
+  // Account. Data is already cleared above, so neither path below can lose
+  // rows that matter even if it fails partway through.
   //
-  // For SQLite, this process's own connection must be closed first: the
-  // `prisma db push` subprocess below needs an exclusive lock on the same
-  // database file, and execFileSync blocks this process while waiting for
-  // it — holding the connection open here would deadlock the two against
-  // each other. Prisma reconnects lazily on the next query either way.
+  // This process's own connection must be closed first: SQLite needs the
+  // file handle released before it can be deleted, and the `prisma db push`
+  // subprocess for MySQL needs an exclusive lock that this same process
+  // would otherwise be holding (execFileSync blocks the event loop while
+  // waiting on the subprocess — holding the connection open here would
+  // deadlock the two against each other). Prisma reconnects lazily on the
+  // next query either way.
   await prisma.$disconnect();
   const databaseUrl = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
-  runPrismaCommand(["db", "push", "--force-reset", "--accept-data-loss"], databaseUrl);
+
+  if (databaseUrl.startsWith("mysql://")) {
+    // No filesystem-level "database" to delete on a network server — drop
+    // and recreate every table instead, leaving an empty but present schema.
+    runPrismaCommand(["db", "push", "--force-reset", "--accept-data-loss"], databaseUrl);
+  } else {
+    // Delete the database file outright: the next connection attempt then
+    // hits a missing table (not just an empty one), which is what actually
+    // sends getSetupStatus() back to "database" instead of "account".
+    const filePath = path.resolve(process.cwd(), databaseUrl.replace(/^file:/, ""));
+    await unlink(filePath).catch(() => {});
+  }
 }
