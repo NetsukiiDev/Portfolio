@@ -40,7 +40,6 @@ export function DatabaseStep({
   const [testError, setTestError] = useState<string | null>(null);
   const [isCommitting, setIsCommitting] = useState(false);
   const [commitError, setCommitError] = useState<string | null>(null);
-  const [waitingForRestart, setWaitingForRestart] = useState(false);
 
   function buildPayload() {
     if (dbType === "sqlite") return { type: "sqlite" as const };
@@ -86,24 +85,6 @@ export function DatabaseStep({
     }
   }
 
-  async function pollUntilReady() {
-    for (let attempt = 0; attempt < 30; attempt++) {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      try {
-        const res = await fetch("/api/setup/status");
-        const body = await res.json();
-        if (body.step && body.step !== "database") {
-          onComplete();
-          return;
-        }
-      } catch {
-        // server is restarting — keep polling
-      }
-    }
-    setCommitError(t.restartTimeout);
-    setWaitingForRestart(false);
-  }
-
   async function handleContinue() {
     setIsCommitting(true);
     setCommitError(null);
@@ -120,12 +101,7 @@ export function DatabaseStep({
         setCommitError(describeError(body));
         return;
       }
-      if (body.restartRequired) {
-        setWaitingForRestart(true);
-        await pollUntilReady();
-      } else {
-        onComplete();
-      }
+      onComplete();
     } catch {
       setCommitError(t.genericError);
     } finally {
@@ -249,7 +225,6 @@ export function DatabaseStep({
       {testState === "ok" && <p className="mt-4 text-sm text-emerald-400">{t.connectionOk}</p>}
       {testState === "error" && <p className="mt-4 text-sm text-red-400">{testError}</p>}
       {commitError && <p className="mt-4 text-sm text-red-400">{commitError}</p>}
-      {waitingForRestart && <p className="mt-4 text-sm text-muted-foreground">{t.restarting}</p>}
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
         {dbType === "mysql" && (
@@ -263,12 +238,7 @@ export function DatabaseStep({
             {testState === "testing" ? t.testing : t.testConnection}
           </Button>
         )}
-        <Button
-          type="button"
-          onClick={handleContinue}
-          disabled={isCommitting || waitingForRestart}
-          className="sm:flex-1"
-        >
+        <Button type="button" onClick={handleContinue} disabled={isCommitting} className="sm:flex-1">
           {isCommitting ? t.committing : t.continueLabel}
         </Button>
       </div>

@@ -32,8 +32,6 @@ interface DatabaseText {
   committing: string;
   alreadyConfigured: string;
   next: string;
-  restarting: string;
-  restartTimeout: string;
   genericError: string;
   connectionFailed: string;
   dbNotEmpty: string;
@@ -109,8 +107,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       committing: "Setting up…",
       alreadyConfigured: "The database is already configured.",
       next: "Next",
-      restarting: "The server is restarting to apply the new configuration…",
-      restartTimeout: "The server didn't finish restarting. Restart it manually and reload the page.",
       genericError: "Setup failed",
       connectionFailed: "Connection failed",
       dbNotEmpty: "The target database already has tables — pick an empty one.",
@@ -172,8 +168,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       committing: "Configurazione…",
       alreadyConfigured: "Il database è già configurato.",
       next: "Avanti",
-      restarting: "Il server si sta riavviando per applicare la nuova configurazione…",
-      restartTimeout: "Il server non ha completato il riavvio. Riavvialo manualmente e ricarica la pagina.",
       genericError: "Configurazione non riuscita",
       connectionFailed: "Connessione non riuscita",
       dbNotEmpty: "Il database scelto contiene già delle tabelle — scegline uno vuoto.",
@@ -235,8 +229,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       committing: "正在设置…",
       alreadyConfigured: "数据库已配置完成。",
       next: "下一步",
-      restarting: "服务器正在重启以应用新配置…",
-      restartTimeout: "服务器未完成重启。请手动重启并刷新页面。",
       genericError: "设置失败",
       connectionFailed: "连接失败",
       dbNotEmpty: "目标数据库中已存在表 — 请选择一个空数据库。",
@@ -298,8 +290,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       committing: "Configurando…",
       alreadyConfigured: "La base de datos ya está configurada.",
       next: "Siguiente",
-      restarting: "El servidor se está reiniciando para aplicar la nueva configuración…",
-      restartTimeout: "El servidor no terminó de reiniciarse. Reinícialo manualmente y recarga la página.",
       genericError: "Error en la configuración",
       connectionFailed: "Conexión fallida",
       dbNotEmpty: "La base de datos elegida ya tiene tablas — elige una vacía.",
@@ -361,8 +351,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       committing: "جارٍ الإعداد…",
       alreadyConfigured: "تم إعداد قاعدة البيانات بالفعل.",
       next: "التالي",
-      restarting: "يعيد الخادم التشغيل لتطبيق الإعدادات الجديدة…",
-      restartTimeout: "لم يكمل الخادم إعادة التشغيل. أعد تشغيله يدويًا وأعد تحميل الصفحة.",
       genericError: "فشل الإعداد",
       connectionFailed: "فشل الاتصال",
       dbNotEmpty: "قاعدة البيانات المستهدفة تحتوي بالفعل على جداول — اختر واحدة فارغة.",
@@ -424,8 +412,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       committing: "Configurando…",
       alreadyConfigured: "O banco de dados já está configurado.",
       next: "Próximo",
-      restarting: "O servidor está reiniciando para aplicar a nova configuração…",
-      restartTimeout: "O servidor não terminou de reiniciar. Reinicie-o manualmente e recarregue a página.",
       genericError: "Falha na configuração",
       connectionFailed: "Falha na conexão",
       dbNotEmpty: "O banco de dados escolhido já contém tabelas — escolha um vazio.",
@@ -487,8 +473,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       committing: "Настройка…",
       alreadyConfigured: "База данных уже настроена.",
       next: "Далее",
-      restarting: "Сервер перезапускается для применения новой конфигурации…",
-      restartTimeout: "Сервер не завершил перезапуск. Перезапустите его вручную и перезагрузите страницу.",
       genericError: "Ошибка настройки",
       connectionFailed: "Не удалось подключиться",
       dbNotEmpty: "В выбранной базе данных уже есть таблицы — выберите пустую.",
@@ -550,8 +534,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       committing: "設定中…",
       alreadyConfigured: "データベースはすでに設定されています。",
       next: "次へ",
-      restarting: "新しい設定を適用するためサーバーを再起動しています…",
-      restartTimeout: "サーバーの再起動が完了しませんでした。手動で再起動してページを再読み込みしてください。",
       genericError: "設定に失敗しました",
       connectionFailed: "接続に失敗しました",
       dbNotEmpty: "選択したデータベースにはすでにテーブルがあります — 空のデータベースを選択してください。",
@@ -613,8 +595,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       committing: "Configuration…",
       alreadyConfigured: "La base de données est déjà configurée.",
       next: "Suivant",
-      restarting: "Le serveur redémarre pour appliquer la nouvelle configuration…",
-      restartTimeout: "Le serveur n'a pas terminé de redémarrer. Redémarrez-le manuellement et rechargez la page.",
       genericError: "Échec de la configuration",
       connectionFailed: "Échec de la connexion",
       dbNotEmpty: "La base de données cible contient déjà des tables — choisissez-en une vide.",
@@ -676,8 +656,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       committing: "Wird eingerichtet…",
       alreadyConfigured: "Die Datenbank ist bereits konfiguriert.",
       next: "Weiter",
-      restarting: "Der Server wird neu gestartet, um die neue Konfiguration zu übernehmen…",
-      restartTimeout: "Der Server hat den Neustart nicht abgeschlossen. Starte ihn manuell neu und lade die Seite neu.",
       genericError: "Einrichtung fehlgeschlagen",
       connectionFailed: "Verbindung fehlgeschlagen",
       dbNotEmpty: "Die Zieldatenbank enthält bereits Tabellen — wähle eine leere.",

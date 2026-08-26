@@ -3,7 +3,7 @@ import { prisma } from "./prisma";
 import { isPaletteKey, isThemeMode } from "./theme";
 import { DEFAULT_STORAGE_SETTINGS } from "./storage/types";
 import type { StorageSettings } from "./storage/types";
-import type { Prisma } from "@/generated/prisma/client";
+import type { Prisma } from "@/generated/prisma-sqlite/client";
 import type {
   Project,
   ProjectCategory,

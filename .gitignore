@@ -43,7 +43,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/src/generated/prisma
+/src/generated/prisma-sqlite
+/src/generated/prisma-mysql
 
 # local SQLite database (SQLite is the default provider; MariaDB config lives outside git anyway)
 /prisma/dev.db

@@ -14,7 +14,7 @@ import {
   DEFAULT_CONTACT_FORM,
   DEFAULT_MAINTENANCE,
 } from "../src/lib/default-settings";
-import type { Prisma } from "../src/generated/prisma/client";
+import type { Prisma } from "../src/generated/prisma-sqlite/client";
 
 function toJson<T>(value: T): Prisma.InputJsonValue {
   return value as unknown as Prisma.InputJsonValue;

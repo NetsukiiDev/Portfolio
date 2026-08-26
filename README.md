@@ -40,7 +40,7 @@ Then set `DATABASE_URL` in `.env.local` to a `mysql://user:password@host:port/da
 
 To switch back: `npm run db:use:sqlite`.
 
-Switching the database after the app has been running for a while (`next start` in production) requires a process restart to pick up the new `DATABASE_URL` — `next dev` does this automatically.
+Both the SQLite and MySQL Prisma clients are generated ahead of time into separate folders (`db:generate:sqlite` / `db:generate:mysql`, run automatically before `dev`/`build`), so switching database type — including through the setup wizard — takes effect immediately, with no process restart.
 
 `npm run db:seed` seeds placeholder content (starter skill categories, default settings) — safe to re-run, and no longer touches the admin account, which is exclusively created through `/setup`.
 
@@ -57,5 +57,5 @@ Log in at `/admin/login` with the username and password created during setup. Fr
 | `npm run lint` | ESLint |
 | `npm run db:migrate` | Create/update database tables from `prisma/schema.prisma` |
 | `npm run db:seed` | Seeds placeholder settings/skills content (safe to re-run) |
-| `npm run db:generate` | Regenerate the Prisma client after a schema change |
+| `npm run db:generate:all` | Regenerate both Prisma clients (sqlite + mysql) after a schema change |
 | `npm run db:use:sqlite` / `npm run db:use:mysql` | Switch the active `prisma/schema.prisma` |

@@ -12,7 +12,7 @@ import {
   DEFAULT_MAINTENANCE,
 } from "@/lib/default-settings";
 import { DEFAULT_STORAGE_SETTINGS } from "@/lib/storage/types";
-import type { Prisma } from "@/generated/prisma/client";
+import type { Prisma } from "@/generated/prisma-sqlite/client";
 
 function toJson<T>(value: T): Prisma.InputJsonValue {
   return value as unknown as Prisma.InputJsonValue;

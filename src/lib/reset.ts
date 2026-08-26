@@ -85,7 +85,12 @@ export async function resetSite(): Promise<void> {
   if (databaseUrl.startsWith("mysql://")) {
     // No filesystem-level "database" to delete on a network server — drop
     // and recreate every table instead, leaving an empty but present schema.
-    runPrismaCommand(["db", "push", "--force-reset", "--accept-data-loss"], databaseUrl);
+    // --schema is explicit here since schema.prisma is no longer kept in
+    // sync with the active DATABASE_URL (see provisionDatabase()).
+    runPrismaCommand(
+      ["db", "push", "--schema=prisma/schema.mysql.prisma", "--force-reset", "--accept-data-loss"],
+      databaseUrl,
+    );
   } else {
     // Delete the database file outright: the next connection attempt then
     // hits a missing table (not just an empty one), which is what actually

@@ -1,7 +1,8 @@
 import { execFileSync } from "child_process";
-import { copyFileSync, mkdirSync } from "fs";
+import { mkdirSync } from "fs";
 import path from "path";
 import { upsertEnvVar, hasEnvVar } from "./env-file";
+import { refreshPrismaClient } from "./prisma";
 import { randomBytes } from "crypto";
 
 export type DbSetupInput =
@@ -80,16 +81,23 @@ export function runPrismaCommand(args: string[], databaseUrl: string): void {
   });
 }
 
+// Both database types are always generated ahead of time (see the
+// `db:generate:all` script, run before `dev`/`build`) into their own output
+// folders, so provisioning never needs to swap `schema.prisma` or run
+// `prisma generate` at request time — it only has to sync the target
+// database's tables, using the schema file for whichever type was chosen,
+// and then point the live client at it via refreshPrismaClient(). No
+// process restart needed even when switching SQLite <-> MySQL.
 export async function provisionDatabase(input: DbSetupInput): Promise<void> {
   const databaseUrl = resolveDatabaseUrl(input);
-  const schemaSource = input.type === "mysql" ? "schema.mysql.prisma" : "schema.sqlite.prisma";
-  copyFileSync(path.join(process.cwd(), "prisma", schemaSource), path.join(process.cwd(), "prisma", "schema.prisma"));
+  const schemaFile = input.type === "mysql" ? "prisma/schema.mysql.prisma" : "prisma/schema.sqlite.prisma";
 
-  runPrismaCommand(["db", "push", "--accept-data-loss"], databaseUrl);
-  runPrismaCommand(["generate"], databaseUrl);
+  runPrismaCommand(["db", "push", `--schema=${schemaFile}`, "--accept-data-loss"], databaseUrl);
 
   upsertEnvVar("DATABASE_URL", databaseUrl);
   if (!hasEnvVar("JWT_SECRET")) {
     upsertEnvVar("JWT_SECRET", randomBytes(32).toString("base64url"));
   }
+
+  await refreshPrismaClient();
 }
