@@ -237,7 +237,7 @@ export function SettingsForm({ settings }: { settings: Settings }) {
           <TabsTrigger value="personal">Personal</TabsTrigger>
           <TabsTrigger value="social">Social</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
-          <TabsTrigger value="site">Site</TabsTrigger>
+          <TabsTrigger value="site">Portfolio</TabsTrigger>
           <TabsTrigger value="storage">Storage</TabsTrigger>
           <TabsTrigger value="reset">Reset</TabsTrigger>
         </TabsList>

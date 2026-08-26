@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, User, LogOut } from "lucide-react";
+import { Menu, X, User, LogOut, ExternalLink } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAdmin } from "@/hooks/useAdmin";
 import { ADMIN_LINKS } from "@/lib/admin-nav";
@@ -69,6 +69,16 @@ export function AdminMobileNav() {
                   </Link>
                 );
               })}
+              <a
+                href="/"
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-base font-medium text-muted-foreground"
+              >
+                <ExternalLink className="h-5 w-5" />
+                Apri Portfolio
+              </a>
               <div className="mt-2 space-y-1 border-t border-border pt-2">
                 <Link
                   href="/admin/account"

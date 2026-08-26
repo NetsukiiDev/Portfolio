@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, ExternalLink } from "lucide-react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { ADMIN_LINKS } from "@/lib/admin-nav";
 import { cn } from "@/lib/cn";
@@ -35,6 +35,15 @@ export function AdminSidebar() {
             </Link>
           );
         })}
+        <a
+          href="/"
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ExternalLink className="h-4 w-4" />
+          Apri Portfolio
+        </a>
       </nav>
       <div className="space-y-1 border-t border-border pt-2">
         <Link
