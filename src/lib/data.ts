@@ -2,6 +2,8 @@ import { cache } from "react";
 import { prisma } from "./prisma";
 import { isPaletteKey, isThemeMode } from "./theme";
 import { DEFAULT_STORAGE_SETTINGS } from "./storage/types";
+import { mergeModules } from "./modules";
+import { DEFAULT_HOME } from "./default-settings";
 import type { StorageSettings } from "./storage/types";
 import type { Prisma } from "@/generated/prisma-sqlite/client";
 import type {
@@ -459,6 +461,8 @@ export const getSettings = cache(async (): Promise<Settings> => {
     seo: row.seo as Settings["seo"],
     contactForm: row.contactForm as Settings["contactForm"],
     maintenance: row.maintenance as Settings["maintenance"],
+    modules: mergeModules(row.modules),
+    home: (row.home ?? DEFAULT_HOME) as Settings["home"],
   };
 });
 
@@ -480,6 +484,8 @@ export async function saveSettings(data: Settings): Promise<void> {
       }),
       contactForm: toJson(data.contactForm),
       maintenance: toJson(data.maintenance),
+      modules: toJson(data.modules),
+      home: toJson(data.home),
     },
   });
 }

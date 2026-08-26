@@ -6,9 +6,13 @@ import { FloatingBadge, AnimatedText } from "@/components/animations";
 import { ButtonLink } from "@/components/ui/Button";
 import { useTranslation } from "@/hooks/useTranslation";
 import { ROUTES } from "@/lib/constants";
+import type { HomeSettings } from "@/types/settings";
 
-export function HeroSection() {
-  const { t } = useTranslation();
+export function HeroSection({ home }: { home: HomeSettings }) {
+  // Copy comes from the database (Admin → Portfolio); only the locale to pick
+  // is client state.
+  const { locale } = useTranslation();
+  const text = home.translations[locale];
 
   return (
     <section className="relative -mt-20 flex min-h-[92vh] items-center justify-center overflow-hidden px-6 pt-20">
@@ -39,21 +43,21 @@ export function HeroSection() {
       <div className="relative z-10 mx-auto max-w-4xl text-center">
         <span className="mb-8 inline-flex items-center gap-2 rounded-full border border-border bg-surface-wash px-4 py-1.5 text-xs font-medium text-muted-foreground">
           <span className="animate-glow-pulse h-1.5 w-1.5 rounded-full bg-accent" />
-          {t.home.heroKicker}
+          {text.kicker}
         </span>
 
         <h1 className="text-balance text-5xl font-medium tracking-tight text-foreground sm:text-6xl md:text-7xl">
-          <AnimatedText text={t.home.heroTitle} />
+          <AnimatedText text={text.title} />
         </h1>
 
-        <p className="text-balance mx-auto mt-6 max-w-xl text-lg text-muted-foreground">{t.home.heroSubtitle}</p>
+        <p className="text-balance mx-auto mt-6 max-w-xl text-lg text-muted-foreground">{text.subtitle}</p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
           <ButtonLink href={ROUTES.projects} size="lg">
-            {t.home.ctaPrimary}
+            {text.ctaPrimary}
           </ButtonLink>
           <ButtonLink href={ROUTES.contact} size="lg" variant="secondary">
-            {t.home.ctaSecondary}
+            {text.ctaSecondary}
           </ButtonLink>
         </div>
       </div>

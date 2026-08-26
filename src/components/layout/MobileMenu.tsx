@@ -4,9 +4,18 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { NAV_LINKS } from "@/lib/constants";
+import type { NAV_LINKS } from "@/lib/constants";
 
-export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function MobileMenu({
+  open,
+  onClose,
+  links,
+}: {
+  open: boolean;
+  onClose: () => void;
+  /** Already filtered by the active modules — see Navbar. */
+  links: typeof NAV_LINKS;
+}) {
   const { t, locale, setLocale } = useTranslation();
 
   return (
@@ -29,7 +38,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
             </button>
           </div>
           <nav className="flex flex-col items-center gap-6 px-6 pt-8">
-            {NAV_LINKS.map((link, index) => (
+            {links.map((link, index) => (
               <motion.div
                 key={link.href}
                 initial={{ opacity: 0, y: 16 }}

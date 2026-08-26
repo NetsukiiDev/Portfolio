@@ -1,19 +1,38 @@
+import { getSettings } from "@/lib/data";
+import { DEFAULT_HOME } from "@/lib/default-settings";
+import { DEFAULT_MODULES } from "@/lib/modules";
 import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturedProjects } from "@/components/home/FeaturedProjects";
 import { SkillsPreview } from "@/components/home/SkillsPreview";
 import { StatsSection } from "@/components/home/StatsSection";
 import { RecentBlog } from "@/components/home/RecentBlog";
 import { CallToAction } from "@/components/home/CallToAction";
+import type { HomeSettings } from "@/types/settings";
+import type { ModulesSettings } from "@/lib/modules";
 
-export default function HomePage() {
+export default async function HomePage() {
+  let home: HomeSettings = DEFAULT_HOME;
+  let modules: ModulesSettings = DEFAULT_MODULES;
+
+  try {
+    const settings = await getSettings();
+    home = settings.home;
+    modules = settings.modules;
+  } catch {
+    // Settings row doesn't exist yet (pre-setup) — fall back to defaults.
+  }
+
+  // A section shows only when its module is on *and* it's set to appear here.
+  const onHome = (key: keyof ModulesSettings) => modules[key].enabled && modules[key].showOnHome;
+
   return (
     <>
-      <HeroSection />
-      <FeaturedProjects />
-      <SkillsPreview />
-      <StatsSection />
-      <RecentBlog />
-      <CallToAction />
+      <HeroSection home={home} />
+      {onHome("projects") && <FeaturedProjects />}
+      {onHome("skills") && <SkillsPreview />}
+      {home.statsEnabled && <StatsSection stats={home.stats} />}
+      {onHome("blog") && <RecentBlog />}
+      {onHome("contact") && <CallToAction />}
     </>
   );
 }

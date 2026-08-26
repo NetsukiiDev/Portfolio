@@ -213,6 +213,10 @@ export function SettingsForm({ settings }: { settings: Settings }) {
           publicUrlBase: values.s3PublicUrlBase,
         },
       },
+      // Owned by the Moduli and Portfolio pages — carried through untouched
+      // so saving here doesn't wipe them.
+      modules: settings.modules,
+      home: settings.home,
     };
 
     try {

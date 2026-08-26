@@ -3,8 +3,10 @@ import { Container } from "@/components/layout/Container";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { ContactInfo } from "@/components/contact/ContactInfo";
+import { assertModuleEnabled } from "@/lib/modules.server";
 
 export default async function ContactPage() {
+  await assertModuleEnabled("contact");
   const settings = await getSettings();
 
   return (

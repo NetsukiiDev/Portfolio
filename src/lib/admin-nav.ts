@@ -6,11 +6,15 @@ import {
   Newspaper,
   Image as ImageIcon,
   Settings,
+  Home,
+  Blocks,
   type LucideIcon,
 } from "lucide-react";
 
 export const ADMIN_LINKS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/portfolio", label: "Portfolio", icon: Home },
+  { href: "/admin/modules", label: "Moduli", icon: Blocks },
   { href: "/admin/projects", label: "Projects", icon: FolderKanban },
   { href: "/admin/skills", label: "Skills", icon: Sparkles },
   { href: "/admin/experience", label: "Experience", icon: Briefcase },

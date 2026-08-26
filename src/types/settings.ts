@@ -1,6 +1,22 @@
 import type { Locale } from "./index";
 import type { PaletteKey, ThemeMode } from "@/lib/theme";
 import type { StorageSettings } from "@/lib/storage/types";
+import type { ModulesSettings } from "@/lib/modules";
+
+export interface HomeStat {
+  value: number;
+  translations: Record<Locale, { label: string }>;
+}
+
+/** Everything the home page renders that isn't pulled from a content module. */
+export interface HomeSettings {
+  translations: Record<
+    Locale,
+    { kicker: string; title: string; subtitle: string; ctaPrimary: string; ctaSecondary: string }
+  >;
+  statsEnabled: boolean;
+  stats: HomeStat[];
+}
 
 export interface Settings {
   site: {
@@ -35,4 +51,6 @@ export interface Settings {
   };
   contactForm: { enabled: boolean };
   maintenance: { enabled: boolean; translations: Record<Locale, { message: string }> };
+  modules: ModulesSettings;
+  home: HomeSettings;
 }

@@ -10,7 +10,9 @@ import {
   DEFAULT_SEO,
   DEFAULT_CONTACT_FORM,
   DEFAULT_MAINTENANCE,
+  DEFAULT_HOME,
 } from "@/lib/default-settings";
+import { DEFAULT_MODULES } from "@/lib/modules";
 import { DEFAULT_STORAGE_SETTINGS } from "@/lib/storage/types";
 import type { Prisma } from "@/generated/prisma-sqlite/client";
 
@@ -68,6 +70,8 @@ export async function POST(request: NextRequest) {
       contactForm: toJson(DEFAULT_CONTACT_FORM),
       maintenance: toJson(DEFAULT_MAINTENANCE),
       storage: toJson(storageSettings),
+      modules: toJson(DEFAULT_MODULES),
+      home: toJson(DEFAULT_HOME),
       domain,
       https,
       defaultLocale,

@@ -40,6 +40,35 @@ export const DEFAULT_SEO = {
 
 export const DEFAULT_CONTACT_FORM = { enabled: true };
 
+// Mirrors the placeholder copy that used to live in translations.ts, now
+// editable from /admin/portfolio. Stats start at zero rather than invented
+// figures — see StatsSection.
+export const DEFAULT_HOME = {
+  translations: {
+    en: {
+      kicker: "Your status or availability",
+      title: "Your headline here\non two lines",
+      subtitle: "One short sentence about what you do and who you do it for.",
+      ctaPrimary: "View my work",
+      ctaSecondary: "Get in touch",
+    },
+    it: {
+      kicker: "Il tuo stato o la tua disponibilità",
+      title: "Il tuo titolo qui\nsu due righe",
+      subtitle: "Una frase breve su cosa fai e per chi lo fai.",
+      ctaPrimary: "Guarda i miei lavori",
+      ctaSecondary: "Contattami",
+    },
+  },
+  statsEnabled: true,
+  stats: [
+    { value: 0, translations: { en: { label: "Projects shipped" }, it: { label: "Progetti realizzati" } } },
+    { value: 0, translations: { en: { label: "Years of experience" }, it: { label: "Anni di esperienza" } } },
+    { value: 0, translations: { en: { label: "Happy clients" }, it: { label: "Clienti soddisfatti" } } },
+    { value: 0, translations: { en: { label: "Cups of coffee" }, it: { label: "Tazze di caffè" } } },
+  ],
+};
+
 export const DEFAULT_MAINTENANCE = {
   enabled: false,
   translations: {

@@ -8,11 +8,13 @@ import { Container } from "./Container";
 import { MobileMenu } from "./MobileMenu";
 import { useTranslation } from "@/hooks/useTranslation";
 import { NAV_LINKS, SITE_NAME } from "@/lib/constants";
+import { isNavKeyVisible, type ModulesSettings } from "@/lib/modules";
 import { cn } from "@/lib/cn";
 
-export function Navbar() {
+export function Navbar({ modules }: { modules: ModulesSettings }) {
   const pathname = usePathname();
   const { t, locale, setLocale } = useTranslation();
+  const links = NAV_LINKS.filter((link) => isNavKeyVisible(link.key, modules));
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -37,7 +39,7 @@ export function Navbar() {
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex">
-            {NAV_LINKS.map((link) => {
+            {links.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link
@@ -75,7 +77,7 @@ export function Navbar() {
           </div>
         </Container>
       </header>
-      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
+      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} links={links} />
     </>
   );
 }
