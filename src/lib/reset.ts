@@ -69,6 +69,13 @@ export async function resetSite(): Promise<void> {
   // rows — a full site reset should leave no trace of the previous schema
   // state either. Data is already cleared above, so this can't lose rows
   // that matter even if it fails partway through.
+  //
+  // For SQLite, this process's own connection must be closed first: the
+  // `prisma db push` subprocess below needs an exclusive lock on the same
+  // database file, and execFileSync blocks this process while waiting for
+  // it — holding the connection open here would deadlock the two against
+  // each other. Prisma reconnects lazily on the next query either way.
+  await prisma.$disconnect();
   const databaseUrl = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
   runPrismaCommand(["db", "push", "--force-reset", "--accept-data-loss"], databaseUrl);
 }
