@@ -5,11 +5,13 @@ import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { AnimatedCounter, RevealOnScroll } from "@/components/animations";
 import { useTranslation } from "@/hooks/useTranslation";
 
+// Placeholders — put your own figures here. Left at zero rather than
+// invented numbers so nothing on a fresh install claims to be true.
 const STATS = [
-  { value: 25, suffix: "+", key: "statsProjects" as const },
-  { value: 5, suffix: "+", key: "statsExperience" as const },
-  { value: 18, suffix: "+", key: "statsClients" as const },
-  { value: 1200, suffix: "+", key: "statsCoffee" as const },
+  { value: 0, suffix: "", key: "statsProjects" as const },
+  { value: 0, suffix: "", key: "statsExperience" as const },
+  { value: 0, suffix: "", key: "statsClients" as const },
+  { value: 0, suffix: "", key: "statsCoffee" as const },
 ];
 
 export function StatsSection() {
