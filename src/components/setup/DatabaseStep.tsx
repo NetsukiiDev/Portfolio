@@ -249,15 +249,17 @@ export function DatabaseStep({
       {waitingForRestart && <p className="mt-4 text-sm text-muted-foreground">{t.restarting}</p>}
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={handleTest}
-          disabled={testState === "testing"}
-          className="sm:flex-1"
-        >
-          {testState === "testing" ? t.testing : t.testConnection}
-        </Button>
+        {dbType === "mysql" && (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleTest}
+            disabled={testState === "testing"}
+            className="sm:flex-1"
+          >
+            {testState === "testing" ? t.testing : t.testConnection}
+          </Button>
+        )}
         <Button
           type="button"
           onClick={handleContinue}
