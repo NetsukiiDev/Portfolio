@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { deleteStorageFolder } from "./storage";
+import { runPrismaCommand } from "./db-provision";
 
 export type ResetContentType = "projects" | "blog" | "skills" | "experience" | "ai-gallery";
 
@@ -63,4 +64,11 @@ export async function resetSite(): Promise<void> {
   await prisma.project.deleteMany({});
   await prisma.settings.deleteMany({});
   await prisma.adminAccount.deleteMany({});
+
+  // Drop and recreate every table from the current schema, not just their
+  // rows — a full site reset should leave no trace of the previous schema
+  // state either. Data is already cleared above, so this can't lose rows
+  // that matter even if it fails partway through.
+  const databaseUrl = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
+  runPrismaCommand(["db", "push", "--force-reset", "--accept-data-loss"], databaseUrl);
 }

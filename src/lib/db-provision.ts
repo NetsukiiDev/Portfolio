@@ -71,7 +71,7 @@ export async function isTargetDatabaseEmpty(input: DbSetupInput): Promise<boolea
   }
 }
 
-function runPrismaCommand(args: string[], databaseUrl: string): void {
+export function runPrismaCommand(args: string[], databaseUrl: string): void {
   execFileSync("npx", ["prisma", ...args], {
     cwd: process.cwd(),
     env: { ...process.env, DATABASE_URL: databaseUrl },
