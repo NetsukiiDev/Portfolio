@@ -66,6 +66,7 @@ export function DatabaseStep({
   async function handleTest() {
     setTestState("testing");
     setTestError(null);
+    setCommitError(null);
     try {
       const res = await fetch("/api/setup/database/test", {
         method: "POST",
@@ -106,6 +107,8 @@ export function DatabaseStep({
   async function handleContinue() {
     setIsCommitting(true);
     setCommitError(null);
+    setTestState("idle");
+    setTestError(null);
     try {
       const res = await fetch("/api/setup/database", {
         method: "POST",
