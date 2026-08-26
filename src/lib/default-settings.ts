@@ -2,15 +2,15 @@ export const DEFAULT_PERSONAL = {
   translations: {
     en: {
       name: "Your Name",
-      title: "Full-Stack Developer",
-      bio: "Crafting fast, thoughtful digital experiences with code and creativity.",
+      title: "Your role",
+      bio: "One short line about what you do.",
       longBio: "Write a short introduction about yourself here — edit it from /admin/settings.",
       location: "Your City",
     },
     it: {
       name: "Il Tuo Nome",
-      title: "Sviluppatore Full-Stack",
-      bio: "Creo esperienze digitali veloci e curate con codice e creatività.",
+      title: "Il tuo ruolo",
+      bio: "Una riga breve su cosa fai.",
       longBio: "Scrivi qui una breve presentazione — modificala da /admin/settings.",
       location: "La Tua Città",
     },
@@ -31,8 +31,8 @@ export const DEFAULT_SOCIAL = {
 
 export const DEFAULT_SEO = {
   translations: {
-    en: { siteTitle: "Your Name — Portfolio", siteDescription: "Full-Stack Developer Portfolio" },
-    it: { siteTitle: "Il Tuo Nome — Portfolio", siteDescription: "Portfolio di Sviluppatore Full-Stack" },
+    en: { siteTitle: "Your Name — Portfolio", siteDescription: "A short description of your site." },
+    it: { siteTitle: "Il Tuo Nome — Portfolio", siteDescription: "Una breve descrizione del tuo sito." },
   },
   ogImage: "",
   siteUrl: "http://localhost:3000",

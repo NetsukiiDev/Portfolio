@@ -23,25 +23,41 @@ const geistMono = Geist_Mono({
 // generation: content must be fetched per-request, not baked in once at build.
 export const dynamic = "force-dynamic";
 
+// The visitor's own choice, mirrored into a cookie by LanguageProvider, so
+// the first render already matches what the client will settle on — no
+// post-hydration language swap (which re-ran every entrance animation).
+async function resolveLocale(fallback: Locale): Promise<Locale> {
+  const stored = (await cookies()).get("locale")?.value;
+  return (LOCALES as string[]).includes(stored ?? "") ? (stored as Locale) : fallback;
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   let siteUrl = "http://localhost:3000";
+  let title = SITE_NAME;
+  let description: string | undefined;
+
   try {
     const settings = await getSettings();
     siteUrl = settings.seo.siteUrl || siteUrl;
+    // Reads what the admin actually saved under Settings → SEO, in the
+    // visitor's language, instead of a hardcoded tagline.
+    const seo = settings.seo.translations[await resolveLocale(settings.site.defaultLocale)];
+    title = seo.siteTitle || SITE_NAME;
+    description = seo.siteDescription || undefined;
   } catch {
     // Settings row doesn't exist yet (pre-setup) — fall back to defaults.
   }
 
   return {
     title: {
-      default: SITE_NAME,
+      default: title,
       template: `%s — ${SITE_NAME}`,
     },
-    description: "Full-Stack Developer Portfolio",
+    description,
     metadataBase: new URL(siteUrl),
     openGraph: {
-      title: SITE_NAME,
-      description: "Full-Stack Developer Portfolio",
+      title,
+      description,
       type: "website",
       url: siteUrl,
     },
@@ -73,11 +89,7 @@ export default async function RootLayout({
     // Settings row doesn't exist yet (pre-setup) — fall back to defaults.
   }
 
-  // The visitor's own choice, mirrored into a cookie by LanguageProvider, so
-  // the first render already matches what the client will settle on — no
-  // post-hydration language swap (which re-ran every entrance animation).
-  const stored = (await cookies()).get("locale")?.value;
-  const locale = (LOCALES as string[]).includes(stored ?? "") ? (stored as Locale) : defaultLocale;
+  const locale = await resolveLocale(defaultLocale);
 
   return (
     <html
