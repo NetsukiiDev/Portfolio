@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Database, Server, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Database, Server, ArrowLeft } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -22,14 +22,10 @@ const EMPTY_MYSQL: MysqlFields = { host: "localhost", port: "3306", database: ""
 
 export function DatabaseStep({
   onComplete,
-  alreadyConfigured = false,
-  onNext,
   onBack,
   lang,
 }: {
   onComplete: () => void;
-  alreadyConfigured?: boolean;
-  onNext?: () => void;
   onBack?: () => void;
   lang: WizardLang;
 }) {
@@ -107,34 +103,6 @@ export function DatabaseStep({
     } finally {
       setIsCommitting(false);
     }
-  }
-
-  if (alreadyConfigured) {
-    return (
-      <Card className="relative w-full max-w-lg p-6 sm:p-8">
-        {onBack && (
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onBack}
-            aria-label="Back"
-            className="absolute right-4 top-4 h-9 w-9 p-0 sm:right-6 sm:top-6"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        )}
-        <h1 className="text-xl font-medium tracking-tight text-foreground">{t.title}</h1>
-        <div className="mt-6 flex items-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.06] p-4">
-          <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" />
-          <p className="text-sm text-muted-foreground">{t.alreadyConfigured}</p>
-        </div>
-        <div className="mt-6">
-          <Button type="button" onClick={onNext} className="w-full sm:w-auto">
-            {t.next}
-          </Button>
-        </div>
-      </Card>
-    );
   }
 
   return (

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -19,7 +18,7 @@ import type { Locale } from "@/types";
 const LOCALE_LABELS: Record<Locale, string> = { en: "English", it: "Italiano" };
 const LOCALE_OPTIONS = LOCALES.map((locale) => ({ value: locale, label: LOCALE_LABELS[locale] }));
 
-export function SiteStep({ onBack, lang }: { onBack?: () => void; lang: WizardLang }) {
+export function SiteStep({ lang }: { lang: WizardLang }) {
   const t = getSetupT(lang).site;
   const router = useRouter();
   const [domain, setDomain] = useState("");
@@ -75,19 +74,7 @@ export function SiteStep({ onBack, lang }: { onBack?: () => void; lang: WizardLa
   }
 
   return (
-    <Card className="relative w-full max-w-lg p-6 sm:p-8">
-      {onBack && (
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={onBack}
-          aria-label={t.back}
-          className="absolute right-4 top-4 h-9 w-9 p-0 sm:right-6 sm:top-6"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-      )}
-
+    <Card className="w-full max-w-lg p-6 sm:p-8">
       <h1 className="text-xl font-medium tracking-tight text-foreground">{t.title}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{t.subtitle}</p>
 

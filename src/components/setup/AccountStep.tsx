@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { ArrowLeft } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -16,15 +15,7 @@ interface AccountFormValues {
   confirmPassword: string;
 }
 
-export function AccountStep({
-  onComplete,
-  onBack,
-  lang,
-}: {
-  onComplete: () => void;
-  onBack?: () => void;
-  lang: WizardLang;
-}) {
+export function AccountStep({ onComplete, lang }: { onComplete: () => void; lang: WizardLang }) {
   const t = getSetupT(lang).account;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,19 +56,7 @@ export function AccountStep({
   }
 
   return (
-    <Card className="relative w-full max-w-lg p-6 sm:p-8">
-      {onBack && (
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={onBack}
-          aria-label={t.back}
-          className="absolute right-4 top-4 h-9 w-9 p-0 sm:right-6 sm:top-6"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-      )}
-
+    <Card className="w-full max-w-lg p-6 sm:p-8">
       <h1 className="text-xl font-medium tracking-tight text-foreground">{t.title}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{t.subtitle}</p>
 

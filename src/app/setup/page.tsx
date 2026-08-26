@@ -13,7 +13,6 @@ import type { WizardLang } from "@/lib/setup-translations";
 export default function SetupPage() {
   const [lang, setLang] = useState<WizardLang | null>(null);
   const [step, setStep] = useState<SetupStep | null>(null);
-  const [manualStep, setManualStep] = useState<SetupStep | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -21,10 +20,7 @@ export default function SetupPage() {
     fetch("/api/setup/status")
       .then((res) => res.json())
       .then((body) => {
-        if (!cancelled) {
-          setStep(body.step as SetupStep);
-          setManualStep(null);
-        }
+        if (!cancelled) setStep(body.step as SetupStep);
       });
     return () => {
       cancelled = true;
@@ -47,26 +43,19 @@ export default function SetupPage() {
     return null;
   }
 
-  const displayedStep = manualStep ?? step;
-
+  // Each step is a one-way door: once the database or account is committed
+  // there's no going back to redo it, so only the Database step (nothing
+  // saved yet) offers a way back — to the language picker.
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4 py-12 sm:px-6 sm:py-16">
       <div className="mb-2 text-sm font-medium tracking-tight text-foreground">{SITE_NAME} — Setup</div>
-      {displayedStep !== "complete" && <SetupStepper current={displayedStep} lang={lang} />}
+      {step !== "complete" && <SetupStepper current={step} lang={lang} />}
 
-      {displayedStep === "database" && (
-        <DatabaseStep
-          onComplete={refreshStatus}
-          alreadyConfigured={step !== "database"}
-          onNext={() => setManualStep("account")}
-          onBack={() => setLang(null)}
-          lang={lang}
-        />
+      {step === "database" && (
+        <DatabaseStep onComplete={refreshStatus} onBack={() => setLang(null)} lang={lang} />
       )}
-      {displayedStep === "account" && (
-        <AccountStep onComplete={refreshStatus} onBack={() => setManualStep("database")} lang={lang} />
-      )}
-      {displayedStep === "site" && <SiteStep onBack={() => setManualStep("account")} lang={lang} />}
+      {step === "account" && <AccountStep onComplete={refreshStatus} lang={lang} />}
+      {step === "site" && <SiteStep lang={lang} />}
     </div>
   );
 }

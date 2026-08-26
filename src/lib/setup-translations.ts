@@ -30,8 +30,6 @@ interface DatabaseText {
   connectionOk: string;
   continueLabel: string;
   committing: string;
-  alreadyConfigured: string;
-  next: string;
   genericError: string;
   connectionFailed: string;
   dbNotEmpty: string;
@@ -51,7 +49,6 @@ interface AccountText {
   minUsername: string;
   minPassword: string;
   passwordMismatch: string;
-  back: string;
   continueLabel: string;
   creating: string;
   genericError: string;
@@ -68,7 +65,6 @@ interface SiteText {
   theme: string;
   dark: string;
   light: string;
-  back: string;
   finish: string;
   saving: string;
   genericError: string;
@@ -118,8 +114,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       connectionOk: "Connection successful.",
       continueLabel: "Continue",
       committing: "Setting up…",
-      alreadyConfigured: "The database is already configured.",
-      next: "Next",
       genericError: "Setup failed",
       connectionFailed: "Connection failed",
       dbNotEmpty: "The target database already has tables — pick an empty one.",
@@ -138,7 +132,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       minUsername: "At least 3 characters",
       minPassword: "At least 8 characters",
       passwordMismatch: "Passwords don't match",
-      back: "Back",
       continueLabel: "Continue",
       creating: "Creating…",
       genericError: "Something went wrong",
@@ -154,7 +147,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       theme: "Theme",
       dark: "Dark",
       light: "Light",
-      back: "Back",
       finish: "Finish setup",
       saving: "Saving…",
       genericError: "Something went wrong",
@@ -192,8 +184,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       connectionOk: "Connessione riuscita.",
       continueLabel: "Continua",
       committing: "Configurazione…",
-      alreadyConfigured: "Il database è già configurato.",
-      next: "Avanti",
       genericError: "Configurazione non riuscita",
       connectionFailed: "Connessione non riuscita",
       dbNotEmpty: "Il database scelto contiene già delle tabelle — scegline uno vuoto.",
@@ -212,7 +202,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       minUsername: "Almeno 3 caratteri",
       minPassword: "Almeno 8 caratteri",
       passwordMismatch: "Le password non coincidono",
-      back: "Indietro",
       continueLabel: "Continua",
       creating: "Creazione…",
       genericError: "Qualcosa è andato storto",
@@ -228,7 +217,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       theme: "Tema",
       dark: "Scuro",
       light: "Chiaro",
-      back: "Indietro",
       finish: "Completa il setup",
       saving: "Salvataggio…",
       genericError: "Qualcosa è andato storto",
@@ -266,8 +254,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       connectionOk: "连接成功。",
       continueLabel: "继续",
       committing: "正在设置…",
-      alreadyConfigured: "数据库已配置完成。",
-      next: "下一步",
       genericError: "设置失败",
       connectionFailed: "连接失败",
       dbNotEmpty: "目标数据库中已存在表 — 请选择一个空数据库。",
@@ -286,7 +272,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       minUsername: "至少3个字符",
       minPassword: "至少8个字符",
       passwordMismatch: "两次输入的密码不一致",
-      back: "返回",
       continueLabel: "继续",
       creating: "正在创建…",
       genericError: "出错了",
@@ -302,7 +287,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       theme: "主题",
       dark: "深色",
       light: "浅色",
-      back: "返回",
       finish: "完成设置",
       saving: "保存中…",
       genericError: "出错了",
@@ -340,8 +324,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       connectionOk: "Conexión exitosa.",
       continueLabel: "Continuar",
       committing: "Configurando…",
-      alreadyConfigured: "La base de datos ya está configurada.",
-      next: "Siguiente",
       genericError: "Error en la configuración",
       connectionFailed: "Conexión fallida",
       dbNotEmpty: "La base de datos elegida ya tiene tablas — elige una vacía.",
@@ -360,7 +342,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       minUsername: "Al menos 3 caracteres",
       minPassword: "Al menos 8 caracteres",
       passwordMismatch: "Las contraseñas no coinciden",
-      back: "Atrás",
       continueLabel: "Continuar",
       creating: "Creando…",
       genericError: "Algo salió mal",
@@ -376,7 +357,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       theme: "Tema",
       dark: "Oscuro",
       light: "Claro",
-      back: "Atrás",
       finish: "Finalizar configuración",
       saving: "Guardando…",
       genericError: "Algo salió mal",
@@ -414,8 +394,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       connectionOk: "تم الاتصال بنجاح.",
       continueLabel: "متابعة",
       committing: "جارٍ الإعداد…",
-      alreadyConfigured: "تم إعداد قاعدة البيانات بالفعل.",
-      next: "التالي",
       genericError: "فشل الإعداد",
       connectionFailed: "فشل الاتصال",
       dbNotEmpty: "قاعدة البيانات المستهدفة تحتوي بالفعل على جداول — اختر واحدة فارغة.",
@@ -434,7 +412,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       minUsername: "3 أحرف على الأقل",
       minPassword: "8 أحرف على الأقل",
       passwordMismatch: "كلمتا المرور غير متطابقتين",
-      back: "رجوع",
       continueLabel: "متابعة",
       creating: "جارٍ الإنشاء…",
       genericError: "حدث خطأ ما",
@@ -450,7 +427,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       theme: "المظهر",
       dark: "داكن",
       light: "فاتح",
-      back: "رجوع",
       finish: "إنهاء الإعداد",
       saving: "جارٍ الحفظ…",
       genericError: "حدث خطأ ما",
@@ -488,8 +464,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       connectionOk: "Conexão bem-sucedida.",
       continueLabel: "Continuar",
       committing: "Configurando…",
-      alreadyConfigured: "O banco de dados já está configurado.",
-      next: "Próximo",
       genericError: "Falha na configuração",
       connectionFailed: "Falha na conexão",
       dbNotEmpty: "O banco de dados escolhido já contém tabelas — escolha um vazio.",
@@ -508,7 +482,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       minUsername: "Pelo menos 3 caracteres",
       minPassword: "Pelo menos 8 caracteres",
       passwordMismatch: "As senhas não coincidem",
-      back: "Voltar",
       continueLabel: "Continuar",
       creating: "Criando…",
       genericError: "Algo deu errado",
@@ -524,7 +497,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       theme: "Tema",
       dark: "Escuro",
       light: "Claro",
-      back: "Voltar",
       finish: "Concluir configuração",
       saving: "Salvando…",
       genericError: "Algo deu errado",
@@ -562,8 +534,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       connectionOk: "Соединение установлено.",
       continueLabel: "Продолжить",
       committing: "Настройка…",
-      alreadyConfigured: "База данных уже настроена.",
-      next: "Далее",
       genericError: "Ошибка настройки",
       connectionFailed: "Не удалось подключиться",
       dbNotEmpty: "В выбранной базе данных уже есть таблицы — выберите пустую.",
@@ -582,7 +552,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       minUsername: "Минимум 3 символа",
       minPassword: "Минимум 8 символов",
       passwordMismatch: "Пароли не совпадают",
-      back: "Назад",
       continueLabel: "Продолжить",
       creating: "Создание…",
       genericError: "Что-то пошло не так",
@@ -598,7 +567,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       theme: "Тема",
       dark: "Тёмная",
       light: "Светлая",
-      back: "Назад",
       finish: "Завершить настройку",
       saving: "Сохранение…",
       genericError: "Что-то пошло не так",
@@ -636,8 +604,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       connectionOk: "接続に成功しました。",
       continueLabel: "続ける",
       committing: "設定中…",
-      alreadyConfigured: "データベースはすでに設定されています。",
-      next: "次へ",
       genericError: "設定に失敗しました",
       connectionFailed: "接続に失敗しました",
       dbNotEmpty: "選択したデータベースにはすでにテーブルがあります — 空のデータベースを選択してください。",
@@ -656,7 +622,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       minUsername: "3文字以上",
       minPassword: "8文字以上",
       passwordMismatch: "パスワードが一致しません",
-      back: "戻る",
       continueLabel: "続ける",
       creating: "作成中…",
       genericError: "問題が発生しました",
@@ -672,7 +637,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       theme: "テーマ",
       dark: "ダーク",
       light: "ライト",
-      back: "戻る",
       finish: "設定を完了",
       saving: "保存中…",
       genericError: "問題が発生しました",
@@ -710,8 +674,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       connectionOk: "Connexion réussie.",
       continueLabel: "Continuer",
       committing: "Configuration…",
-      alreadyConfigured: "La base de données est déjà configurée.",
-      next: "Suivant",
       genericError: "Échec de la configuration",
       connectionFailed: "Échec de la connexion",
       dbNotEmpty: "La base de données cible contient déjà des tables — choisissez-en une vide.",
@@ -730,7 +692,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       minUsername: "Au moins 3 caractères",
       minPassword: "Au moins 8 caractères",
       passwordMismatch: "Les mots de passe ne correspondent pas",
-      back: "Retour",
       continueLabel: "Continuer",
       creating: "Création…",
       genericError: "Une erreur est survenue",
@@ -746,7 +707,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       theme: "Thème",
       dark: "Sombre",
       light: "Clair",
-      back: "Retour",
       finish: "Terminer la configuration",
       saving: "Enregistrement…",
       genericError: "Une erreur est survenue",
@@ -784,8 +744,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       connectionOk: "Verbindung erfolgreich.",
       continueLabel: "Weiter",
       committing: "Wird eingerichtet…",
-      alreadyConfigured: "Die Datenbank ist bereits konfiguriert.",
-      next: "Weiter",
       genericError: "Einrichtung fehlgeschlagen",
       connectionFailed: "Verbindung fehlgeschlagen",
       dbNotEmpty: "Die Zieldatenbank enthält bereits Tabellen — wähle eine leere.",
@@ -804,7 +762,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       minUsername: "Mindestens 3 Zeichen",
       minPassword: "Mindestens 8 Zeichen",
       passwordMismatch: "Passwörter stimmen nicht überein",
-      back: "Zurück",
       continueLabel: "Weiter",
       creating: "Wird erstellt…",
       genericError: "Etwas ist schiefgelaufen",
@@ -820,7 +777,6 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
       theme: "Design",
       dark: "Dunkel",
       light: "Hell",
-      back: "Zurück",
       finish: "Einrichtung abschließen",
       saving: "Wird gespeichert…",
       genericError: "Etwas ist schiefgelaufen",
