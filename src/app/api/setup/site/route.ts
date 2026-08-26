@@ -18,12 +18,26 @@ function toJson<T>(value: T): Prisma.InputJsonValue {
   return value as unknown as Prisma.InputJsonValue;
 }
 
+const storageSchema = z.object({
+  provider: z.enum(["local", "s3"]),
+  s3: z.object({
+    endpoint: z.string(),
+    region: z.string(),
+    bucket: z.string(),
+    accessKeyId: z.string(),
+    secretAccessKey: z.string(),
+    forcePathStyle: z.boolean(),
+    publicUrlBase: z.string(),
+  }),
+});
+
 const schema = z.object({
   domain: z.string().min(1),
   https: z.boolean(),
   defaultLocale: z.enum(LOCALES as [string, ...string[]]),
   themePalette: z.enum(PALETTE_KEYS as [string, ...string[]]),
   themeMode: z.enum(["light", "dark"]),
+  storage: storageSchema.optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -37,8 +51,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid submission" }, { status: 400 });
   }
 
-  const { domain, https, defaultLocale, themePalette, themeMode } = parsed.data;
+  const { domain, https, defaultLocale, themePalette, themeMode, storage } = parsed.data;
   const siteUrl = `${https ? "https" : "http"}://${domain}`;
+  const storageSettings = storage ?? DEFAULT_STORAGE_SETTINGS;
 
   const existing = await prisma.settings.findUnique({ where: { id: "singleton" } });
   const seo = { ...(existing ? (existing.seo as typeof DEFAULT_SEO) : DEFAULT_SEO), siteUrl };
@@ -52,7 +67,7 @@ export async function POST(request: NextRequest) {
       seo: toJson(seo),
       contactForm: toJson(DEFAULT_CONTACT_FORM),
       maintenance: toJson(DEFAULT_MAINTENANCE),
-      storage: toJson(DEFAULT_STORAGE_SETTINGS),
+      storage: toJson(storageSettings),
       domain,
       https,
       defaultLocale,
@@ -62,6 +77,7 @@ export async function POST(request: NextRequest) {
     },
     update: {
       seo: toJson(seo),
+      storage: toJson(storageSettings),
       domain,
       https,
       defaultLocale,
