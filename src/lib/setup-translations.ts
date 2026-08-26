@@ -89,7 +89,7 @@ function fields(host: string, port: string, database: string, user: string, pass
 
 export const setupTranslations: Record<WizardLang, SetupText> = {
   en: {
-    stepper: { database: "Database", account: "Account", site: "Site" },
+    stepper: { database: "Database", account: "Account", site: "Settings" },
     database: {
       title: "Database",
       subtitle: "Choose where the site's content will be stored.",
@@ -152,7 +152,7 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
     },
   },
   it: {
-    stepper: { database: "Database", account: "Account", site: "Sito" },
+    stepper: { database: "Database", account: "Account", site: "Impostazioni" },
     database: {
       title: "Database",
       subtitle: "Scegli dove verranno salvati i contenuti del sito.",
@@ -215,7 +215,7 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
     },
   },
   zh: {
-    stepper: { database: "数据库", account: "账户", site: "网站" },
+    stepper: { database: "数据库", account: "账户", site: "设置" },
     database: {
       title: "数据库",
       subtitle: "选择网站内容的存储位置。",
@@ -278,7 +278,7 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
     },
   },
   es: {
-    stepper: { database: "Base de datos", account: "Cuenta", site: "Sitio" },
+    stepper: { database: "Base de datos", account: "Cuenta", site: "Ajustes" },
     database: {
       title: "Base de datos",
       subtitle: "Elige dónde se almacenará el contenido del sitio.",
@@ -341,7 +341,7 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
     },
   },
   ar: {
-    stepper: { database: "قاعدة البيانات", account: "الحساب", site: "الموقع" },
+    stepper: { database: "قاعدة البيانات", account: "الحساب", site: "الإعدادات" },
     database: {
       title: "قاعدة البيانات",
       subtitle: "اختر مكان تخزين محتوى الموقع.",
@@ -404,7 +404,7 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
     },
   },
   pt: {
-    stepper: { database: "Banco de dados", account: "Conta", site: "Site" },
+    stepper: { database: "Banco de dados", account: "Conta", site: "Configurações" },
     database: {
       title: "Banco de dados",
       subtitle: "Escolha onde o conteúdo do site será armazenado.",
@@ -467,7 +467,7 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
     },
   },
   ru: {
-    stepper: { database: "База данных", account: "Аккаунт", site: "Сайт" },
+    stepper: { database: "База данных", account: "Аккаунт", site: "Настройки" },
     database: {
       title: "База данных",
       subtitle: "Выберите, где будет храниться содержимое сайта.",
@@ -530,7 +530,7 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
     },
   },
   ja: {
-    stepper: { database: "データベース", account: "アカウント", site: "サイト" },
+    stepper: { database: "データベース", account: "アカウント", site: "設定" },
     database: {
       title: "データベース",
       subtitle: "サイトのコンテンツを保存する場所を選択してください。",
@@ -593,7 +593,7 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
     },
   },
   fr: {
-    stepper: { database: "Base de données", account: "Compte", site: "Site" },
+    stepper: { database: "Base de données", account: "Compte", site: "Paramètres" },
     database: {
       title: "Base de données",
       subtitle: "Choisissez où le contenu du site sera stocké.",
@@ -656,7 +656,7 @@ export const setupTranslations: Record<WizardLang, SetupText> = {
     },
   },
   de: {
-    stepper: { database: "Datenbank", account: "Konto", site: "Website" },
+    stepper: { database: "Datenbank", account: "Konto", site: "Einstellungen" },
     database: {
       title: "Datenbank",
       subtitle: "Wähle, wo die Inhalte der Website gespeichert werden.",
