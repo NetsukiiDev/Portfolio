@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/providers/Providers";
-import { SITE_NAME } from "@/lib/constants";
+import { SITE_NAME, LOCALES } from "@/lib/constants";
 import { getSettings } from "@/lib/data";
 import { PALETTES } from "@/lib/theme";
+import type { Locale } from "@/types";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -58,7 +60,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let defaultLocale: "en" | "it" = "en";
+  let defaultLocale: Locale = "en";
   let themeMode: "light" | "dark" = "dark";
   let palette = PALETTES.violet;
 
@@ -71,9 +73,15 @@ export default async function RootLayout({
     // Settings row doesn't exist yet (pre-setup) — fall back to defaults.
   }
 
+  // The visitor's own choice, mirrored into a cookie by LanguageProvider, so
+  // the first render already matches what the client will settle on — no
+  // post-hydration language swap (which re-ran every entrance animation).
+  const stored = (await cookies()).get("locale")?.value;
+  const locale = (LOCALES as string[]).includes(stored ?? "") ? (stored as Locale) : defaultLocale;
+
   return (
     <html
-      lang={defaultLocale}
+      lang={locale}
       data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} ${themeMode} h-full antialiased`}
     >
@@ -81,7 +89,7 @@ export default async function RootLayout({
         <style>{`:root{--accent:${palette.accent};--accent-soft:${palette.accentSoft}}`}</style>
       </head>
       <body id="top" className="flex min-h-full flex-col">
-        <Providers defaultLocale={defaultLocale}>{children}</Providers>
+        <Providers defaultLocale={locale}>{children}</Providers>
       </body>
     </html>
   );

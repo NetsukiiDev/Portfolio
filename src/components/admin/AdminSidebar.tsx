@@ -17,7 +17,7 @@ export function AdminSidebar() {
       <Link href="/admin" className="px-2 py-3 text-sm font-semibold tracking-tight text-foreground">
         Admin
       </Link>
-      <nav className="mt-4 flex-1 space-y-1">
+      <nav className="mt-4 flex flex-1 flex-col gap-1">
         {ADMIN_LINKS.map((link) => {
           const Icon = link.icon;
           const isActive = link.href === "/admin" ? pathname === link.href : pathname.startsWith(link.href);
@@ -39,7 +39,7 @@ export function AdminSidebar() {
           href="/"
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          className="mt-auto flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           <ExternalLink className="h-4 w-4" />
           Apri Portfolio
