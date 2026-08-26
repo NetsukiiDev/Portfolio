@@ -12,9 +12,18 @@ export default async function ContactPage() {
   return (
     <Container className="max-w-3xl">
       <PageHeader page="contact" />
-      <div className="grid grid-cols-1 gap-10 pb-16 md:grid-cols-[1fr_1.5fr]">
+      {/* With the form switched off (Moduli → Contatti) the page keeps the
+          contact details and just drops the form, so it stops spanning two
+          columns. */}
+      <div
+        className={
+          settings.contactForm.enabled
+            ? "grid grid-cols-1 gap-10 pb-16 md:grid-cols-[1fr_1.5fr]"
+            : "pb-16"
+        }
+      >
         <ContactInfo settings={settings} />
-        <ContactForm />
+        {settings.contactForm.enabled && <ContactForm />}
       </div>
     </Container>
   );

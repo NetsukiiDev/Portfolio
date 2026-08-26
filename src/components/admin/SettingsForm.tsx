@@ -73,7 +73,6 @@ interface SettingsFormValues {
   defaultLocale: Locale;
   themePalette: PaletteKey;
   themeMode: ThemeMode;
-  contactFormEnabled: boolean;
   maintenanceEnabled: boolean;
   maintenanceMessageEn: string;
   maintenanceMessageIt: string;
@@ -118,7 +117,6 @@ function toFormValues(settings: Settings): SettingsFormValues {
     defaultLocale: settings.site.defaultLocale,
     themePalette: settings.site.themePalette,
     themeMode: settings.site.themeMode,
-    contactFormEnabled: settings.contactForm.enabled,
     maintenanceEnabled: settings.maintenance.enabled,
     maintenanceMessageEn: settings.maintenance.translations.en.message,
     maintenanceMessageIt: settings.maintenance.translations.it.message,
@@ -193,7 +191,8 @@ export function SettingsForm({ settings }: { settings: Settings }) {
         ogImage: values.ogImage,
         siteUrl: settings.seo.siteUrl,
       },
-      contactForm: { enabled: values.contactFormEnabled },
+      // Owned by Moduli → Contatti; carried through so saving here keeps it.
+      contactForm: settings.contactForm,
       maintenance: {
         enabled: values.maintenanceEnabled,
         translations: {
@@ -241,7 +240,7 @@ export function SettingsForm({ settings }: { settings: Settings }) {
           <TabsTrigger value="personal">Personal</TabsTrigger>
           <TabsTrigger value="social">Social</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
-          <TabsTrigger value="site">Portfolio</TabsTrigger>
+          <TabsTrigger value="site">Generale</TabsTrigger>
           <TabsTrigger value="storage">Storage</TabsTrigger>
           <TabsTrigger value="reset">Reset</TabsTrigger>
         </TabsList>
@@ -395,13 +394,6 @@ export function SettingsForm({ settings }: { settings: Settings }) {
               </div>
             </div>
 
-            <Controller
-              control={control}
-              name="contactFormEnabled"
-              render={({ field }) => (
-                <Toggle checked={field.value} onChange={field.onChange} label="Contact form enabled" />
-              )}
-            />
             <Controller
               control={control}
               name="maintenanceEnabled"

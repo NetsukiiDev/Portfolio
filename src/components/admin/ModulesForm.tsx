@@ -21,6 +21,7 @@ const LABELS: Record<ModuleKey, string> = {
 export function ModulesForm({ settings }: { settings: Settings }) {
   const toast = useToast();
   const [modules, setModules] = useState<ModulesSettings>(settings.modules);
+  const [contactFormEnabled, setContactFormEnabled] = useState(settings.contactForm.enabled);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function update(key: ModuleKey, patch: Partial<ModulesSettings[ModuleKey]>) {
@@ -33,7 +34,11 @@ export function ModulesForm({ settings }: { settings: Settings }) {
       const res = await fetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...settings, modules } satisfies Settings),
+        body: JSON.stringify({
+          ...settings,
+          modules,
+          contactForm: { enabled: contactFormEnabled },
+        } satisfies Settings),
       });
       if (!res.ok) throw new Error("Request failed");
       toast.success("Moduli salvati");
@@ -78,17 +83,29 @@ export function ModulesForm({ settings }: { settings: Settings }) {
                 />
               </div>
 
-              {mod.hasHomeSection && (
-                <div className="mt-4 border-t border-border pt-4">
-                  <Toggle
-                    checked={config.showOnHome && config.enabled}
-                    onChange={(checked) => update(mod.key, { showOnHome: checked })}
-                    label="Mostra la sezione in home"
-                  />
-                  {!config.enabled && (
-                    <p className="mt-1.5 text-xs text-muted-foreground">
-                      Il modulo è disattivato, quindi la sezione non appare comunque.
-                    </p>
+              {(mod.hasHomeSection || mod.key === "contact") && (
+                <div className="mt-4 space-y-3 border-t border-border pt-4">
+                  {mod.hasHomeSection && (
+                    <div>
+                      <Toggle
+                        checked={config.showOnHome && config.enabled}
+                        onChange={(checked) => update(mod.key, { showOnHome: checked })}
+                        label="Mostra la sezione in home"
+                      />
+                      {!config.enabled && (
+                        <p className="mt-1.5 text-xs text-muted-foreground">
+                          Il modulo è disattivato, quindi la sezione non appare comunque.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {mod.key === "contact" && (
+                    <Toggle
+                      checked={contactFormEnabled}
+                      onChange={setContactFormEnabled}
+                      label="Modulo di contatto sulla pagina"
+                    />
                   )}
                 </div>
               )}
