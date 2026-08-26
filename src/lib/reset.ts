@@ -2,7 +2,20 @@ import { unlink } from "fs/promises";
 import path from "path";
 import { prisma } from "./prisma";
 import { deleteStorageFolder } from "./storage";
-import { runPrismaCommand } from "./db-provision";
+
+// Matches the model names in prisma/schema.*.prisma — there's no @@map, so
+// table names are identical to these.
+const ALL_TABLES = [
+  "AdminAccount",
+  "AiImage",
+  "BlogPost",
+  "ContactMessage",
+  "Experience",
+  "Project",
+  "Settings",
+  "Skill",
+  "SkillCategory",
+];
 
 export type ResetContentType = "projects" | "blog" | "skills" | "experience" | "ai-gallery";
 
@@ -72,29 +85,26 @@ export async function resetSite(): Promise<void> {
   // Account. Data is already cleared above, so neither path below can lose
   // rows that matter even if it fails partway through.
   //
-  // This process's own connection must be closed first: SQLite needs the
-  // file handle released before it can be deleted, and the `prisma db push`
-  // subprocess for MySQL needs an exclusive lock that this same process
-  // would otherwise be holding (execFileSync blocks the event loop while
-  // waiting on the subprocess — holding the connection open here would
-  // deadlock the two against each other). Prisma reconnects lazily on the
-  // next query either way.
-  await prisma.$disconnect();
+  // Recreating empty tables (e.g. via `prisma db push --force-reset`) isn't
+  // enough: AdminAccount would still exist and be queryable, just empty, and
+  // getSetupStatus() reads that as "past the database step" — it only treats
+  // a query as "not set up" when it actually throws (missing table). So both
+  // paths below remove the tables outright instead of recreating them.
   const databaseUrl = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
 
   if (databaseUrl.startsWith("mysql://")) {
-    // No filesystem-level "database" to delete on a network server — drop
-    // and recreate every table instead, leaving an empty but present schema.
-    // --schema is explicit here since schema.prisma is no longer kept in
-    // sync with the active DATABASE_URL (see provisionDatabase()).
-    runPrismaCommand(
-      ["db", "push", "--schema=prisma/schema.mysql.prisma", "--force-reset", "--accept-data-loss"],
-      databaseUrl,
-    );
+    // Drop every table directly over the existing connection — no schema to
+    // push back, so no separate CLI process (and no lock contention with it).
+    await prisma.$executeRawUnsafe("SET FOREIGN_KEY_CHECKS = 0");
+    for (const table of ALL_TABLES) {
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS \`${table}\``);
+    }
+    await prisma.$executeRawUnsafe("SET FOREIGN_KEY_CHECKS = 1");
   } else {
-    // Delete the database file outright: the next connection attempt then
-    // hits a missing table (not just an empty one), which is what actually
-    // sends getSetupStatus() back to "database" instead of "account".
+    // Delete the database file outright. This process's own connection must
+    // be closed first so the file handle is released before unlink — Prisma
+    // reconnects lazily on the next query, creating a fresh (tableless) file.
+    await prisma.$disconnect();
     const filePath = path.resolve(process.cwd(), databaseUrl.replace(/^file:/, ""));
     await unlink(filePath).catch(() => {});
   }
