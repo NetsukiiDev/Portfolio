@@ -12,7 +12,7 @@ import { Progress } from "@/components/ui/Progress";
 import { Button } from "@/components/ui/Button";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { useToast } from "@/context/ToastContext";
-import type { Skill, SkillCategory } from "@/types";
+import type { Skill, SkillCategory , Locale} from "@/types";
 
 interface SkillFormValues {
   categoryId: string;
@@ -38,7 +38,15 @@ function toFormValues(skill?: Skill, defaultCategoryId?: string): SkillFormValue
   };
 }
 
-export function SkillsManager({ categories, skills: initialSkills }: { categories: SkillCategory[]; skills: Skill[] }) {
+export function SkillsManager({
+  categories,
+  skills: initialSkills,
+  locale,
+}: {
+  categories: SkillCategory[];
+  skills: Skill[];
+  locale: Locale;
+}) {
   const [skills, setSkills] = useState(initialSkills);
   const [editing, setEditing] = useState<Skill | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -184,15 +192,24 @@ export function SkillsManager({ categories, skills: initialSkills }: { categorie
               <Input type="number" min={0} {...register("yearsOfExperience", { valueAsNumber: true })} />
             </div>
           </div>
-          <Input {...register("nameEn", { required: true })} placeholder="Name (English)" />
-          <Input {...register("descriptionEn")} placeholder="Description (English)" />
-          <Input {...register("nameIt")} placeholder="Nome (Italiano)" />
-          <Input {...register("descriptionIt")} placeholder="Descrizione (Italiano)" />
+          {/* Only the authoring language; the other locale is generated on
+              save (Admin → Lingua). */}
+          {locale === "it" ? (
+            <>
+              <Input {...register("nameIt", { required: true })} placeholder="Nome" />
+              <Input {...register("descriptionIt")} placeholder="Descrizione" />
+            </>
+          ) : (
+            <>
+              <Input {...register("nameEn", { required: true })} placeholder="Name" />
+              <Input {...register("descriptionEn")} placeholder="Description" />
+            </>
+          )}
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit">Save</Button>
+            <Button type="submit">Salva</Button>
           </div>
         </form>
       </Modal>

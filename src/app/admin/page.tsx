@@ -22,7 +22,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
-      <AdminHeader title="Dashboard" description="Overview of your site content." />
+      <AdminHeader title="Dashboard" description="Panoramica dei contenuti del sito." />
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         {stats.map((stat) => (
           <Link key={stat.label} href={stat.href}>

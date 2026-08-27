@@ -63,7 +63,7 @@ export async function translateText(text: string, from: Locale, to: Locale): Pro
   }
 }
 
-type Fields = Record<string, string>;
+type Fields = Record<string, unknown>;
 
 /**
  * Fills every non-source locale of a `translations` object from the source
@@ -73,7 +73,7 @@ type Fields = Record<string, string>;
  * Existing target text is only replaced when `overwrite` is set, so a
  * translation the admin has corrected by hand survives later saves.
  */
-export async function fillTranslations<T extends Record<string, Fields>>(
+export async function fillTranslations<T extends Record<string, Record<string, unknown>>>(
   translations: T,
   source: Locale,
   targets: Locale[],
@@ -90,8 +90,14 @@ export async function fillTranslations<T extends Record<string, Fields>>(
     const next: Fields = { ...existing };
 
     for (const [field, value] of Object.entries(from)) {
-      if (typeof value !== "string") continue;
-      if (!overwrite && existing[field]?.trim()) continue;
+      // Not every field is prose — tags, arrays and numbers ride along as-is
+      // so a target locale never ends up missing them.
+      if (typeof value !== "string") {
+        if (!(field in next)) next[field] = value;
+        continue;
+      }
+      const current = existing[field];
+      if (!overwrite && typeof current === "string" && current.trim()) continue;
       next[field] = (await translateText(value, source, target)) ?? value;
     }
 

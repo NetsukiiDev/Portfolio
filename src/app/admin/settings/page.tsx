@@ -8,7 +8,7 @@ export default async function AdminSettingsPage() {
 
   return (
     <div>
-      <AdminHeader title="Settings" />
+      <AdminHeader title="Impostazioni" />
       <SettingsForm settings={{ ...settings, storage: maskStorageSecrets(settings.storage) }} />
     </div>
   );

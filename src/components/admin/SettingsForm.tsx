@@ -471,7 +471,7 @@ export function SettingsForm({ settings }: { settings: Settings }) {
 
       <div className="flex justify-end border-t border-border pt-6">
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving…" : "Save settings"}
+          {isSubmitting ? "Salvataggio…" : "Save settings"}
         </Button>
       </div>
     </form>

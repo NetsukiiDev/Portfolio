@@ -64,7 +64,7 @@ export function ProfileForm({ account }: { account: ProfileFormValues }) {
         {errors.username && <p className="mt-1.5 text-xs text-red-400">At least 3 characters</p>}
       </div>
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Saving…" : "Save profile"}
+        {isSubmitting ? "Salvataggio…" : "Save profile"}
       </Button>
     </form>
   );

@@ -10,7 +10,7 @@ export default async function AdminProjectsPage() {
   return (
     <div>
       <AdminHeader
-        title="Projects"
+        title="Progetti"
         action={
           <ButtonLink href="/admin/projects/new" size="sm">
             <Plus className="h-4 w-4" /> New project

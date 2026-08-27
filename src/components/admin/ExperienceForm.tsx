@@ -9,11 +9,11 @@ import { Select } from "@/components/ui/Select";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { Toggle } from "@/components/ui/Toggle";
 import { Button } from "@/components/ui/Button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
+import { Tabs, TabsContent } from "@/components/ui/Tabs";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { useToast } from "@/context/ToastContext";
-import type { Experience, ExperienceType } from "@/types";
+import type { Experience, ExperienceType , Locale} from "@/types";
 
 interface ExperienceFormValues {
   type: ExperienceType;
@@ -51,7 +51,7 @@ function toFormValues(experience?: Experience): ExperienceFormValues {
   };
 }
 
-export function ExperienceForm({ experience }: { experience?: Experience }) {
+export function ExperienceForm({ experience, locale }: { experience?: Experience; locale: Locale }) {
   const router = useRouter();
   const toast = useToast();
   const isEditing = Boolean(experience);
@@ -181,11 +181,10 @@ export function ExperienceForm({ experience }: { experience?: Experience }) {
 
       <ImageUploadField value={logo} onChange={(url) => setValue("logo", url)} folder="experience" label="Logo" />
 
-      <Tabs defaultValue="en">
-        <TabsList>
-          <TabsTrigger value="en">English</TabsTrigger>
-          <TabsTrigger value="it">Italiano</TabsTrigger>
-        </TabsList>
+      {/* Only the authoring language is shown; the other locales are
+          generated on save (Admin → Lingua). The hidden group stays mounted
+          so its stored values round-trip untouched. */}
+      <Tabs defaultValue={locale}>
         <TabsContent value="en">
           <div className="space-y-4">
             <Input {...register("positionEn", { required: true })} placeholder="Position" />
@@ -205,7 +204,7 @@ export function ExperienceForm({ experience }: { experience?: Experience }) {
       <div className="flex items-center justify-between border-t border-border pt-6">
         {isEditing ? <DeleteButton onConfirm={handleDelete} label="entry" /> : <span />}
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving…" : isEditing ? "Save changes" : "Create entry"}
+          {isSubmitting ? "Salvataggio…" : isEditing ? "Salva modifiche" : "Crea voce"}
         </Button>
       </div>
     </form>

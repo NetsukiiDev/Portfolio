@@ -8,12 +8,12 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Select } from "@/components/ui/Select";
 import { Toggle } from "@/components/ui/Toggle";
 import { Button } from "@/components/ui/Button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
+import { Tabs, TabsContent } from "@/components/ui/Tabs";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { useToast } from "@/context/ToastContext";
 import { PROJECT_CATEGORIES } from "@/lib/constants";
-import type { Project, ProjectCategory } from "@/types";
+import type { Project, ProjectCategory , Locale} from "@/types";
 
 interface ProjectFormValues {
   slug: string;
@@ -51,7 +51,7 @@ function toFormValues(project?: Project): ProjectFormValues {
   };
 }
 
-export function ProjectForm({ project }: { project?: Project }) {
+export function ProjectForm({ project, locale }: { project?: Project; locale: Locale }) {
   const router = useRouter();
   const toast = useToast();
   const isEditing = Boolean(project);
@@ -165,11 +165,10 @@ export function ProjectForm({ project }: { project?: Project }) {
         label="Cover image"
       />
 
-      <Tabs defaultValue="en">
-        <TabsList>
-          <TabsTrigger value="en">English</TabsTrigger>
-          <TabsTrigger value="it">Italiano</TabsTrigger>
-        </TabsList>
+      {/* Only the authoring language is shown; the other locales are
+          generated on save (Admin → Lingua). The hidden group stays mounted
+          so its stored values round-trip untouched. */}
+      <Tabs defaultValue={locale}>
         <TabsContent value="en">
           <div className="space-y-4">
             <Input {...register("titleEn", { required: true })} placeholder="Title" />
@@ -189,7 +188,7 @@ export function ProjectForm({ project }: { project?: Project }) {
       <div className="flex items-center justify-between border-t border-border pt-6">
         {isEditing ? <DeleteButton onConfirm={handleDelete} label="project" /> : <span />}
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving…" : isEditing ? "Save changes" : "Create project"}
+          {isSubmitting ? "Salvataggio…" : isEditing ? "Salva modifiche" : "Crea progetto"}
         </Button>
       </div>
     </form>

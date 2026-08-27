@@ -3,6 +3,8 @@ import { prisma } from "./prisma";
 import { isPaletteKey, isThemeMode } from "./theme";
 import { DEFAULT_STORAGE_SETTINGS } from "./storage/types";
 import { mergeModules } from "./modules";
+import { fillTranslations } from "./translate";
+import { LOCALES } from "./constants";
 import { DEFAULT_HOME, DEFAULT_LANGUAGE } from "./default-settings";
 import type { StorageSettings } from "./storage/types";
 import type { Prisma } from "@/generated/prisma-sqlite/client";
@@ -31,6 +33,27 @@ import type {
 // plain JSON-serializable data written by this module).
 function toJson<T>(value: T): Prisma.InputJsonValue {
   return value as unknown as Prisma.InputJsonValue;
+}
+
+// Every admin-authored model stores its text as `translations[locale]`, and
+// the admin only writes the language configured under Admin → Lingua. Filling
+// the rest here means each write path gets it, rather than every form and API
+// route having to remember. Existing text is never overwritten, so a
+// translation corrected by hand survives later saves.
+async function withTranslations<T>(translations: T): Promise<T> {
+  try {
+    const { language } = await getSettings();
+    const targets = LOCALES.filter((locale) => locale !== language.defaultLocale);
+    const filled = await fillTranslations(
+      translations as Record<string, Record<string, unknown>>,
+      language.defaultLocale,
+      targets,
+    );
+    return filled as T;
+  } catch {
+    // Settings unreadable (pre-setup) — store exactly what was given.
+    return translations;
+  }
 }
 
 // ---------- Projects ----------
@@ -79,7 +102,7 @@ export async function createProject(project: Project): Promise<Project> {
       images: toJson(project.images),
       links: toJson(project.links),
       techStack: toJson(project.techStack),
-      translations: toJson(project.translations),
+      translations: toJson(await withTranslations(project.translations)),
       createdAt: new Date(project.createdAt),
       updatedAt: new Date(project.updatedAt),
     },
@@ -99,7 +122,7 @@ export async function updateProject(id: string, data: Partial<Project>): Promise
         ...(data.images !== undefined && { images: toJson(data.images) }),
         ...(data.links !== undefined && { links: toJson(data.links) }),
         ...(data.techStack !== undefined && { techStack: toJson(data.techStack) }),
-        ...(data.translations !== undefined && { translations: toJson(data.translations) }),
+        ...(data.translations !== undefined && { translations: toJson(await withTranslations(data.translations)) }),
         updatedAt: new Date(),
       },
     });
@@ -155,7 +178,7 @@ export async function createBlogPost(post: BlogPost): Promise<BlogPost> {
       coverImage: post.coverImage,
       tags: toJson(post.tags),
       readingTime: post.readingTime,
-      translations: toJson(post.translations),
+      translations: toJson(await withTranslations(post.translations)),
       createdAt: new Date(post.createdAt),
       updatedAt: new Date(post.updatedAt),
       publishedAt: post.publishedAt ? new Date(post.publishedAt) : null,
@@ -174,7 +197,7 @@ export async function updateBlogPostBySlug(slug: string, data: Partial<BlogPost>
         ...(data.coverImage !== undefined && { coverImage: data.coverImage }),
         ...(data.tags !== undefined && { tags: toJson(data.tags) }),
         ...(data.readingTime !== undefined && { readingTime: data.readingTime }),
-        ...(data.translations !== undefined && { translations: toJson(data.translations) }),
+        ...(data.translations !== undefined && { translations: toJson(await withTranslations(data.translations)) }),
         ...(data.publishedAt !== undefined && {
           publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
         }),
@@ -238,7 +261,7 @@ export async function createSkill(skill: Skill): Promise<Skill> {
       proficiency: skill.proficiency,
       yearsOfExperience: skill.yearsOfExperience,
       order: skill.order,
-      translations: toJson(skill.translations),
+      translations: toJson(await withTranslations(skill.translations)),
     },
   });
   return mapSkill(row);
@@ -254,7 +277,7 @@ export async function updateSkill(id: string, data: Partial<Skill>): Promise<Ski
         ...(data.proficiency !== undefined && { proficiency: data.proficiency }),
         ...(data.yearsOfExperience !== undefined && { yearsOfExperience: data.yearsOfExperience }),
         ...(data.order !== undefined && { order: data.order }),
-        ...(data.translations !== undefined && { translations: toJson(data.translations) }),
+        ...(data.translations !== undefined && { translations: toJson(await withTranslations(data.translations)) }),
       },
     });
     return mapSkill(row);
@@ -312,7 +335,7 @@ export async function createExperience(entry: Experience): Promise<Experience> {
       company: entry.company,
       logo: entry.logo,
       website: entry.website,
-      translations: toJson(entry.translations),
+      translations: toJson(await withTranslations(entry.translations)),
     },
   });
   return mapExperience(row);
@@ -331,7 +354,7 @@ export async function updateExperience(id: string, data: Partial<Experience>): P
         ...(data.company !== undefined && { company: data.company }),
         ...(data.logo !== undefined && { logo: data.logo }),
         ...(data.website !== undefined && { website: data.website }),
-        ...(data.translations !== undefined && { translations: toJson(data.translations) }),
+        ...(data.translations !== undefined && { translations: toJson(await withTranslations(data.translations)) }),
       },
     });
     return mapExperience(row);
@@ -397,7 +420,7 @@ export async function createAiImage(image: AiImage): Promise<AiImage> {
       seed: image.seed,
       negativePrompt: image.negativePrompt,
       loras: toJson(image.loras),
-      translations: toJson(image.translations),
+      translations: toJson(await withTranslations(image.translations)),
       createdAt: new Date(image.createdAt),
     },
   });
@@ -419,7 +442,7 @@ export async function updateAiImage(id: string, data: Partial<AiImage>): Promise
         ...(data.seed !== undefined && { seed: data.seed }),
         ...(data.negativePrompt !== undefined && { negativePrompt: data.negativePrompt }),
         ...(data.loras !== undefined && { loras: toJson(data.loras) }),
-        ...(data.translations !== undefined && { translations: toJson(data.translations) }),
+        ...(data.translations !== undefined && { translations: toJson(await withTranslations(data.translations)) }),
       },
     });
     return mapAiImage(row);

@@ -11,7 +11,7 @@ export default async function AdminExperiencePage() {
   return (
     <div>
       <AdminHeader
-        title="Experience"
+        title="Esperienza"
         action={
           <ButtonLink href="/admin/experience/new" size="sm">
             <Plus className="h-4 w-4" /> New entry

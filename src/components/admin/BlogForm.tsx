@@ -7,11 +7,11 @@ import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
+import { Tabs, TabsContent } from "@/components/ui/Tabs";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { useToast } from "@/context/ToastContext";
-import type { BlogPost, BlogStatus } from "@/types";
+import type { BlogPost, BlogStatus , Locale} from "@/types";
 
 interface BlogFormValues {
   slug: string;
@@ -43,7 +43,7 @@ function toFormValues(post?: BlogPost): BlogFormValues {
   };
 }
 
-export function BlogForm({ post }: { post?: BlogPost }) {
+export function BlogForm({ post, locale }: { post?: BlogPost; locale: Locale }) {
   const router = useRouter();
   const toast = useToast();
   const isEditing = Boolean(post);
@@ -142,11 +142,10 @@ export function BlogForm({ post }: { post?: BlogPost }) {
         label="Cover image"
       />
 
-      <Tabs defaultValue="en">
-        <TabsList>
-          <TabsTrigger value="en">English</TabsTrigger>
-          <TabsTrigger value="it">Italiano</TabsTrigger>
-        </TabsList>
+      {/* Only the authoring language is shown; the other locales are
+          generated on save (Admin → Lingua). The hidden group stays mounted
+          so its stored values round-trip untouched. */}
+      <Tabs defaultValue={locale}>
         <TabsContent value="en">
           <div className="space-y-4">
             <Input {...register("titleEn", { required: true })} placeholder="Title" />
@@ -166,7 +165,7 @@ export function BlogForm({ post }: { post?: BlogPost }) {
       <div className="flex items-center justify-between border-t border-border pt-6">
         {isEditing ? <DeleteButton onConfirm={handleDelete} label="post" /> : <span />}
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving…" : isEditing ? "Save changes" : "Create post"}
+          {isSubmitting ? "Salvataggio…" : isEditing ? "Salva modifiche" : "Crea articolo"}
         </Button>
       </div>
     </form>

@@ -42,13 +42,13 @@ export default function AdminLoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
       <Card className="w-full max-w-sm p-8">
-        <h1 className="text-xl font-medium tracking-tight text-foreground">Admin login</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Enter your credentials to continue.</p>
+        <h1 className="text-xl font-medium tracking-tight text-foreground">Accesso amministratore</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Inserisci le credenziali per continuare.</p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <Input
             type="text"
-            placeholder="Username"
+            placeholder="Nome utente"
             value={username}
             onChange={(event) => setUsername(event.target.value)}
             autoFocus
@@ -73,7 +73,7 @@ export default function AdminLoginPage() {
           </div>
           {error && <p className="text-xs text-red-400">{error}</p>}
           <Button type="submit" size="lg" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? "Signing in…" : "Sign in"}
+            {isSubmitting ? "Accesso…" : "Accedi"}
           </Button>
         </form>
       </Card>

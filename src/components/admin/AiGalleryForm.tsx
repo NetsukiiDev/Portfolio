@@ -6,11 +6,11 @@ import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
+import { Tabs, TabsContent } from "@/components/ui/Tabs";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { useToast } from "@/context/ToastContext";
-import type { AiImage } from "@/types";
+import type { AiImage , Locale} from "@/types";
 
 interface AiGalleryFormValues {
   image: string;
@@ -50,7 +50,7 @@ function toFormValues(image?: AiImage): AiGalleryFormValues {
   };
 }
 
-export function AiGalleryForm({ image }: { image?: AiImage }) {
+export function AiGalleryForm({ image, locale }: { image?: AiImage; locale: Locale }) {
   const router = useRouter();
   const toast = useToast();
   const isEditing = Boolean(image);
@@ -163,11 +163,10 @@ export function AiGalleryForm({ image }: { image?: AiImage }) {
         <Textarea rows={2} {...register("negativePrompt")} />
       </div>
 
-      <Tabs defaultValue="en">
-        <TabsList>
-          <TabsTrigger value="en">English</TabsTrigger>
-          <TabsTrigger value="it">Italiano</TabsTrigger>
-        </TabsList>
+      {/* Only the authoring language is shown; the other locales are
+          generated on save (Admin → Lingua). The hidden group stays mounted
+          so its stored values round-trip untouched. */}
+      <Tabs defaultValue={locale}>
         <TabsContent value="en">
           <div className="space-y-4">
             <Input {...register("titleEn", { required: true })} placeholder="Title" />
@@ -187,7 +186,7 @@ export function AiGalleryForm({ image }: { image?: AiImage }) {
       <div className="flex items-center justify-between border-t border-border pt-6">
         {isEditing ? <DeleteButton onConfirm={handleDelete} label="image" /> : <span />}
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving…" : isEditing ? "Save changes" : "Add image"}
+          {isSubmitting ? "Salvataggio…" : isEditing ? "Salva modifiche" : "Add image"}
         </Button>
       </div>
     </form>

@@ -11,7 +11,7 @@ export default async function AdminAiGalleryPage() {
   return (
     <div>
       <AdminHeader
-        title="AI Gallery"
+        title="Galleria AI"
         action={
           <ButtonLink href="/admin/ai-gallery/new" size="sm">
             <Plus className="h-4 w-4" /> Add image
