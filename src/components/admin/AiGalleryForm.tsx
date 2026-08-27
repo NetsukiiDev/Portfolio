@@ -184,7 +184,7 @@ export function AiGalleryForm({ image, locale }: { image?: AiImage; locale: Loca
       </Tabs>
 
       <div className="flex items-center justify-between border-t border-border pt-6">
-        {isEditing ? <DeleteButton onConfirm={handleDelete} label="image" /> : <span />}
+        {isEditing ? <DeleteButton onConfirm={handleDelete} label="l'immagine" /> : <span />}
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Salvataggio…" : isEditing ? "Salva modifiche" : "Add image"}
         </Button>

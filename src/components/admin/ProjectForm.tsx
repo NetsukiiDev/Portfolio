@@ -186,7 +186,7 @@ export function ProjectForm({ project, locale }: { project?: Project; locale: Lo
       </Tabs>
 
       <div className="flex items-center justify-between border-t border-border pt-6">
-        {isEditing ? <DeleteButton onConfirm={handleDelete} label="project" /> : <span />}
+        {isEditing ? <DeleteButton onConfirm={handleDelete} label="il progetto" /> : <span />}
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Salvataggio…" : isEditing ? "Salva modifiche" : "Crea progetto"}
         </Button>

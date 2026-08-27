@@ -42,7 +42,7 @@ export function ExperienceTable({ items: initialItems }: { items: Experience[] }
             >
               <Pencil className="h-4 w-4" />
             </Link>
-            <DeleteButton onConfirm={() => handleDelete(item.id)} label="entry" />
+            <DeleteButton onConfirm={() => handleDelete(item.id)} label="la voce" />
           </div>
         </Card>
       ))}

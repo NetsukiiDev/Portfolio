@@ -8,11 +8,8 @@ import { Button } from "@/components/ui/Button";
 import { Toggle } from "@/components/ui/Toggle";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { useToast } from "@/context/ToastContext";
-import { LOCALES } from "@/lib/constants";
 import type { GithubStatKey, HomeSettings, Settings } from "@/types/settings";
 import type { Locale } from "@/types";
-
-const LOCALE_LABELS: Record<Locale, string> = { en: "English", it: "Italiano" };
 
 /** Which GitHub figure each row shows — the wording below it is editable. */
 const STAT_LABELS: Record<GithubStatKey, string> = {
@@ -22,7 +19,7 @@ const STAT_LABELS: Record<GithubStatKey, string> = {
   years: "Anni su GitHub",
 };
 
-export function PortfolioForm({ settings }: { settings: Settings }) {
+export function PortfolioForm({ settings, locale }: { settings: Settings; locale: Locale }) {
   const toast = useToast();
   const [home, setHome] = useState<HomeSettings>(settings.home);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -78,9 +75,9 @@ export function PortfolioForm({ settings }: { settings: Settings }) {
 
         <TabsContent value="hero">
           <div className="space-y-6">
-            {LOCALES.map((locale) => (
-              <Card key={locale} className="space-y-4 p-5">
-                <h3 className="text-sm font-medium text-foreground">{LOCALE_LABELS[locale]}</h3>
+            {/* Written in the authoring language only; the other locales are
+                generated on save and reviewed under Lingua. */}
+            <Card className="space-y-4 p-5">
                 <Input
                   placeholder="Kicker (etichetta sopra il titolo)"
                   value={home.translations[locale].kicker}
@@ -115,8 +112,7 @@ export function PortfolioForm({ settings }: { settings: Settings }) {
                     onChange={(e) => updateText(locale, "ctaSecondary", e.target.value)}
                   />
                 </div>
-              </Card>
-            ))}
+            </Card>
           </div>
         </TabsContent>
 
@@ -137,16 +133,11 @@ export function PortfolioForm({ settings }: { settings: Settings }) {
             {home.stats.map((stat, index) => (
               <Card key={stat.key} className="space-y-4 p-5">
                 <h3 className="text-sm font-medium text-foreground">{STAT_LABELS[stat.key]}</h3>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {LOCALES.map((locale) => (
-                    <Input
-                      key={locale}
-                      placeholder={`Etichetta (${LOCALE_LABELS[locale]})`}
-                      value={stat.translations[locale].label}
-                      onChange={(e) => updateStatLabel(index, locale, e.target.value)}
-                    />
-                  ))}
-                </div>
+                <Input
+                  placeholder="Etichetta"
+                  value={stat.translations[locale].label}
+                  onChange={(e) => updateStatLabel(index, locale, e.target.value)}
+                />
               </Card>
             ))}
           </div>

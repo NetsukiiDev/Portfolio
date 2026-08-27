@@ -43,7 +43,7 @@ export function AiGalleryTable({ images: initialImages }: { images: AiImage[] })
             >
               <Pencil className="h-4 w-4" />
             </Link>
-            <DeleteButton onConfirm={() => handleDelete(image.id)} label="image" />
+            <DeleteButton onConfirm={() => handleDelete(image.id)} label="l'immagine" />
           </div>
         </Card>
       ))}

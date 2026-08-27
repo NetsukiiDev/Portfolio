@@ -42,7 +42,7 @@ export function BlogTable({ posts }: { posts: BlogPost[] }) {
             >
               <Pencil className="h-4 w-4" />
             </Link>
-            <DeleteButton onConfirm={() => handleDelete(post.slug)} label="post" />
+            <DeleteButton onConfirm={() => handleDelete(post.slug)} label="l'articolo" />
           </div>
         </Card>
       ))}

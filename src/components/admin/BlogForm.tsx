@@ -163,7 +163,7 @@ export function BlogForm({ post, locale }: { post?: BlogPost; locale: Locale }) 
       </Tabs>
 
       <div className="flex items-center justify-between border-t border-border pt-6">
-        {isEditing ? <DeleteButton onConfirm={handleDelete} label="post" /> : <span />}
+        {isEditing ? <DeleteButton onConfirm={handleDelete} label="l'articolo" /> : <span />}
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Salvataggio…" : isEditing ? "Salva modifiche" : "Crea articolo"}
         </Button>

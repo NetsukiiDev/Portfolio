@@ -202,7 +202,7 @@ export function ExperienceForm({ experience, locale }: { experience?: Experience
       </Tabs>
 
       <div className="flex items-center justify-between border-t border-border pt-6">
-        {isEditing ? <DeleteButton onConfirm={handleDelete} label="entry" /> : <span />}
+        {isEditing ? <DeleteButton onConfirm={handleDelete} label="la voce" /> : <span />}
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Salvataggio…" : isEditing ? "Salva modifiche" : "Crea voce"}
         </Button>

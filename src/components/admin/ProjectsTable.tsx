@@ -44,7 +44,7 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
               >
                 <Pencil className="h-4 w-4" />
               </Link>
-              <DeleteButton onConfirm={() => handleDelete(project.id)} label="project" />
+              <DeleteButton onConfirm={() => handleDelete(project.id)} label="il progetto" />
             </div>
           </Card>
         ))}

@@ -15,7 +15,7 @@ import { useToast } from "@/context/ToastContext";
 import { cn } from "@/lib/cn";
 import { PALETTES, PALETTE_KEYS, type PaletteKey, type ThemeMode } from "@/lib/theme";
 import type { StorageProviderKey } from "@/lib/storage/types";
-import type { Settings } from "@/types";
+import type { Settings, Locale } from "@/types";
 
 
 const STORAGE_PROVIDER_OPTIONS: { value: StorageProviderKey; label: string }[] = [
@@ -126,7 +126,7 @@ function toFormValues(settings: Settings): SettingsFormValues {
   };
 }
 
-export function SettingsForm({ settings }: { settings: Settings }) {
+export function SettingsForm({ settings, locale }: { settings: Settings; locale: Locale }) {
   const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -227,12 +227,12 @@ export function SettingsForm({ settings }: { settings: Settings }) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <Tabs defaultValue="personal">
         <TabsList>
-          <TabsTrigger value="personal">Personal</TabsTrigger>
+          <TabsTrigger value="personal">Profilo</TabsTrigger>
           <TabsTrigger value="social">Social</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
           <TabsTrigger value="site">Generale</TabsTrigger>
-          <TabsTrigger value="storage">Storage</TabsTrigger>
-          <TabsTrigger value="reset">Reset</TabsTrigger>
+          <TabsTrigger value="storage">Archiviazione</TabsTrigger>
+          <TabsTrigger value="reset">Reimposta</TabsTrigger>
         </TabsList>
 
         <TabsContent value="personal">
@@ -247,11 +247,10 @@ export function SettingsForm({ settings }: { settings: Settings }) {
               <Input {...register("email")} placeholder="Email" />
               <Input {...register("resumeUrl")} placeholder="Resume URL" />
             </div>
-            <Tabs defaultValue="en">
-              <TabsList>
-                <TabsTrigger value="en">English</TabsTrigger>
-                <TabsTrigger value="it">Italiano</TabsTrigger>
-              </TabsList>
+            {/* Only the authoring language is shown; the other locales are
+                generated on save and reviewed under Admin → Lingua. The hidden
+                group stays mounted so its stored values round-trip untouched. */}
+            <Tabs defaultValue={locale}>
               <TabsContent value="en">
                 <div className="space-y-4">
                   <Input {...register("nameEn")} placeholder="Name" />
@@ -293,11 +292,10 @@ export function SettingsForm({ settings }: { settings: Settings }) {
               folder="settings"
               label="OG image"
             />
-            <Tabs defaultValue="en">
-              <TabsList>
-                <TabsTrigger value="en">English</TabsTrigger>
-                <TabsTrigger value="it">Italiano</TabsTrigger>
-              </TabsList>
+            {/* Only the authoring language is shown; the other locales are
+                generated on save and reviewed under Admin → Lingua. The hidden
+                group stays mounted so its stored values round-trip untouched. */}
+            <Tabs defaultValue={locale}>
               <TabsContent value="en">
                 <div className="space-y-4">
                   <Input {...register("seoTitleEn")} placeholder="Site title" />
@@ -373,10 +371,11 @@ export function SettingsForm({ settings }: { settings: Settings }) {
               name="maintenanceEnabled"
               render={({ field }) => <Toggle checked={field.value} onChange={field.onChange} label="Maintenance mode" />}
             />
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Input {...register("maintenanceMessageEn")} placeholder="Maintenance message (English)" />
-              <Input {...register("maintenanceMessageIt")} placeholder="Maintenance message (Italiano)" />
-            </div>
+            {locale === "it" ? (
+              <Input {...register("maintenanceMessageIt")} placeholder="Messaggio di manutenzione" />
+            ) : (
+              <Input {...register("maintenanceMessageEn")} placeholder="Maintenance message" />
+            )}
           </div>
         </TabsContent>
 
@@ -471,7 +470,7 @@ export function SettingsForm({ settings }: { settings: Settings }) {
 
       <div className="flex justify-end border-t border-border pt-6">
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Salvataggio…" : "Save settings"}
+          {isSubmitting ? "Salvataggio…" : "Salva impostazioni"}
         </Button>
       </div>
     </form>

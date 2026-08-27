@@ -9,8 +9,6 @@ export default async function AdminModulesPage() {
   return (
     <div>
       <AdminHeader title="Moduli" />
-      {/* Secrets are masked because this form PUTs the whole settings object
-          back; the API restores the stored values when it sees the mask. */}
       <ModulesForm settings={{ ...settings, storage: maskStorageSecrets(settings.storage) }} />
     </div>
   );

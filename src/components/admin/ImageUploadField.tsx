@@ -85,7 +85,7 @@ export function ImageUploadField({
           onClick={() => onChange("")}
           className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
         >
-          <X className="h-3 w-3" /> Remove
+          <X className="h-3 w-3" /> Rimuovi
         </button>
       )}
     </div>

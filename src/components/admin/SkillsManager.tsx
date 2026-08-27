@@ -147,7 +147,7 @@ export function SkillsManager({
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
-                      <DeleteButton onConfirm={() => handleDelete(skill.id)} label="skill" />
+                      <DeleteButton onConfirm={() => handleDelete(skill.id)} label="la competenza" />
                     </div>
                   </Card>
                 ))}
