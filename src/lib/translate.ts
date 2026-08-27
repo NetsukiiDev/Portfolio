@@ -71,13 +71,16 @@ type Fields = Record<string, unknown>;
  * covers settings, the home page and all content types.
  *
  * Existing target text is only replaced when `overwrite` is set, so a
- * translation the admin has corrected by hand survives later saves.
+ * translation the admin has corrected by hand survives later saves — with
+ * one exception: pass `previous` (what was stored before this save) and any
+ * field whose *source* text changed is retranslated, since a translation of
+ * text that no longer exists is simply stale.
  */
 export async function fillTranslations<T extends Record<string, Record<string, unknown>>>(
   translations: T,
   source: Locale,
   targets: Locale[],
-  { overwrite = false }: { overwrite?: boolean } = {},
+  { overwrite = false, previous }: { overwrite?: boolean; previous?: T | null } = {},
 ): Promise<T> {
   const from = translations[source] as Fields | undefined;
   if (!from) return translations;
@@ -97,7 +100,12 @@ export async function fillTranslations<T extends Record<string, Record<string, u
         continue;
       }
       const current = existing[field];
-      if (!overwrite && typeof current === "string" && current.trim()) continue;
+      const sourceChanged = previous ? previous[source]?.[field] !== value : false;
+      // A target that still reads exactly like the source is what a failed
+      // translation leaves behind (the original is kept so the page is never
+      // blank), so it's worth another try rather than being frozen for good.
+      const settled = typeof current === "string" && current.trim() !== "" && current !== value;
+      if (!overwrite && !sourceChanged && settled) continue;
       next[field] = (await translateText(value, source, target)) ?? value;
     }
 

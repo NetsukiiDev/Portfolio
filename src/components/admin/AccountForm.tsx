@@ -39,14 +39,14 @@ export function AccountForm() {
 
       if (!res.ok) {
         const body = (await res.json().catch(() => null)) as { error?: string } | null;
-        toast.error(body?.error ?? "Something went wrong");
+        toast.error(body?.error ?? "Qualcosa è andato storto");
         return;
       }
 
-      toast.success("Password updated");
+      toast.success("Password aggiornata");
       reset();
     } catch {
-      toast.error("Something went wrong");
+      toast.error("Qualcosa è andato storto");
     } finally {
       setIsSubmitting(false);
     }
@@ -74,11 +74,11 @@ export function AccountForm() {
           })}
         />
         {errors.confirmPassword && (
-          <p className="mt-1.5 text-xs text-red-400">{errors.confirmPassword.message ?? "Required"}</p>
+          <p className="mt-1.5 text-xs text-red-400">{errors.confirmPassword.message ?? "Campo obbligatorio"}</p>
         )}
       </div>
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Updating…" : "Update password"}
+        {isSubmitting ? "Aggiornamento…" : "Aggiorna password"}
       </Button>
     </form>
   );

@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
-import { Tabs, TabsContent } from "@/components/ui/Tabs";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { useToast } from "@/context/ToastContext";
@@ -22,15 +21,13 @@ interface AiGalleryFormValues {
   seed: number;
   negativePrompt: string;
   loras: string;
-  titleEn: string;
-  descriptionEn: string;
-  promptEn: string;
-  titleIt: string;
-  descriptionIt: string;
-  promptIt: string;
+  title: string;
+  description: string;
+  prompt: string;
 }
 
-function toFormValues(image?: AiImage): AiGalleryFormValues {
+function toFormValues(image: AiImage | undefined, locale: Locale): AiGalleryFormValues {
+  const text = image?.translations[locale];
   return {
     image: image?.image ?? "",
     tags: image?.tags.join(", ") ?? "",
@@ -41,12 +38,9 @@ function toFormValues(image?: AiImage): AiGalleryFormValues {
     seed: image?.seed ?? 0,
     negativePrompt: image?.negativePrompt ?? "",
     loras: image?.loras.map((lora) => `${lora.name}:${lora.weight}`).join(", ") ?? "",
-    titleEn: image?.translations.en.title ?? "",
-    descriptionEn: image?.translations.en.description ?? "",
-    promptEn: image?.translations.en.prompt ?? "",
-    titleIt: image?.translations.it.title ?? "",
-    descriptionIt: image?.translations.it.description ?? "",
-    promptIt: image?.translations.it.prompt ?? "",
+    title: text?.title ?? "",
+    description: text?.description ?? "",
+    prompt: text?.prompt ?? "",
   };
 }
 
@@ -57,7 +51,7 @@ export function AiGalleryForm({ image, locale }: { image?: AiImage; locale: Loca
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { register, handleSubmit, watch, setValue } = useForm<AiGalleryFormValues>({
-    defaultValues: toFormValues(image),
+    defaultValues: toFormValues(image, locale),
   });
 
   const imageUrl = watch("image");
@@ -86,9 +80,11 @@ export function AiGalleryForm({ image, locale }: { image?: AiImage; locale: Loca
           const [name, weight] = entry.split(":");
           return { name: name?.trim() ?? "", weight: Number(weight) || 1 };
         }),
+      // Only the authoring language is written here; the rest is generated
+      // server-side, and any locale already stored rides along untouched.
       translations: {
-        en: { title: values.titleEn, description: values.descriptionEn, prompt: values.promptEn },
-        it: { title: values.titleIt, description: values.descriptionIt, prompt: values.promptIt },
+        ...image?.translations,
+        [locale]: { title: values.title, description: values.description, prompt: values.prompt },
       },
     };
 
@@ -100,11 +96,11 @@ export function AiGalleryForm({ image, locale }: { image?: AiImage; locale: Loca
       });
       if (!res.ok) throw new Error("Request failed");
 
-      toast.success(isEditing ? "Image updated" : "Image added");
+      toast.success(isEditing ? "Immagine aggiornata" : "Immagine aggiunta");
       router.push("/admin/ai-gallery");
       router.refresh();
     } catch {
-      toast.error("Something went wrong");
+      toast.error("Qualcosa è andato storto");
     } finally {
       setIsSubmitting(false);
     }
@@ -112,7 +108,7 @@ export function AiGalleryForm({ image, locale }: { image?: AiImage; locale: Loca
 
   async function handleDelete() {
     await fetch(`/api/ai-gallery/${image!.id}`, { method: "DELETE" });
-    toast.success("Image deleted");
+    toast.success("Immagine eliminata");
     router.push("/admin/ai-gallery");
     router.refresh();
   }
@@ -163,30 +159,18 @@ export function AiGalleryForm({ image, locale }: { image?: AiImage; locale: Loca
         <Textarea rows={2} {...register("negativePrompt")} />
       </div>
 
-      {/* Only the authoring language is shown; the other locales are
-          generated on save (Admin → Lingua). The hidden group stays mounted
-          so its stored values round-trip untouched. */}
-      <Tabs defaultValue={locale}>
-        <TabsContent value="en">
-          <div className="space-y-4">
-            <Input {...register("titleEn", { required: true })} placeholder="Title" />
-            <Textarea rows={2} {...register("descriptionEn")} placeholder="Description" />
-            <Textarea rows={3} {...register("promptEn")} placeholder="Prompt" />
-          </div>
-        </TabsContent>
-        <TabsContent value="it">
-          <div className="space-y-4">
-            <Input {...register("titleIt")} placeholder="Titolo" />
-            <Textarea rows={2} {...register("descriptionIt")} placeholder="Descrizione" />
-            <Textarea rows={3} {...register("promptIt")} placeholder="Prompt" />
-          </div>
-        </TabsContent>
-      </Tabs>
+      {/* Only the authoring language is written; the other locales are
+          generated on save and reviewed under Admin → Lingua. */}
+      <div className="space-y-4">
+        <Input {...register("title", { required: true })} placeholder="Titolo" />
+        <Textarea rows={2} {...register("description")} placeholder="Descrizione" />
+        <Textarea rows={3} {...register("prompt")} placeholder="Prompt" />
+      </div>
 
       <div className="flex items-center justify-between border-t border-border pt-6">
         {isEditing ? <DeleteButton onConfirm={handleDelete} label="l'immagine" /> : <span />}
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Salvataggio…" : isEditing ? "Salva modifiche" : "Add image"}
+          {isSubmitting ? "Salvataggio…" : isEditing ? "Salva modifiche" : "Aggiungi immagine"}
         </Button>
       </div>
     </form>

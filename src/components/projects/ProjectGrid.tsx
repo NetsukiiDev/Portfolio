@@ -1,12 +1,14 @@
 "use client";
 
 import { StaggerChildren, StaggerChild } from "@/components/animations";
+import { useTranslation } from "@/hooks/useTranslation";
 import { ProjectCard } from "./ProjectCard";
 import type { Project } from "@/types";
 
 export function ProjectGrid({ projects }: { projects: Project[] }) {
+  const { t } = useTranslation();
   if (projects.length === 0) {
-    return <p className="text-center text-sm text-muted-foreground">No projects match this filter yet.</p>;
+    return <p className="text-center text-sm text-muted-foreground">{t.common.noProjects}</p>;
   }
 
   return (

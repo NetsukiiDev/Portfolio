@@ -85,7 +85,7 @@ export function ModulesForm({ settings }: { settings: Settings }) {
                   {mod.hasHomeSection && (
                     <div>
                       <Toggle
-                        checked={config.showOnHome && config.enabled}
+                        checked={config.showOnHome}
                         onChange={(checked) => update(mod.key, { showOnHome: checked })}
                         label="Mostra la sezione in home"
                       />

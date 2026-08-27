@@ -40,7 +40,7 @@ export function ImageUploadField({
         const data = (await res.json()) as { url: string };
         onChange(data.url);
       } catch {
-        setError("Upload failed. Try a smaller image.");
+        setError("Caricamento non riuscito. Prova con un'immagine più piccola.");
       } finally {
         setUploading(false);
       }
@@ -67,7 +67,7 @@ export function ImageUploadField({
         <input {...getInputProps()} />
         {value ? (
           <div className="relative h-24 w-24 overflow-hidden rounded-xl">
-            <ImageWithFallback src={value} alt="Preview" fill className="object-cover" />
+            <ImageWithFallback src={value} alt="Anteprima" fill className="object-cover" />
           </div>
         ) : uploading ? (
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />

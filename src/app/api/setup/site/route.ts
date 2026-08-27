@@ -11,6 +11,7 @@ import {
   DEFAULT_CONTACT_FORM,
   DEFAULT_MAINTENANCE,
   DEFAULT_HOME,
+  DEFAULT_PAGES,
 } from "@/lib/default-settings";
 import { DEFAULT_MODULES } from "@/lib/modules";
 import { DEFAULT_STORAGE_SETTINGS } from "@/lib/storage/types";
@@ -72,6 +73,7 @@ export async function POST(request: NextRequest) {
       storage: toJson(storageSettings),
       modules: toJson(DEFAULT_MODULES),
       home: toJson(DEFAULT_HOME),
+      pages: toJson(DEFAULT_PAGES),
       domain,
       https,
       defaultLocale,

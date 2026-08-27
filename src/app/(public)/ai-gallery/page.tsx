@@ -1,6 +1,7 @@
 import { getAiGallery } from "@/lib/data";
 import { Container } from "@/components/layout/Container";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { getPageDescriptions } from "@/lib/site.server";
 import { GalleryGrid } from "@/components/ai-gallery/GalleryGrid";
 import { assertModuleEnabled } from "@/lib/modules.server";
 
@@ -11,7 +12,7 @@ export default async function AiGalleryPage() {
 
   return (
     <Container>
-      <PageHeader page="aiGallery" />
+      <PageHeader page="aiGallery" descriptions={await getPageDescriptions("aiGallery")} />
       <GalleryGrid images={sorted} />
     </Container>
   );

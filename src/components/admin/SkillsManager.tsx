@@ -19,22 +19,19 @@ interface SkillFormValues {
   icon: string;
   proficiency: number;
   yearsOfExperience: number;
-  nameEn: string;
-  descriptionEn: string;
-  nameIt: string;
-  descriptionIt: string;
+  name: string;
+  description: string;
 }
 
-function toFormValues(skill?: Skill, defaultCategoryId?: string): SkillFormValues {
+function toFormValues(skill: Skill | undefined, locale: Locale, defaultCategoryId?: string): SkillFormValues {
+  const text = skill?.translations[locale];
   return {
     categoryId: skill?.categoryId ?? defaultCategoryId ?? "",
     icon: skill?.icon ?? "",
     proficiency: skill?.proficiency ?? 70,
     yearsOfExperience: skill?.yearsOfExperience ?? 1,
-    nameEn: skill?.translations.en.name ?? "",
-    descriptionEn: skill?.translations.en.description ?? "",
-    nameIt: skill?.translations.it.name ?? "",
-    descriptionIt: skill?.translations.it.description ?? "",
+    name: text?.name ?? "",
+    description: text?.description ?? "",
   };
 }
 
@@ -56,18 +53,18 @@ export function SkillsManager({
   const sortedCategories = [...categories].sort((a, b) => a.order - b.order);
 
   const { register, handleSubmit, control, reset } = useForm<SkillFormValues>({
-    defaultValues: toFormValues(undefined, sortedCategories[0]?.id),
+    defaultValues: toFormValues(undefined, locale, sortedCategories[0]?.id),
   });
 
   function openNew() {
     setEditing(null);
-    reset(toFormValues(undefined, sortedCategories[0]?.id));
+    reset(toFormValues(undefined, locale, sortedCategories[0]?.id));
     setModalOpen(true);
   }
 
   function openEdit(skill: Skill) {
     setEditing(skill);
-    reset(toFormValues(skill));
+    reset(toFormValues(skill, locale));
     setModalOpen(true);
   }
 
@@ -78,9 +75,11 @@ export function SkillsManager({
       proficiency: Number(values.proficiency),
       yearsOfExperience: Number(values.yearsOfExperience),
       order: editing?.order ?? skills.filter((s) => s.categoryId === values.categoryId).length,
+      // Only the authoring language is written here; the rest is generated
+      // server-side, and any locale already stored rides along untouched.
       translations: {
-        en: { name: values.nameEn, description: values.descriptionEn },
-        it: { name: values.nameIt, description: values.descriptionIt },
+        ...editing?.translations,
+        [locale]: { name: values.name, description: values.description },
       },
     };
 
@@ -93,7 +92,7 @@ export function SkillsManager({
         });
         const updated = (await res.json()) as Skill;
         setSkills((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
-        toast.success("Skill updated");
+        toast.success("Competenza aggiornata");
       } else {
         const res = await fetch("/api/skills", {
           method: "POST",
@@ -102,19 +101,19 @@ export function SkillsManager({
         });
         const created = (await res.json()) as Skill;
         setSkills((prev) => [...prev, created]);
-        toast.success("Skill added");
+        toast.success("Competenza aggiunta");
       }
       setModalOpen(false);
       router.refresh();
     } catch {
-      toast.error("Something went wrong");
+      toast.error("Qualcosa è andato storto");
     }
   }
 
   async function handleDelete(id: string) {
     await fetch(`/api/skills/${id}`, { method: "DELETE" });
     setSkills((prev) => prev.filter((skill) => skill.id !== id));
-    toast.success("Skill deleted");
+    toast.success("Competenza eliminata");
     router.refresh();
   }
 
@@ -122,7 +121,7 @@ export function SkillsManager({
     <div>
       <div className="mb-6 flex justify-end">
         <Button size="sm" onClick={openNew}>
-          <Plus className="h-4 w-4" /> New skill
+          <Plus className="h-4 w-4" /> Nuova competenza
         </Button>
       </div>
 
@@ -131,12 +130,12 @@ export function SkillsManager({
           const categorySkills = skills.filter((skill) => skill.categoryId === category.id);
           return (
             <div key={category.id}>
-              <h2 className="mb-3 text-sm font-medium text-muted-foreground">{category.translations.en.name}</h2>
+              <h2 className="mb-3 text-sm font-medium text-muted-foreground">{category.translations[locale]?.name}</h2>
               <div className="space-y-3">
                 {categorySkills.map((skill) => (
                   <Card key={skill.id} className="flex items-center justify-between gap-4 p-4">
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-foreground">{skill.translations.en.name}</p>
+                      <p className="text-sm font-medium text-foreground">{skill.translations[locale]?.name}</p>
                       <Progress value={skill.proficiency} className="mt-2 max-w-xs" />
                     </div>
                     <div className="flex items-center gap-2">
@@ -151,7 +150,7 @@ export function SkillsManager({
                     </div>
                   </Card>
                 ))}
-                {categorySkills.length === 0 && <p className="text-xs text-muted-foreground">No skills yet.</p>}
+                {categorySkills.length === 0 && <p className="text-xs text-muted-foreground">Nessuna competenza.</p>}
               </div>
             </div>
           );
@@ -159,7 +158,7 @@ export function SkillsManager({
       </div>
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <h2 className="text-lg font-medium text-foreground">{editing ? "Edit skill" : "New skill"}</h2>
+        <h2 className="text-lg font-medium text-foreground">{editing ? "Modifica competenza" : "Nuova competenza"}</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -173,7 +172,7 @@ export function SkillsManager({
                     onChange={field.onChange}
                     options={sortedCategories.map((category) => ({
                       value: category.id,
-                      label: category.translations.en.name,
+                      label: category.translations[locale]?.name ?? category.id,
                     }))}
                   />
                 )}
@@ -184,7 +183,7 @@ export function SkillsManager({
               <Input {...register("icon")} placeholder="react" />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-foreground">Proficiency (0-100)</label>
+              <label className="mb-2 block text-sm font-medium text-foreground">Livello (0-100)</label>
               <Input type="number" min={0} max={100} {...register("proficiency", { valueAsNumber: true })} />
             </div>
             <div>
@@ -192,22 +191,13 @@ export function SkillsManager({
               <Input type="number" min={0} {...register("yearsOfExperience", { valueAsNumber: true })} />
             </div>
           </div>
-          {/* Only the authoring language; the other locale is generated on
-              save (Admin → Lingua). */}
-          {locale === "it" ? (
-            <>
-              <Input {...register("nameIt", { required: true })} placeholder="Nome" />
-              <Input {...register("descriptionIt")} placeholder="Descrizione" />
-            </>
-          ) : (
-            <>
-              <Input {...register("nameEn", { required: true })} placeholder="Name" />
-              <Input {...register("descriptionEn")} placeholder="Description" />
-            </>
-          )}
+          {/* Only the authoring language is written; the other locales are
+              generated on save and reviewed under Admin → Lingua. */}
+          <Input {...register("name", { required: true })} placeholder="Nome" />
+          <Input {...register("description")} placeholder="Descrizione" />
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
-              Cancel
+              Annulla
             </Button>
             <Button type="submit">Salva</Button>
           </div>

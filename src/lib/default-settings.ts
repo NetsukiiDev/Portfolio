@@ -1,4 +1,4 @@
-import type { HomeSettings, LanguageSettings } from "@/types/settings";
+import type { HomeSettings, LanguageSettings, PagesSettings } from "@/types/settings";
 
 export const DEFAULT_PERSONAL = {
   translations: {
@@ -82,5 +82,28 @@ export const DEFAULT_MAINTENANCE = {
   translations: {
     en: { message: "Site under maintenance" },
     it: { message: "Sito in manutenzione" },
+  },
+};
+
+// The intro under each public page's title. Editable from /admin/portfolio →
+// Pagine; these are only the starting point.
+export const DEFAULT_PAGES: PagesSettings = {
+  translations: {
+    en: {
+      projects: "A selection of your work.",
+      skills: "The tools and technologies you work with.",
+      experience: "Where you've worked and studied.",
+      blog: "Notes, articles and ideas.",
+      aiGallery: "AI-generated images with their full generation metadata.",
+      contact: "Get in touch — I read everything that arrives.",
+    },
+    it: {
+      projects: "Una selezione dei tuoi lavori.",
+      skills: "Gli strumenti e le tecnologie con cui lavori.",
+      experience: "Dove hai lavorato e studiato.",
+      blog: "Appunti, articoli e idee.",
+      aiGallery: "Immagini generate dall'AI con i metadati completi di generazione.",
+      contact: "Scrivimi pure — leggo tutto quello che arriva.",
+    },
   },
 };

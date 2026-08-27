@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X, User, LogOut, ExternalLink } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAdmin } from "@/hooks/useAdmin";
-import { ADMIN_LINKS } from "@/lib/admin-nav";
+import { ADMIN_SECTIONS } from "@/lib/admin-nav";
 import { cn } from "@/lib/cn";
 
 export function AdminMobileNav() {
@@ -50,31 +50,41 @@ export function AdminMobileNav() {
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <nav className="flex flex-col gap-1 px-4 pt-4">
-              {ADMIN_LINKS.map((link) => {
-                const Icon = link.icon;
-                const isActive = link.href === "/admin" ? pathname === link.href : pathname.startsWith(link.href);
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 rounded-xl px-3 py-3 text-base font-medium transition-colors",
-                      isActive ? "bg-surface-wash-strong text-foreground" : "text-muted-foreground",
-                    )}
-                  >
-                    <Icon className="h-5 w-5" />
-                    {link.label}
-                  </Link>
-                );
-              })}
+            <nav className="flex max-h-[calc(100vh-4rem)] flex-col gap-1 overflow-y-auto px-4 pt-4 pb-8">
+              {ADMIN_SECTIONS.map((section, index) => (
+                <div key={section.title ?? "root"} className={cn("flex flex-col gap-1", index > 0 && "mt-5")}>
+                  {section.title && (
+                    <p className="px-3 pb-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+                      {section.title}
+                    </p>
+                  )}
+                  {section.links.map((link) => {
+                    const Icon = link.icon;
+                    const isActive =
+                      link.href === "/admin" ? pathname === link.href : pathname.startsWith(link.href);
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setOpen(false)}
+                        className={cn(
+                          "flex items-center gap-3 rounded-xl px-3 py-3 text-base font-medium transition-colors",
+                          isActive ? "bg-surface-wash-strong text-foreground" : "text-muted-foreground",
+                        )}
+                      >
+                        <Icon className="h-5 w-5" />
+                        {link.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              ))}
               <a
                 href="/"
                 target="_blank"
                 rel="noreferrer"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-3 rounded-xl px-3 py-3 text-base font-medium text-muted-foreground"
+                className="mt-5 flex items-center gap-3 rounded-xl px-3 py-3 text-base font-medium text-muted-foreground"
               >
                 <ExternalLink className="h-5 w-5" />
                 Apri Portfolio

@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
-import { Tabs, TabsContent } from "@/components/ui/Tabs";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { useToast } from "@/context/ToastContext";
@@ -19,27 +18,22 @@ interface BlogFormValues {
   coverImage: string;
   tags: string;
   readingTime: number;
-  titleEn: string;
-  excerptEn: string;
-  contentEn: string;
-  titleIt: string;
-  excerptIt: string;
-  contentIt: string;
+  title: string;
+  excerpt: string;
+  content: string;
 }
 
-function toFormValues(post?: BlogPost): BlogFormValues {
+function toFormValues(post: BlogPost | undefined, locale: Locale): BlogFormValues {
+  const text = post?.translations[locale];
   return {
     slug: post?.slug ?? "",
     status: post?.status ?? "draft",
     coverImage: post?.coverImage ?? "",
     tags: post?.tags.join(", ") ?? "",
     readingTime: post?.readingTime ?? 5,
-    titleEn: post?.translations.en.title ?? "",
-    excerptEn: post?.translations.en.excerpt ?? "",
-    contentEn: post?.translations.en.content ?? "",
-    titleIt: post?.translations.it.title ?? "",
-    excerptIt: post?.translations.it.excerpt ?? "",
-    contentIt: post?.translations.it.content ?? "",
+    title: text?.title ?? "",
+    excerpt: text?.excerpt ?? "",
+    content: text?.content ?? "",
   };
 }
 
@@ -50,7 +44,7 @@ export function BlogForm({ post, locale }: { post?: BlogPost; locale: Locale }) 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { register, handleSubmit, control, watch, setValue } = useForm<BlogFormValues>({
-    defaultValues: toFormValues(post),
+    defaultValues: toFormValues(post, locale),
   });
 
   const coverImage = watch("coverImage");
@@ -70,9 +64,11 @@ export function BlogForm({ post, locale }: { post?: BlogPost; locale: Locale }) 
         .filter(Boolean),
       readingTime: Number(values.readingTime),
       publishedAt: willBePublished ? (post?.publishedAt ?? new Date().toISOString()) : null,
+      // Only the authoring language is written here; the rest is generated
+      // server-side, and any locale already stored rides along untouched.
       translations: {
-        en: { title: values.titleEn, excerpt: values.excerptEn, content: values.contentEn },
-        it: { title: values.titleIt, excerpt: values.excerptIt, content: values.contentIt },
+        ...post?.translations,
+        [locale]: { title: values.title, excerpt: values.excerpt, content: values.content },
       },
     };
 
@@ -84,11 +80,11 @@ export function BlogForm({ post, locale }: { post?: BlogPost; locale: Locale }) 
       });
       if (!res.ok) throw new Error("Request failed");
 
-      toast.success(isEditing ? "Post updated" : "Post created");
+      toast.success(isEditing ? "Articolo aggiornato" : "Articolo creato");
       router.push("/admin/blog");
       router.refresh();
     } catch {
-      toast.error("Something went wrong");
+      toast.error("Qualcosa è andato storto");
     } finally {
       setIsSubmitting(false);
     }
@@ -96,7 +92,7 @@ export function BlogForm({ post, locale }: { post?: BlogPost; locale: Locale }) 
 
   async function handleDelete() {
     await fetch(`/api/blog/${post!.slug}`, { method: "DELETE" });
-    toast.success("Post deleted");
+    toast.success("Articolo eliminato");
     router.push("/admin/blog");
     router.refresh();
   }
@@ -118,8 +114,8 @@ export function BlogForm({ post, locale }: { post?: BlogPost; locale: Locale }) 
                 value={field.value}
                 onChange={field.onChange}
                 options={[
-                  { value: "draft", label: "Draft" },
-                  { value: "published", label: "Published" },
+                  { value: "draft", label: "Bozza" },
+                  { value: "published", label: "Pubblicato" },
                 ]}
               />
             )}
@@ -130,7 +126,7 @@ export function BlogForm({ post, locale }: { post?: BlogPost; locale: Locale }) 
           <Input {...register("tags")} placeholder="react, webgl" />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Reading time (minutes)</label>
+          <label className="mb-2 block text-sm font-medium text-foreground">Tempo di lettura (minuti)</label>
           <Input type="number" {...register("readingTime", { valueAsNumber: true })} />
         </div>
       </div>
@@ -142,25 +138,13 @@ export function BlogForm({ post, locale }: { post?: BlogPost; locale: Locale }) 
         label="Immagine di copertina"
       />
 
-      {/* Only the authoring language is shown; the other locales are
-          generated on save (Admin → Lingua). The hidden group stays mounted
-          so its stored values round-trip untouched. */}
-      <Tabs defaultValue={locale}>
-        <TabsContent value="en">
-          <div className="space-y-4">
-            <Input {...register("titleEn", { required: true })} placeholder="Title" />
-            <Textarea rows={2} {...register("excerptEn")} placeholder="Excerpt" />
-            <Textarea rows={10} {...register("contentEn")} placeholder="Full content (Markdown supported)" />
-          </div>
-        </TabsContent>
-        <TabsContent value="it">
-          <div className="space-y-4">
-            <Input {...register("titleIt")} placeholder="Titolo" />
-            <Textarea rows={2} {...register("excerptIt")} placeholder="Estratto" />
-            <Textarea rows={10} {...register("contentIt")} placeholder="Contenuto completo (Markdown supportato)" />
-          </div>
-        </TabsContent>
-      </Tabs>
+      {/* Only the authoring language is written; the other locales are
+          generated on save and reviewed under Admin → Lingua. */}
+      <div className="space-y-4">
+        <Input {...register("title", { required: true })} placeholder="Titolo" />
+        <Textarea rows={2} {...register("excerpt")} placeholder="Estratto" />
+        <Textarea rows={10} {...register("content")} placeholder="Contenuto completo (Markdown supportato)" />
+      </div>
 
       <div className="flex items-center justify-between border-t border-border pt-6">
         {isEditing ? <DeleteButton onConfirm={handleDelete} label="l'articolo" /> : <span />}

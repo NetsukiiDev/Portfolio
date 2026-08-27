@@ -12,7 +12,7 @@ export function ProjectFilters({
   active: ProjectCategory | "all";
   onChange: (category: ProjectCategory | "all") => void;
 }) {
-  const { locale } = useTranslation();
+  const { t, locale } = useTranslation();
 
   return (
     <div className="flex flex-wrap justify-center gap-2">
@@ -26,7 +26,7 @@ export function ProjectFilters({
             : "border-border text-muted-foreground hover:text-foreground",
         )}
       >
-        All
+        {t.common.all}
       </button>
       {PROJECT_CATEGORIES.map((category) => (
         <button

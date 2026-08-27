@@ -9,7 +9,6 @@ import { Select } from "@/components/ui/Select";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { Toggle } from "@/components/ui/Toggle";
 import { Button } from "@/components/ui/Button";
-import { Tabs, TabsContent } from "@/components/ui/Tabs";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { useToast } from "@/context/ToastContext";
@@ -24,15 +23,13 @@ interface ExperienceFormValues {
   endDate: string;
   current: boolean;
   order: number;
-  positionEn: string;
-  descriptionEn: string;
-  highlightsEn: string;
-  positionIt: string;
-  descriptionIt: string;
-  highlightsIt: string;
+  position: string;
+  description: string;
+  highlights: string;
 }
 
-function toFormValues(experience?: Experience): ExperienceFormValues {
+function toFormValues(experience: Experience | undefined, locale: Locale): ExperienceFormValues {
+  const text = experience?.translations[locale];
   return {
     type: experience?.type ?? "work",
     company: experience?.company ?? "",
@@ -42,12 +39,9 @@ function toFormValues(experience?: Experience): ExperienceFormValues {
     endDate: experience?.endDate?.slice(0, 10) ?? "",
     current: experience?.current ?? false,
     order: experience?.order ?? 0,
-    positionEn: experience?.translations.en.position ?? "",
-    descriptionEn: experience?.translations.en.description ?? "",
-    highlightsEn: experience?.translations.en.highlights.join("\n") ?? "",
-    positionIt: experience?.translations.it.position ?? "",
-    descriptionIt: experience?.translations.it.description ?? "",
-    highlightsIt: experience?.translations.it.highlights.join("\n") ?? "",
+    position: text?.position ?? "",
+    description: text?.description ?? "",
+    highlights: text?.highlights.join("\n") ?? "",
   };
 }
 
@@ -58,7 +52,7 @@ export function ExperienceForm({ experience, locale }: { experience?: Experience
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { register, handleSubmit, control, watch, setValue } = useForm<ExperienceFormValues>({
-    defaultValues: toFormValues(experience),
+    defaultValues: toFormValues(experience, locale),
   });
 
   const logo = watch("logo");
@@ -76,19 +70,14 @@ export function ExperienceForm({ experience, locale }: { experience?: Experience
       endDate: values.current ? null : values.endDate || null,
       current: values.current,
       order: Number(values.order),
+      // Only the authoring language is written here; the rest is generated
+      // server-side, and any locale already stored rides along untouched.
       translations: {
-        en: {
-          position: values.positionEn,
-          description: values.descriptionEn,
-          highlights: values.highlightsEn
-            .split("\n")
-            .map((h) => h.trim())
-            .filter(Boolean),
-        },
-        it: {
-          position: values.positionIt,
-          description: values.descriptionIt,
-          highlights: values.highlightsIt
+        ...experience?.translations,
+        [locale]: {
+          position: values.position,
+          description: values.description,
+          highlights: values.highlights
             .split("\n")
             .map((h) => h.trim())
             .filter(Boolean),
@@ -104,11 +93,11 @@ export function ExperienceForm({ experience, locale }: { experience?: Experience
       });
       if (!res.ok) throw new Error("Request failed");
 
-      toast.success(isEditing ? "Entry updated" : "Entry created");
+      toast.success(isEditing ? "Voce aggiornata" : "Voce creata");
       router.push("/admin/experience");
       router.refresh();
     } catch {
-      toast.error("Something went wrong");
+      toast.error("Qualcosa è andato storto");
     } finally {
       setIsSubmitting(false);
     }
@@ -116,7 +105,7 @@ export function ExperienceForm({ experience, locale }: { experience?: Experience
 
   async function handleDelete() {
     await fetch(`/api/experience/${experience!.id}`, { method: "DELETE" });
-    toast.success("Entry deleted");
+    toast.success("Voce eliminata");
     router.push("/admin/experience");
     router.refresh();
   }
@@ -134,8 +123,8 @@ export function ExperienceForm({ experience, locale }: { experience?: Experience
                 value={field.value}
                 onChange={field.onChange}
                 options={[
-                  { value: "work", label: "Work" },
-                  { value: "education", label: "Education" },
+                  { value: "work", label: "Lavoro" },
+                  { value: "education", label: "Formazione" },
                 ]}
               />
             )}
@@ -181,25 +170,13 @@ export function ExperienceForm({ experience, locale }: { experience?: Experience
 
       <ImageUploadField value={logo} onChange={(url) => setValue("logo", url)} folder="experience" label="Logo" />
 
-      {/* Only the authoring language is shown; the other locales are
-          generated on save (Admin → Lingua). The hidden group stays mounted
-          so its stored values round-trip untouched. */}
-      <Tabs defaultValue={locale}>
-        <TabsContent value="en">
-          <div className="space-y-4">
-            <Input {...register("positionEn", { required: true })} placeholder="Position" />
-            <Textarea rows={2} {...register("descriptionEn")} placeholder="Description" />
-            <Textarea rows={4} {...register("highlightsEn")} placeholder="One highlight per line" />
-          </div>
-        </TabsContent>
-        <TabsContent value="it">
-          <div className="space-y-4">
-            <Input {...register("positionIt")} placeholder="Posizione" />
-            <Textarea rows={2} {...register("descriptionIt")} placeholder="Descrizione" />
-            <Textarea rows={4} {...register("highlightsIt")} placeholder="Un punto saliente per riga" />
-          </div>
-        </TabsContent>
-      </Tabs>
+      {/* Only the authoring language is written; the other locales are
+          generated on save and reviewed under Admin → Lingua. */}
+      <div className="space-y-4">
+        <Input {...register("position", { required: true })} placeholder="Posizione" />
+        <Textarea rows={2} {...register("description")} placeholder="Descrizione" />
+        <Textarea rows={4} {...register("highlights")} placeholder="Un punto saliente per riga" />
+      </div>
 
       <div className="flex items-center justify-between border-t border-border pt-6">
         {isEditing ? <DeleteButton onConfirm={handleDelete} label="la voce" /> : <span />}

@@ -3,6 +3,7 @@ import { Container } from "@/components/layout/Container";
 import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { RevealOnScroll } from "@/components/animations";
 import { SkillsPreviewList } from "./SkillsPreviewList";
+import { SkillsPreviewHeader } from "./SkillsPreviewHeader";
 
 export async function SkillsPreview() {
   const { skills } = await getSkillsData();
@@ -12,7 +13,7 @@ export async function SkillsPreview() {
     <SectionWrapper className="border-t border-border">
       <Container>
         <RevealOnScroll className="text-center">
-          <p className="text-sm font-medium text-muted-foreground">Tools &amp; technologies</p>
+          <SkillsPreviewHeader />
         </RevealOnScroll>
         <div className="mt-8">
           <SkillsPreviewList skills={top} />

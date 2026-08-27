@@ -99,6 +99,7 @@ model Settings {
   modules          Json?
   home             Json?
   language         Json?
+  pages            Json?
   setupCompletedAt DateTime?
 }
 

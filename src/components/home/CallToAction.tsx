@@ -7,9 +7,11 @@ import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { BlurReveal } from "@/components/animations";
 import { useTranslation } from "@/hooks/useTranslation";
 import { ROUTES } from "@/lib/constants";
+import type { HomeSettings } from "@/types/settings";
 
-export function CallToAction() {
-  const { t } = useTranslation();
+export function CallToAction({ home }: { home: HomeSettings }) {
+  const { t, locale } = useTranslation();
+  const text = home.translations[locale];
 
   return (
     <SectionWrapper className="border-t border-border">
@@ -26,10 +28,10 @@ export function CallToAction() {
               <h2 className="text-balance text-3xl font-medium tracking-tight text-foreground sm:text-5xl">
                 {t.home.ctaHeading}
               </h2>
-              <p className="mx-auto mt-4 max-w-md text-muted-foreground">{t.home.heroSubtitle}</p>
+              <p className="mx-auto mt-4 max-w-md text-muted-foreground">{text.subtitle}</p>
               <div className="mt-8">
                 <ButtonLink href={ROUTES.contact} size="lg">
-                  {t.home.ctaSecondary}
+                  {text.ctaSecondary}
                 </ButtonLink>
               </div>
             </div>

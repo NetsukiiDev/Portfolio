@@ -41,7 +41,7 @@ export default async function HomePage() {
       {onHome("skills") && <SkillsPreview />}
       {githubStats && <StatsSection stats={home.stats} values={githubStats} />}
       {onHome("blog") && <RecentBlog />}
-      {onHome("contact") && <CallToAction />}
+      {onHome("contact") && <CallToAction home={home} />}
     </>
   );
 }

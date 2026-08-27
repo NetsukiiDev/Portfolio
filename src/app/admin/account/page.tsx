@@ -9,7 +9,7 @@ export default async function AdminAccountPage() {
   return (
     <div className="space-y-10">
       <div>
-        <AdminHeader title="Account" description="Manage your admin profile and password." />
+        <AdminHeader title="Account" description="Le credenziali con cui accedi al pannello." />
         <ProfileForm
           account={{ firstName: account.firstName, lastName: account.lastName, username: account.username }}
         />

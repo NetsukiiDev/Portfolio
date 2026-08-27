@@ -8,9 +8,9 @@ import { Card } from "@/components/ui/Card";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { useToast } from "@/context/ToastContext";
-import type { AiImage } from "@/types";
+import type { AiImage, Locale } from "@/types";
 
-export function AiGalleryTable({ images: initialImages }: { images: AiImage[] }) {
+export function AiGalleryTable({ images: initialImages, locale }: { images: AiImage[]; locale: Locale }) {
   const [images, setImages] = useState(initialImages);
   const router = useRouter();
   const toast = useToast();
@@ -18,12 +18,12 @@ export function AiGalleryTable({ images: initialImages }: { images: AiImage[] })
   async function handleDelete(id: string) {
     await fetch(`/api/ai-gallery/${id}`, { method: "DELETE" });
     setImages((prev) => prev.filter((image) => image.id !== id));
-    toast.success("Image deleted");
+    toast.success("Immagine eliminata");
     router.refresh();
   }
 
   if (images.length === 0) {
-    return <p className="text-sm text-muted-foreground">No images yet.</p>;
+    return <p className="text-sm text-muted-foreground">Nessuna immagine.</p>;
   }
 
   return (
@@ -34,7 +34,7 @@ export function AiGalleryTable({ images: initialImages }: { images: AiImage[] })
             <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-white/[0.03]">
               <ImageWithFallback src={image.thumbnail} alt="" fill className="object-cover" />
             </div>
-            <p className="truncate text-sm font-medium text-foreground">{image.translations.en.title}</p>
+            <p className="truncate text-sm font-medium text-foreground">{image.translations[locale]?.title}</p>
           </div>
           <div className="flex items-center gap-2">
             <Link

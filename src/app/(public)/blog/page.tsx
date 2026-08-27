@@ -1,6 +1,7 @@
 import { getBlogPosts } from "@/lib/data";
 import { Container } from "@/components/layout/Container";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { getPageDescriptions } from "@/lib/site.server";
 import { BlogGrid } from "@/components/blog/BlogGrid";
 import { assertModuleEnabled } from "@/lib/modules.server";
 
@@ -15,7 +16,7 @@ export default async function BlogPage() {
 
   return (
     <Container className="pb-16">
-      <PageHeader page="blog" />
+      <PageHeader page="blog" descriptions={await getPageDescriptions("blog")} />
       <BlogGrid posts={published} />
     </Container>
   );

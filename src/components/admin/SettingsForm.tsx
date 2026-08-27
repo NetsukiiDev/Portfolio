@@ -47,18 +47,15 @@ interface SettingsFormValues {
   instagram: string;
   dribbble: string;
   youtube: string;
-  seoTitleEn: string;
-  seoDescriptionEn: string;
-  seoTitleIt: string;
-  seoDescriptionIt: string;
+  seoTitle: string;
+  seoDescription: string;
   ogImage: string;
   domain: string;
   https: boolean;
   themePalette: PaletteKey;
   themeMode: ThemeMode;
   maintenanceEnabled: boolean;
-  maintenanceMessageEn: string;
-  maintenanceMessageIt: string;
+  maintenanceMessage: string;
   storageProvider: StorageProviderKey;
   s3Endpoint: string;
   s3Region: string;
@@ -69,7 +66,7 @@ interface SettingsFormValues {
   s3PublicUrlBase: string;
 }
 
-function toFormValues(settings: Settings): SettingsFormValues {
+function toFormValues(settings: Settings, locale: Locale): SettingsFormValues {
   return {
     github: settings.social.github ?? "",
     linkedin: settings.social.linkedin ?? "",
@@ -77,18 +74,15 @@ function toFormValues(settings: Settings): SettingsFormValues {
     instagram: settings.social.instagram ?? "",
     dribbble: settings.social.dribbble ?? "",
     youtube: settings.social.youtube ?? "",
-    seoTitleEn: settings.seo.translations.en.siteTitle,
-    seoDescriptionEn: settings.seo.translations.en.siteDescription,
-    seoTitleIt: settings.seo.translations.it.siteTitle,
-    seoDescriptionIt: settings.seo.translations.it.siteDescription,
+    seoTitle: settings.seo.translations[locale]?.siteTitle ?? "",
+    seoDescription: settings.seo.translations[locale]?.siteDescription ?? "",
     ogImage: settings.seo.ogImage,
     domain: settings.site.domain,
     https: settings.site.https,
     themePalette: settings.site.themePalette,
     themeMode: settings.site.themeMode,
     maintenanceEnabled: settings.maintenance.enabled,
-    maintenanceMessageEn: settings.maintenance.translations.en.message,
-    maintenanceMessageIt: settings.maintenance.translations.it.message,
+    maintenanceMessage: settings.maintenance.translations[locale]?.message ?? "",
     storageProvider: settings.storage.provider,
     s3Endpoint: settings.storage.s3.endpoint,
     s3Region: settings.storage.s3.region,
@@ -105,7 +99,7 @@ export function SettingsForm({ settings, locale }: { settings: Settings; locale:
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { register, handleSubmit, control, watch, setValue } = useForm<SettingsFormValues>({
-    defaultValues: toFormValues(settings),
+    defaultValues: toFormValues(settings, locale),
   });
 
   const ogImage = watch("ogImage");
@@ -132,9 +126,11 @@ export function SettingsForm({ settings, locale }: { settings: Settings; locale:
         youtube: values.youtube || null,
       },
       seo: {
+        // Written in the authoring language only; the other locales are
+        // generated on save and reviewed under Lingua.
         translations: {
-          en: { siteTitle: values.seoTitleEn, siteDescription: values.seoDescriptionEn },
-          it: { siteTitle: values.seoTitleIt, siteDescription: values.seoDescriptionIt },
+          ...settings.seo.translations,
+          [locale]: { siteTitle: values.seoTitle, siteDescription: values.seoDescription },
         },
         ogImage: values.ogImage,
         siteUrl: settings.seo.siteUrl,
@@ -142,8 +138,8 @@ export function SettingsForm({ settings, locale }: { settings: Settings; locale:
       maintenance: {
         enabled: values.maintenanceEnabled,
         translations: {
-          en: { message: values.maintenanceMessageEn },
-          it: { message: values.maintenanceMessageIt },
+          ...settings.maintenance.translations,
+          [locale]: { message: values.maintenanceMessage },
         },
       },
       storage: {
@@ -167,9 +163,9 @@ export function SettingsForm({ settings, locale }: { settings: Settings; locale:
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error("Request failed");
-      toast.success("Settings saved");
+      toast.success("Impostazioni salvate");
     } catch {
-      toast.error("Something went wrong");
+      toast.error("Qualcosa è andato storto");
     } finally {
       setIsSubmitting(false);
     }
@@ -203,46 +199,35 @@ export function SettingsForm({ settings, locale }: { settings: Settings; locale:
               value={ogImage}
               onChange={(url) => setValue("ogImage", url)}
               folder="settings"
-              label="OG image"
+              label="Immagine OG"
             />
-            {/* Only the authoring language is shown; the other locales are
-                generated on save and reviewed under Admin → Lingua. The hidden
-                group stays mounted so its stored values round-trip untouched. */}
-            <Tabs defaultValue={locale}>
-              <TabsContent value="en">
-                <div className="space-y-4">
-                  <Input {...register("seoTitleEn")} placeholder="Site title" />
-                  <Textarea rows={2} {...register("seoDescriptionEn")} placeholder="Site description" />
-                </div>
-              </TabsContent>
-              <TabsContent value="it">
-                <div className="space-y-4">
-                  <Input {...register("seoTitleIt")} placeholder="Titolo del sito" />
-                  <Textarea rows={2} {...register("seoDescriptionIt")} placeholder="Descrizione del sito" />
-                </div>
-              </TabsContent>
-            </Tabs>
+            {/* Written in the authoring language only; the other locales are
+                generated on save and reviewed under Lingua. */}
+            <div className="space-y-4">
+              <Input {...register("seoTitle")} placeholder="Titolo del sito" />
+              <Textarea rows={2} {...register("seoDescription")} placeholder="Descrizione del sito" />
+            </div>
           </div>
         </TabsContent>
 
         <TabsContent value="site">
           <div className="space-y-6">
             <div>
-              <label className="mb-2 block text-sm font-medium text-foreground">Domain</label>
+              <label className="mb-2 block text-sm font-medium text-foreground">Dominio</label>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Input {...register("domain")} placeholder="example.com" />
                 <Controller
                   control={control}
                   name="https"
                   render={({ field }) => (
-                    <Toggle checked={field.value} onChange={field.onChange} label="Use HTTPS" />
+                    <Toggle checked={field.value} onChange={field.onChange} label="Usa HTTPS" />
                   )}
                 />
               </div>
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-foreground">Theme</label>
+              <label className="mb-2 block text-sm font-medium text-foreground">Tema</label>
               <div className="flex flex-wrap items-center gap-4">
                 <Controller
                   control={control}
@@ -272,7 +257,7 @@ export function SettingsForm({ settings, locale }: { settings: Settings; locale:
                     <Toggle
                       checked={field.value === "dark"}
                       onChange={(checked) => field.onChange(checked ? "dark" : "light")}
-                      label={field.value === "dark" ? "Dark mode" : "Light mode"}
+                      label={field.value === "dark" ? "Tema scuro" : "Tema chiaro"}
                     />
                   )}
                 />
@@ -282,13 +267,13 @@ export function SettingsForm({ settings, locale }: { settings: Settings; locale:
             <Controller
               control={control}
               name="maintenanceEnabled"
-              render={({ field }) => <Toggle checked={field.value} onChange={field.onChange} label="Maintenance mode" />}
+              render={({ field }) => <Toggle checked={field.value} onChange={field.onChange} label="Modalità manutenzione" />}
             />
-            {locale === "it" ? (
-              <Input {...register("maintenanceMessageIt")} placeholder="Messaggio di manutenzione" />
-            ) : (
-              <Input {...register("maintenanceMessageEn")} placeholder="Maintenance message" />
-            )}
+            <Input {...register("maintenanceMessage")} placeholder="Messaggio di manutenzione" />
+            <p className="-mt-3 text-xs text-muted-foreground">
+              Con la manutenzione attiva il sito pubblico mostra solo questo messaggio. Tu, che hai
+              l&apos;accesso, continui a vederlo normalmente.
+            </p>
           </div>
         </TabsContent>
 
@@ -317,12 +302,12 @@ export function SettingsForm({ settings, locale }: { settings: Settings; locale:
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Input {...register("s3Endpoint")} placeholder="Endpoint (vuoto = AWS S3, oppure URL MinIO)" />
-                  <Input {...register("s3Region")} placeholder="Region" />
+                  <Input {...register("s3Region")} placeholder="Regione" />
                 </div>
                 <Input {...register("s3Bucket")} placeholder="Bucket" />
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <Input {...register("s3AccessKeyId")} placeholder="Access key ID" />
-                  <Input {...register("s3SecretAccessKey")} type="password" placeholder="Secret access key" />
+                  <Input {...register("s3AccessKeyId")} placeholder="ID chiave di accesso" />
+                  <Input {...register("s3SecretAccessKey")} type="password" placeholder="Chiave segreta" />
                 </div>
                 <Input {...register("s3PublicUrlBase")} placeholder="URL pubblico personalizzato (opzionale)" />
                 <Controller

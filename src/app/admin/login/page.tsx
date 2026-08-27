@@ -28,7 +28,7 @@ export default function AdminLoginPage() {
       });
 
       if (!res.ok) {
-        setError("Incorrect username or password");
+        setError("Nome utente o password non corretti");
         return;
       }
 
@@ -66,7 +66,7 @@ export default function AdminLoginPage() {
               type="button"
               onClick={() => setShowPassword((v) => !v)}
               className="absolute top-1/2 right-4 -translate-y-1/2 text-muted-foreground"
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={showPassword ? "Nascondi password" : "Mostra password"}
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>

@@ -7,7 +7,7 @@ export default async function NewAiGalleryImagePage() {
 
   return (
     <div>
-      <AdminHeader title="Add image" />
+      <AdminHeader title="Nuova immagine" />
       <AiGalleryForm locale={authoringLocale} />
     </div>
   );

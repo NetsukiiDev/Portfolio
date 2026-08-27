@@ -32,13 +32,13 @@ export function ProfileForm({ account }: { account: ProfileFormValues }) {
 
       if (!res.ok) {
         const body = (await res.json().catch(() => null)) as { error?: string } | null;
-        toast.error(body?.error ?? "Something went wrong");
+        toast.error(body?.error ?? "Qualcosa è andato storto");
         return;
       }
 
-      toast.success("Profile updated");
+      toast.success("Profilo aggiornato");
     } catch {
-      toast.error("Something went wrong");
+      toast.error("Qualcosa è andato storto");
     } finally {
       setIsSubmitting(false);
     }
@@ -64,7 +64,7 @@ export function ProfileForm({ account }: { account: ProfileFormValues }) {
         {errors.username && <p className="mt-1.5 text-xs text-red-400">At least 3 characters</p>}
       </div>
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Salvataggio…" : "Save profile"}
+        {isSubmitting ? "Salvataggio…" : "Salva profilo"}
       </Button>
     </form>
   );

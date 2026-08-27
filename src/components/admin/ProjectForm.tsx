@@ -8,7 +8,6 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Select } from "@/components/ui/Select";
 import { Toggle } from "@/components/ui/Toggle";
 import { Button } from "@/components/ui/Button";
-import { Tabs, TabsContent } from "@/components/ui/Tabs";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { useToast } from "@/context/ToastContext";
@@ -24,15 +23,13 @@ interface ProjectFormValues {
   demo: string;
   github: string;
   techStack: string;
-  titleEn: string;
-  descriptionEn: string;
-  contentEn: string;
-  titleIt: string;
-  descriptionIt: string;
-  contentIt: string;
+  title: string;
+  description: string;
+  content: string;
 }
 
-function toFormValues(project?: Project): ProjectFormValues {
+function toFormValues(project: Project | undefined, locale: Locale): ProjectFormValues {
+  const text = project?.translations[locale];
   return {
     slug: project?.slug ?? "",
     category: project?.category ?? "web",
@@ -42,12 +39,9 @@ function toFormValues(project?: Project): ProjectFormValues {
     demo: project?.links.demo ?? "",
     github: project?.links.github ?? "",
     techStack: project?.techStack.join(", ") ?? "",
-    titleEn: project?.translations.en.title ?? "",
-    descriptionEn: project?.translations.en.description ?? "",
-    contentEn: project?.translations.en.content ?? "",
-    titleIt: project?.translations.it.title ?? "",
-    descriptionIt: project?.translations.it.description ?? "",
-    contentIt: project?.translations.it.content ?? "",
+    title: text?.title ?? "",
+    description: text?.description ?? "",
+    content: text?.content ?? "",
   };
 }
 
@@ -58,7 +52,7 @@ export function ProjectForm({ project, locale }: { project?: Project; locale: Lo
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { register, handleSubmit, control, watch, setValue } = useForm<ProjectFormValues>({
-    defaultValues: toFormValues(project),
+    defaultValues: toFormValues(project, locale),
   });
 
   const image = watch("image");
@@ -80,9 +74,11 @@ export function ProjectForm({ project, locale }: { project?: Project; locale: Lo
         .split(",")
         .map((tech) => tech.trim())
         .filter(Boolean),
+      // Only the authoring language is written here; the rest is generated
+      // server-side, and any locale already stored rides along untouched.
       translations: {
-        en: { title: values.titleEn, description: values.descriptionEn, content: values.contentEn },
-        it: { title: values.titleIt, description: values.descriptionIt, content: values.contentIt },
+        ...project?.translations,
+        [locale]: { title: values.title, description: values.description, content: values.content },
       },
     };
 
@@ -94,11 +90,11 @@ export function ProjectForm({ project, locale }: { project?: Project; locale: Lo
       });
       if (!res.ok) throw new Error("Request failed");
 
-      toast.success(isEditing ? "Project updated" : "Project created");
+      toast.success(isEditing ? "Progetto aggiornato" : "Progetto creato");
       router.push("/admin/projects");
       router.refresh();
     } catch {
-      toast.error("Something went wrong");
+      toast.error("Qualcosa è andato storto");
     } finally {
       setIsSubmitting(false);
     }
@@ -106,7 +102,7 @@ export function ProjectForm({ project, locale }: { project?: Project; locale: Lo
 
   async function handleDelete() {
     await fetch(`/api/projects/${project!.id}`, { method: "DELETE" });
-    toast.success("Project deleted");
+    toast.success("Progetto eliminato");
     router.push("/admin/projects");
     router.refresh();
   }
@@ -127,7 +123,10 @@ export function ProjectForm({ project, locale }: { project?: Project; locale: Lo
               <Select
                 value={field.value}
                 onChange={field.onChange}
-                options={PROJECT_CATEGORIES.map((category) => ({ value: category.id, label: category.label.en }))}
+                options={PROJECT_CATEGORIES.map((category) => ({
+                  value: category.id,
+                  label: category.label[locale],
+                }))}
               />
             )}
           />
@@ -165,25 +164,13 @@ export function ProjectForm({ project, locale }: { project?: Project; locale: Lo
         label="Immagine di copertina"
       />
 
-      {/* Only the authoring language is shown; the other locales are
-          generated on save (Admin → Lingua). The hidden group stays mounted
-          so its stored values round-trip untouched. */}
-      <Tabs defaultValue={locale}>
-        <TabsContent value="en">
-          <div className="space-y-4">
-            <Input {...register("titleEn", { required: true })} placeholder="Title" />
-            <Textarea rows={2} {...register("descriptionEn")} placeholder="Short description" />
-            <Textarea rows={8} {...register("contentEn")} placeholder="Full content (Markdown supported)" />
-          </div>
-        </TabsContent>
-        <TabsContent value="it">
-          <div className="space-y-4">
-            <Input {...register("titleIt")} placeholder="Titolo" />
-            <Textarea rows={2} {...register("descriptionIt")} placeholder="Descrizione breve" />
-            <Textarea rows={8} {...register("contentIt")} placeholder="Contenuto completo (Markdown supportato)" />
-          </div>
-        </TabsContent>
-      </Tabs>
+      {/* Only the authoring language is written; the other locales are
+          generated on save and reviewed under Admin → Lingua. */}
+      <div className="space-y-4">
+        <Input {...register("title", { required: true })} placeholder="Titolo" />
+        <Textarea rows={2} {...register("description")} placeholder="Descrizione breve" />
+        <Textarea rows={8} {...register("content")} placeholder="Contenuto completo (Markdown supportato)" />
+      </div>
 
       <div className="flex items-center justify-between border-t border-border pt-6">
         {isEditing ? <DeleteButton onConfirm={handleDelete} label="il progetto" /> : <span />}

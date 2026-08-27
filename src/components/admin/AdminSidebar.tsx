@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { User, LogOut, ExternalLink } from "lucide-react";
 import { useAdmin } from "@/hooks/useAdmin";
-import { ADMIN_LINKS } from "@/lib/admin-nav";
+import { ADMIN_SECTIONS } from "@/lib/admin-nav";
 import { cn } from "@/lib/cn";
 
 export function AdminSidebar() {
@@ -17,24 +17,35 @@ export function AdminSidebar() {
       <Link href="/admin" className="px-2 py-3 text-sm font-semibold tracking-tight text-foreground">
         Admin
       </Link>
-      <nav className="mt-4 flex flex-1 flex-col gap-1">
-        {ADMIN_LINKS.map((link) => {
-          const Icon = link.icon;
-          const isActive = link.href === "/admin" ? pathname === link.href : pathname.startsWith(link.href);
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
-                isActive ? "bg-surface-wash-strong text-foreground" : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <Icon className="h-4 w-4" />
-              {link.label}
-            </Link>
-          );
-        })}
+      <nav className="mt-4 flex flex-1 flex-col gap-1 overflow-y-auto">
+        {ADMIN_SECTIONS.map((section, index) => (
+          <div key={section.title ?? "root"} className={cn("flex flex-col gap-1", index > 0 && "mt-5")}>
+            {section.title && (
+              <p className="px-3 pb-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+                {section.title}
+              </p>
+            )}
+            {section.links.map((link) => {
+              const Icon = link.icon;
+              const isActive = link.href === "/admin" ? pathname === link.href : pathname.startsWith(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                    isActive
+                      ? "bg-surface-wash-strong text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  {link.label}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
         <a
           href="/"
           target="_blank"

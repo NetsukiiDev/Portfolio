@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
     current.personal.translations,
     current.seo.translations,
     current.home.translations,
+    current.pages.translations,
     current.maintenance.translations,
   ]);
 
@@ -51,6 +52,10 @@ export async function POST(request: NextRequest) {
         })),
       ),
     },
+    pages: {
+      ...current.pages,
+      translations: await fillTranslations(current.pages.translations, source, targets, options),
+    },
     maintenance: {
       ...current.maintenance,
       translations: await fillTranslations(current.maintenance.translations, source, targets, options),
@@ -61,6 +66,7 @@ export async function POST(request: NextRequest) {
     next.personal.translations,
     next.seo.translations,
     next.home.translations,
+    next.pages.translations,
     next.maintenance.translations,
   ]);
 
@@ -74,6 +80,7 @@ export async function POST(request: NextRequest) {
       [current.personal.translations[locale], next.personal.translations[locale]],
       [current.seo.translations[locale], next.seo.translations[locale]],
       [current.home.translations[locale], next.home.translations[locale]],
+      [current.pages.translations[locale], next.pages.translations[locale]],
       [current.maintenance.translations[locale], next.maintenance.translations[locale]],
     ];
     for (const [was, now] of pairs) {

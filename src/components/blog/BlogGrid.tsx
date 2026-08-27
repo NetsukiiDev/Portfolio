@@ -1,12 +1,14 @@
 "use client";
 
 import { StaggerChildren, StaggerChild } from "@/components/animations";
+import { useTranslation } from "@/hooks/useTranslation";
 import { BlogCard } from "./BlogCard";
 import type { BlogPost } from "@/types";
 
 export function BlogGrid({ posts }: { posts: BlogPost[] }) {
+  const { t } = useTranslation();
   if (posts.length === 0) {
-    return <p className="text-center text-sm text-muted-foreground">No posts published yet.</p>;
+    return <p className="text-center text-sm text-muted-foreground">{t.common.noPosts}</p>;
   }
 
   return (

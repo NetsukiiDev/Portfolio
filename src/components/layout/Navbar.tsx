@@ -7,11 +7,19 @@ import { Menu, Globe } from "lucide-react";
 import { Container } from "./Container";
 import { MobileMenu } from "./MobileMenu";
 import { useTranslation } from "@/hooks/useTranslation";
-import { NAV_LINKS, SITE_NAME } from "@/lib/constants";
+import { NAV_LINKS } from "@/lib/constants";
 import { isNavKeyVisible, type ModulesSettings } from "@/lib/modules";
 import { cn } from "@/lib/cn";
 
-export function Navbar({ modules, allowSwitch }: { modules: ModulesSettings; allowSwitch: boolean }) {
+export function Navbar({
+  modules,
+  allowSwitch,
+  siteName,
+}: {
+  modules: ModulesSettings;
+  allowSwitch: boolean;
+  siteName: string;
+}) {
   const pathname = usePathname();
   const { t, locale, setLocale } = useTranslation();
   const links = NAV_LINKS.filter((link) => isNavKeyVisible(link.key, modules));
@@ -35,7 +43,7 @@ export function Navbar({ modules, allowSwitch }: { modules: ModulesSettings; all
       >
         <Container className="flex h-20 items-center justify-between">
           <Link href="/" className="text-sm font-semibold tracking-tight">
-            {SITE_NAME}
+            {siteName}
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex">
@@ -62,7 +70,7 @@ export function Navbar({ modules, allowSwitch }: { modules: ModulesSettings; all
               type="button"
               onClick={() => setLocale(locale === "en" ? "it" : "en")}
               className="hidden items-center gap-1.5 rounded-full border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
-              aria-label="Toggle language"
+              aria-label={t.common.toggleLanguage}
             >
               <Globe className="h-3.5 w-3.5" />
               {locale.toUpperCase()}
@@ -72,7 +80,7 @@ export function Navbar({ modules, allowSwitch }: { modules: ModulesSettings; all
               type="button"
               onClick={() => setMobileOpen(true)}
               className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground lg:hidden"
-              aria-label="Open menu"
+              aria-label={t.common.openMenu}
             >
               <Menu className="h-4 w-4" />
             </button>

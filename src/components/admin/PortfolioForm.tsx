@@ -9,8 +9,18 @@ import { Toggle } from "@/components/ui/Toggle";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { useToast } from "@/context/ToastContext";
-import type { GithubStatKey, HomeSettings, Settings } from "@/types/settings";
-import type { Locale } from "@/types";
+import { PAGE_KEYS } from "@/types/settings";
+import type { GithubStatKey, HomeSettings, PageKey, Settings, Locale } from "@/types";
+
+/** The public page each editable intro belongs to. */
+const PAGE_LABELS: Record<PageKey, string> = {
+  projects: "Progetti",
+  skills: "Competenze",
+  experience: "Esperienza",
+  blog: "Blog",
+  aiGallery: "Galleria AI",
+  contact: "Contatti",
+};
 
 /** Which GitHub figure each row shows — the wording below it is editable. */
 const STAT_LABELS: Record<GithubStatKey, string> = {
@@ -24,6 +34,7 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
   const toast = useToast();
   const [home, setHome] = useState<HomeSettings>(settings.home);
   const [personal, setPersonal] = useState<Settings["personal"]>(settings.personal);
+  const [pages, setPages] = useState<Settings["pages"]>(settings.pages);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function updateText(locale: Locale, field: keyof HomeSettings["translations"][Locale], value: string) {
@@ -51,6 +62,12 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
     }));
   }
 
+  function updatePage(page: PageKey, value: string) {
+    setPages((prev) => ({
+      translations: { ...prev.translations, [locale]: { ...prev.translations[locale], [page]: value } },
+    }));
+  }
+
   async function onSave() {
     setIsSubmitting(true);
     try {
@@ -58,7 +75,7 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         // Only this page's slice — the API merges it into what's stored.
-        body: JSON.stringify({ home, personal }),
+        body: JSON.stringify({ home, personal, pages }),
       });
       if (!res.ok) throw new Error("Request failed");
       toast.success("Portfolio salvato");
@@ -81,6 +98,7 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
           <TabsTrigger value="profilo">Profilo</TabsTrigger>
           <TabsTrigger value="hero">Hero</TabsTrigger>
           <TabsTrigger value="stats">Statistiche</TabsTrigger>
+          <TabsTrigger value="pagine">Pagine</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profilo">
@@ -197,6 +215,25 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
                   placeholder="Etichetta"
                   value={stat.translations[locale].label}
                   onChange={(e) => updateStatLabel(index, locale, e.target.value)}
+                />
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+        <TabsContent value="pagine">
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              La riga che compare sotto il titolo di ogni pagina pubblica. La pagina{" "}
+              <span className="text-foreground">Chi sono</span> non è qui: la sua apertura è il profilo.
+            </p>
+            {PAGE_KEYS.map((page) => (
+              <Card key={page} className="space-y-3 p-5">
+                <h3 className="text-sm font-medium text-foreground">{PAGE_LABELS[page]}</h3>
+                <Textarea
+                  rows={2}
+                  placeholder="Descrizione della pagina"
+                  value={pages.translations[locale]?.[page] ?? ""}
+                  onChange={(e) => updatePage(page, e.target.value)}
                 />
               </Card>
             ))}

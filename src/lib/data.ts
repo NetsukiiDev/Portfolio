@@ -5,7 +5,7 @@ import { DEFAULT_STORAGE_SETTINGS } from "./storage/types";
 import { mergeModules } from "./modules";
 import { fillTranslations } from "./translate";
 import { LOCALES } from "./constants";
-import { DEFAULT_HOME, DEFAULT_LANGUAGE } from "./default-settings";
+import { DEFAULT_HOME, DEFAULT_LANGUAGE, DEFAULT_PAGES } from "./default-settings";
 import type { StorageSettings } from "./storage/types";
 import type { Prisma } from "@/generated/prisma-sqlite/client";
 import type {
@@ -40,7 +40,7 @@ function toJson<T>(value: T): Prisma.InputJsonValue {
 // the rest here means each write path gets it, rather than every form and API
 // route having to remember. Existing text is never overwritten, so a
 // translation corrected by hand survives later saves.
-async function withTranslations<T>(translations: T): Promise<T> {
+async function withTranslations<T>(translations: T, previous?: unknown): Promise<T> {
   try {
     const { language } = await getSettings();
     const targets = LOCALES.filter((locale) => locale !== language.defaultLocale);
@@ -48,11 +48,24 @@ async function withTranslations<T>(translations: T): Promise<T> {
       translations as Record<string, Record<string, unknown>>,
       language.defaultLocale,
       targets,
+      { previous: (previous ?? null) as Record<string, Record<string, unknown>> | null },
     );
     return filled as T;
   } catch {
     // Settings unreadable (pre-setup) — store exactly what was given.
     return translations;
+  }
+}
+
+// What's stored for a row right now, so withTranslations can tell which
+// source fields the admin actually changed and refresh only those.
+async function priorTranslations(
+  load: () => Promise<{ translations: unknown } | null>,
+): Promise<unknown> {
+  try {
+    return (await load())?.translations ?? null;
+  } catch {
+    return null;
   }
 }
 
@@ -122,7 +135,16 @@ export async function updateProject(id: string, data: Partial<Project>): Promise
         ...(data.images !== undefined && { images: toJson(data.images) }),
         ...(data.links !== undefined && { links: toJson(data.links) }),
         ...(data.techStack !== undefined && { techStack: toJson(data.techStack) }),
-        ...(data.translations !== undefined && { translations: toJson(await withTranslations(data.translations)) }),
+        ...(data.translations !== undefined && {
+          translations: toJson(
+            await withTranslations(
+              data.translations,
+              await priorTranslations(() =>
+                prisma.project.findUnique({ where: { id }, select: { translations: true } }),
+              ),
+            ),
+          ),
+        }),
         updatedAt: new Date(),
       },
     });
@@ -197,7 +219,16 @@ export async function updateBlogPostBySlug(slug: string, data: Partial<BlogPost>
         ...(data.coverImage !== undefined && { coverImage: data.coverImage }),
         ...(data.tags !== undefined && { tags: toJson(data.tags) }),
         ...(data.readingTime !== undefined && { readingTime: data.readingTime }),
-        ...(data.translations !== undefined && { translations: toJson(await withTranslations(data.translations)) }),
+        ...(data.translations !== undefined && {
+          translations: toJson(
+            await withTranslations(
+              data.translations,
+              await priorTranslations(() =>
+                prisma.blogPost.findUnique({ where: { slug }, select: { translations: true } }),
+              ),
+            ),
+          ),
+        }),
         ...(data.publishedAt !== undefined && {
           publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
         }),
@@ -277,7 +308,16 @@ export async function updateSkill(id: string, data: Partial<Skill>): Promise<Ski
         ...(data.proficiency !== undefined && { proficiency: data.proficiency }),
         ...(data.yearsOfExperience !== undefined && { yearsOfExperience: data.yearsOfExperience }),
         ...(data.order !== undefined && { order: data.order }),
-        ...(data.translations !== undefined && { translations: toJson(await withTranslations(data.translations)) }),
+        ...(data.translations !== undefined && {
+          translations: toJson(
+            await withTranslations(
+              data.translations,
+              await priorTranslations(() =>
+                prisma.skill.findUnique({ where: { id }, select: { translations: true } }),
+              ),
+            ),
+          ),
+        }),
       },
     });
     return mapSkill(row);
@@ -354,7 +394,16 @@ export async function updateExperience(id: string, data: Partial<Experience>): P
         ...(data.company !== undefined && { company: data.company }),
         ...(data.logo !== undefined && { logo: data.logo }),
         ...(data.website !== undefined && { website: data.website }),
-        ...(data.translations !== undefined && { translations: toJson(await withTranslations(data.translations)) }),
+        ...(data.translations !== undefined && {
+          translations: toJson(
+            await withTranslations(
+              data.translations,
+              await priorTranslations(() =>
+                prisma.experience.findUnique({ where: { id }, select: { translations: true } }),
+              ),
+            ),
+          ),
+        }),
       },
     });
     return mapExperience(row);
@@ -442,7 +491,16 @@ export async function updateAiImage(id: string, data: Partial<AiImage>): Promise
         ...(data.seed !== undefined && { seed: data.seed }),
         ...(data.negativePrompt !== undefined && { negativePrompt: data.negativePrompt }),
         ...(data.loras !== undefined && { loras: toJson(data.loras) }),
-        ...(data.translations !== undefined && { translations: toJson(await withTranslations(data.translations)) }),
+        ...(data.translations !== undefined && {
+          translations: toJson(
+            await withTranslations(
+              data.translations,
+              await priorTranslations(() =>
+                prisma.aiImage.findUnique({ where: { id }, select: { translations: true } }),
+              ),
+            ),
+          ),
+        }),
       },
     });
     return mapAiImage(row);
@@ -483,6 +541,17 @@ function mergeHome(stored: unknown): Settings["home"] {
   return { ...DEFAULT_HOME, ...value, stats } as Settings["home"];
 }
 
+function mergePages(stored: unknown): Settings["pages"] {
+  const value = (stored ?? {}) as Partial<Settings["pages"]>;
+  // Per-locale merge, so a page added to PAGE_KEYS later still has copy.
+  return {
+    translations: {
+      en: { ...DEFAULT_PAGES.translations.en, ...value.translations?.en },
+      it: { ...DEFAULT_PAGES.translations.it, ...value.translations?.it },
+    },
+  };
+}
+
 export const getSettings = cache(async (): Promise<Settings> => {
   const row = await prisma.settings.findUniqueOrThrow({ where: { id: SETTINGS_ID } });
   return {
@@ -501,10 +570,43 @@ export const getSettings = cache(async (): Promise<Settings> => {
     maintenance: row.maintenance as Settings["maintenance"],
     modules: mergeModules(row.modules),
     home: mergeHome(row.home),
+    pages: mergePages(row.pages),
   };
 });
 
 export async function saveSettings(data: Settings): Promise<void> {
+  // The settings-level texts get the same treatment as content: the admin
+  // writes one language, the others are generated. Without this only the
+  // manual button under Admin → Lingua ever filled them, so a profile or a
+  // hero written in Italian stayed blank for English visitors.
+  const previous = await getSettings().catch(() => null);
+  const personal = {
+    ...data.personal,
+    translations: await withTranslations(data.personal.translations, previous?.personal.translations),
+  };
+  const seo = { ...data.seo, translations: await withTranslations(data.seo.translations, previous?.seo.translations) };
+  const maintenance = {
+    ...data.maintenance,
+    translations: await withTranslations(data.maintenance.translations, previous?.maintenance.translations),
+  };
+  const pages = {
+    ...data.pages,
+    translations: await withTranslations(data.pages.translations, previous?.pages.translations),
+  };
+  const home = {
+    ...data.home,
+    translations: await withTranslations(data.home.translations, previous?.home.translations),
+    stats: await Promise.all(
+      data.home.stats.map(async (stat) => ({
+        ...stat,
+        translations: await withTranslations(
+          stat.translations,
+          previous?.home.stats.find((prior) => prior.key === stat.key)?.translations,
+        ),
+      })),
+    ),
+  };
+
   await prisma.settings.update({
     where: { id: SETTINGS_ID },
     data: {
@@ -515,21 +617,46 @@ export async function saveSettings(data: Settings): Promise<void> {
       themePalette: data.site.themePalette,
       themeMode: data.site.themeMode,
       storage: toJson(data.storage),
-      personal: toJson(data.personal),
+      personal: toJson(personal),
       social: toJson(data.social),
       seo: toJson({
-        ...data.seo,
+        ...seo,
         siteUrl: data.site.domain ? `${data.site.https ? "https" : "http"}://${data.site.domain}` : data.seo.siteUrl,
       }),
       contactForm: toJson(data.contactForm),
-      maintenance: toJson(data.maintenance),
+      maintenance: toJson(maintenance),
       modules: toJson(data.modules),
-      home: toJson(data.home),
+      home: toJson(home),
+      pages: toJson(pages),
     },
   });
 }
 
 // ---------- Contact messages ----------
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  message: string;
+  createdAt: string;
+}
+
+/** Newest first — the admin reads these under Admin → Messaggi. */
+export async function getContactMessages(): Promise<ContactMessage[]> {
+  const rows = await prisma.contactMessage.findMany({ orderBy: { createdAt: "desc" } });
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    message: row.message,
+    createdAt: row.createdAt.toISOString(),
+  }));
+}
+
+export async function deleteContactMessage(id: string): Promise<void> {
+  await prisma.contactMessage.deleteMany({ where: { id } });
+}
 
 export async function createContactMessage(message: {
   id: string;

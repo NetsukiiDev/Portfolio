@@ -1,23 +1,32 @@
 import Link from "next/link";
-import { getProjects, getBlogPosts, getExperience, getAiGallery, getSkillsData } from "@/lib/data";
+import {
+  getProjects,
+  getBlogPosts,
+  getExperience,
+  getAiGallery,
+  getSkillsData,
+  getContactMessages,
+} from "@/lib/data";
 import { Card } from "@/components/ui/Card";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 
 export default async function AdminDashboardPage() {
-  const [projects, posts, experience, gallery, skillsData] = await Promise.all([
+  const [projects, posts, experience, gallery, skillsData, messages] = await Promise.all([
     getProjects(),
     getBlogPosts(),
     getExperience(),
     getAiGallery(),
     getSkillsData(),
+    getContactMessages(),
   ]);
 
   const stats = [
-    { label: "Projects", value: projects.length, href: "/admin/projects" },
-    { label: "Blog posts", value: posts.length, href: "/admin/blog" },
-    { label: "Experience entries", value: experience.length, href: "/admin/experience" },
-    { label: "AI gallery images", value: gallery.length, href: "/admin/ai-gallery" },
-    { label: "Skills", value: skillsData.skills.length, href: "/admin/skills" },
+    { label: "Progetti", value: projects.length, href: "/admin/projects" },
+    { label: "Competenze", value: skillsData.skills.length, href: "/admin/skills" },
+    { label: "Voci di esperienza", value: experience.length, href: "/admin/experience" },
+    { label: "Articoli del blog", value: posts.length, href: "/admin/blog" },
+    { label: "Immagini della galleria", value: gallery.length, href: "/admin/ai-gallery" },
+    { label: "Messaggi ricevuti", value: messages.length, href: "/admin/messages" },
   ];
 
   return (

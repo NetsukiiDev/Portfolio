@@ -1,6 +1,7 @@
 import { getSettings } from "@/lib/data";
 import { Container } from "@/components/layout/Container";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { getPageDescriptions } from "@/lib/site.server";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { ContactInfo } from "@/components/contact/ContactInfo";
 import { assertModuleEnabled } from "@/lib/modules.server";
@@ -11,7 +12,7 @@ export default async function ContactPage() {
 
   return (
     <Container className="max-w-3xl">
-      <PageHeader page="contact" />
+      <PageHeader page="contact" descriptions={await getPageDescriptions("contact")} />
       {/* With the form switched off (Moduli → Contatti) the page keeps the
           contact details and just drops the form, so it stops spanning two
           columns. */}

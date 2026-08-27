@@ -24,6 +24,23 @@ export interface HomeSettings {
   stats: HomeStat[];
 }
 
+/**
+ * The public pages that carry an editable intro under their title. About
+ * isn't one: its opening is the profile itself.
+ */
+export const PAGE_KEYS = ["projects", "skills", "experience", "blog", "aiGallery", "contact"] as const;
+
+export type PageKey = (typeof PAGE_KEYS)[number];
+
+/**
+ * The line under each page's title. It used to be hardcoded placeholder copy
+ * in translations.ts — which meant notes written for the admin ("Invite
+ * people to get in touch") were showing up on the live site.
+ */
+export interface PagesSettings {
+  translations: Record<Locale, Record<PageKey, string>>;
+}
+
 /** Owned by Admin → Lingua. */
 export interface LanguageSettings {
   /** The one language the admin writes in; every other locale is derived from it. */
@@ -69,4 +86,5 @@ export interface Settings {
   maintenance: { enabled: boolean; translations: Record<Locale, { message: string }> };
   modules: ModulesSettings;
   home: HomeSettings;
+  pages: PagesSettings;
 }

@@ -1,12 +1,14 @@
 "use client";
 
 import { StaggerChildren, StaggerChild } from "@/components/animations";
+import { useTranslation } from "@/hooks/useTranslation";
 import { GalleryCard } from "./GalleryCard";
 import type { AiImage } from "@/types";
 
 export function GalleryGrid({ images }: { images: AiImage[] }) {
+  const { t } = useTranslation();
   if (images.length === 0) {
-    return <p className="text-center text-sm text-muted-foreground">No images yet.</p>;
+    return <p className="text-center text-sm text-muted-foreground">{t.common.noImages}</p>;
   }
 
   return (

@@ -16,10 +16,12 @@ import {
   isToday,
   parseISO,
 } from "date-fns";
+import { it } from "date-fns/locale";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/cn";
 
-const WEEKDAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+// The admin is in Italian, so the calendar is too.
+const WEEKDAYS = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
 
 export interface DatePickerProps {
   value: string;
@@ -71,7 +73,7 @@ export function DatePicker({ value, onChange, placeholder = "Select date", disab
         className="flex h-12 w-full items-center justify-between rounded-2xl border border-border bg-surface-wash px-4 text-left text-sm text-foreground outline-none transition-colors focus:border-accent disabled:opacity-40"
       >
         <span className={cn(!selectedDate && "text-muted-foreground")}>
-          {selectedDate ? format(selectedDate, "MMM d, yyyy") : placeholder}
+          {selectedDate ? format(selectedDate, "d MMM yyyy", { locale: it }) : placeholder}
         </span>
         <CalendarDays className="h-4 w-4 shrink-0 text-muted-foreground" />
       </button>
@@ -89,16 +91,16 @@ export function DatePicker({ value, onChange, placeholder = "Select date", disab
                 type="button"
                 onClick={() => setViewMonth((m) => subMonths(m, 1))}
                 className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-surface-wash hover:text-foreground"
-                aria-label="Previous month"
+                aria-label="Mese precedente"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
-              <span className="text-sm font-medium text-foreground">{format(viewMonth, "MMMM yyyy")}</span>
+              <span className="text-sm font-medium text-foreground">{format(viewMonth, "MMMM yyyy", { locale: it })}</span>
               <button
                 type="button"
                 onClick={() => setViewMonth((m) => addMonths(m, 1))}
                 className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-surface-wash hover:text-foreground"
-                aria-label="Next month"
+                aria-label="Mese successivo"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
@@ -147,7 +149,7 @@ export function DatePicker({ value, onChange, placeholder = "Select date", disab
                 }}
                 className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
-                Clear
+                Svuota
               </button>
               <button
                 type="button"
@@ -159,7 +161,7 @@ export function DatePicker({ value, onChange, placeholder = "Select date", disab
                 }}
                 className="text-xs font-medium text-accent transition-colors hover:text-foreground"
               >
-                Today
+                Oggi
               </button>
             </div>
           </motion.div>
