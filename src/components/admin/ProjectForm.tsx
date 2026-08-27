@@ -119,7 +119,7 @@ export function ProjectForm({ project, locale }: { project?: Project; locale: Lo
           <Input {...register("slug", { required: true })} placeholder="my-project" />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Category</label>
+          <label className="mb-2 block text-sm font-medium text-foreground">Categoria</label>
           <Controller
             control={control}
             name="category"
@@ -133,14 +133,14 @@ export function ProjectForm({ project, locale }: { project?: Project; locale: Lo
           />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Order</label>
+          <label className="mb-2 block text-sm font-medium text-foreground">Ordine</label>
           <Input type="number" {...register("order", { valueAsNumber: true })} />
         </div>
         <div className="flex items-end">
           <Controller
             control={control}
             name="featured"
-            render={({ field }) => <Toggle checked={field.value} onChange={field.onChange} label="Featured" />}
+            render={({ field }) => <Toggle checked={field.value} onChange={field.onChange} label="In evidenza" />}
           />
         </div>
         <div>
@@ -154,7 +154,7 @@ export function ProjectForm({ project, locale }: { project?: Project; locale: Lo
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-medium text-foreground">Tech stack (comma separated)</label>
+        <label className="mb-2 block text-sm font-medium text-foreground">Stack tecnologico (separato da virgola)</label>
         <Input {...register("techStack")} placeholder="Next.js, React, Tailwind" />
       </div>
 
@@ -162,7 +162,7 @@ export function ProjectForm({ project, locale }: { project?: Project; locale: Lo
         value={image}
         onChange={(url) => setValue("image", url)}
         folder="projects"
-        label="Cover image"
+        label="Immagine di copertina"
       />
 
       {/* Only the authoring language is shown; the other locales are

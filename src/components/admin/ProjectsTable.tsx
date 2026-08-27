@@ -37,7 +37,7 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
               <p className="text-xs text-muted-foreground">/{project.slug}</p>
             </div>
             <div className="flex items-center gap-2">
-              {project.featured && <Badge>Featured</Badge>}
+              {project.featured && <Badge>In evidenza</Badge>}
               <Link
                 href={`/admin/projects/${project.id}`}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-foreground"

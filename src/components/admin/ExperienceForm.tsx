@@ -125,7 +125,7 @@ export function ExperienceForm({ experience, locale }: { experience?: Experience
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Type</label>
+          <label className="mb-2 block text-sm font-medium text-foreground">Tipo</label>
           <Controller
             control={control}
             name="type"
@@ -142,19 +142,19 @@ export function ExperienceForm({ experience, locale }: { experience?: Experience
           />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Company / Institution</label>
+          <label className="mb-2 block text-sm font-medium text-foreground">Azienda / Istituto</label>
           <Input {...register("company", { required: true })} />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Website</label>
+          <label className="mb-2 block text-sm font-medium text-foreground">Sito web</label>
           <Input {...register("website")} placeholder="https://…" />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Order</label>
+          <label className="mb-2 block text-sm font-medium text-foreground">Ordine</label>
           <Input type="number" {...register("order", { valueAsNumber: true })} />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Start date</label>
+          <label className="mb-2 block text-sm font-medium text-foreground">Data di inizio</label>
           <Controller
             control={control}
             name="startDate"
@@ -163,7 +163,7 @@ export function ExperienceForm({ experience, locale }: { experience?: Experience
           />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">End date</label>
+          <label className="mb-2 block text-sm font-medium text-foreground">Data di fine</label>
           <Controller
             control={control}
             name="endDate"
@@ -174,7 +174,7 @@ export function ExperienceForm({ experience, locale }: { experience?: Experience
           <Controller
             control={control}
             name="current"
-            render={({ field }) => <Toggle checked={field.value} onChange={field.onChange} label="Current" />}
+            render={({ field }) => <Toggle checked={field.value} onChange={field.onChange} label="Attuale" />}
           />
         </div>
       </div>

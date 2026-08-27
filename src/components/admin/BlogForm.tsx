@@ -109,7 +109,7 @@ export function BlogForm({ post, locale }: { post?: BlogPost; locale: Locale }) 
           <Input {...register("slug", { required: true })} placeholder="my-post" />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Status</label>
+          <label className="mb-2 block text-sm font-medium text-foreground">Stato</label>
           <Controller
             control={control}
             name="status"
@@ -126,7 +126,7 @@ export function BlogForm({ post, locale }: { post?: BlogPost; locale: Locale }) 
           />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Tags (comma separated)</label>
+          <label className="mb-2 block text-sm font-medium text-foreground">Tag (separati da virgola)</label>
           <Input {...register("tags")} placeholder="react, webgl" />
         </div>
         <div>
@@ -139,7 +139,7 @@ export function BlogForm({ post, locale }: { post?: BlogPost; locale: Locale }) 
         value={coverImage}
         onChange={(url) => setValue("coverImage", url)}
         folder="blog"
-        label="Cover image"
+        label="Immagine di copertina"
       />
 
       {/* Only the authoring language is shown; the other locales are

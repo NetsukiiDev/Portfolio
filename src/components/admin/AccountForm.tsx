@@ -55,12 +55,12 @@ export function AccountForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-md space-y-4">
       <div>
-        <label className="mb-2 block text-sm font-medium text-foreground">Current password</label>
+        <label className="mb-2 block text-sm font-medium text-foreground">Password attuale</label>
         <Input type="password" {...register("currentPassword", { required: true })} />
         {errors.currentPassword && <p className="mt-1.5 text-xs text-red-400">Required</p>}
       </div>
       <div>
-        <label className="mb-2 block text-sm font-medium text-foreground">New password</label>
+        <label className="mb-2 block text-sm font-medium text-foreground">Nuova password</label>
         <Input type="password" {...register("newPassword", { required: true, minLength: 8 })} />
         {errors.newPassword && <p className="mt-1.5 text-xs text-red-400">At least 8 characters</p>}
       </div>

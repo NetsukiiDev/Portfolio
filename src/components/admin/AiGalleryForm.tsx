@@ -123,16 +123,16 @@ export function AiGalleryForm({ image, locale }: { image?: AiImage; locale: Loca
         value={imageUrl}
         onChange={(url) => setValue("image", url)}
         folder="ai-gallery"
-        label="Image"
+        label="Immagine"
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Tags (comma separated)</label>
+          <label className="mb-2 block text-sm font-medium text-foreground">Tag (separati da virgola)</label>
           <Input {...register("tags")} placeholder="landscape, scifi" />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Model</label>
+          <label className="mb-2 block text-sm font-medium text-foreground">Modello</label>
           <Input {...register("model", { required: true })} placeholder="sdxl-1.0" />
         </div>
         <div>
@@ -140,7 +140,7 @@ export function AiGalleryForm({ image, locale }: { image?: AiImage; locale: Loca
           <Input {...register("sampler")} placeholder="DPM++ 2M Karras" />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Steps</label>
+          <label className="mb-2 block text-sm font-medium text-foreground">Step</label>
           <Input type="number" {...register("steps", { valueAsNumber: true })} />
         </div>
         <div>

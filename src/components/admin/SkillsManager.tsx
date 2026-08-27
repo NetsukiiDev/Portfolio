@@ -163,7 +163,7 @@ export function SkillsManager({
         <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="mb-2 block text-sm font-medium text-foreground">Category</label>
+              <label className="mb-2 block text-sm font-medium text-foreground">Categoria</label>
               <Controller
                 control={control}
                 name="categoryId"
@@ -180,7 +180,7 @@ export function SkillsManager({
               />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-foreground">Icon slug</label>
+              <label className="mb-2 block text-sm font-medium text-foreground">Slug icona</label>
               <Input {...register("icon")} placeholder="react" />
             </div>
             <div>
@@ -188,7 +188,7 @@ export function SkillsManager({
               <Input type="number" min={0} max={100} {...register("proficiency", { valueAsNumber: true })} />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-foreground">Years of experience</label>
+              <label className="mb-2 block text-sm font-medium text-foreground">Anni di esperienza</label>
               <Input type="number" min={0} {...register("yearsOfExperience", { valueAsNumber: true })} />
             </div>
           </div>

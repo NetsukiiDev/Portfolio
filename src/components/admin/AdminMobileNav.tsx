@@ -25,7 +25,7 @@ export function AdminMobileNav() {
           type="button"
           onClick={() => setOpen(true)}
           className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground"
-          aria-label="Open menu"
+          aria-label="Apri menu"
         >
           <Menu className="h-4 w-4" />
         </button>
@@ -45,7 +45,7 @@ export function AdminMobileNav() {
                 type="button"
                 onClick={() => setOpen(false)}
                 className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground"
-                aria-label="Close menu"
+                aria-label="Chiudi menu"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -97,7 +97,7 @@ export function AdminMobileNav() {
                   className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-base font-medium text-muted-foreground"
                 >
                   <LogOut className="h-5 w-5" />
-                  Log out
+                  Esci
                 </button>
               </div>
             </nav>

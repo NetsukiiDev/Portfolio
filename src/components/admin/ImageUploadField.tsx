@@ -75,7 +75,7 @@ export function ImageUploadField({
           <Upload className="h-6 w-6 text-muted-foreground" />
         )}
         <p className="text-xs text-muted-foreground">
-          {uploading ? "Uploading…" : value ? "Click or drop to replace" : "Click or drop an image"}
+          {uploading ? "Uploading…" : value ? "Clicca o trascina per sostituire" : "Clicca o trascina un'immagine"}
         </p>
       </div>
       {error && <p className="mt-1.5 text-xs text-red-400">{error}</p>}

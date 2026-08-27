@@ -30,7 +30,7 @@ export function DeleteButton({ onConfirm, label = "item" }: { onConfirm: () => v
         <Trash2 className="h-4 w-4" />
       </button>
       <Modal open={open} onClose={() => setOpen(false)} className="max-w-sm">
-        <h2 className="text-lg font-medium text-foreground">Delete {label}?</h2>
+        <h2 className="text-lg font-medium text-foreground">Eliminare {label}?</h2>
         <p className="mt-2 text-sm text-muted-foreground">This action can&apos;t be undone.</p>
         <div className="mt-6 flex justify-end gap-3">
           <Button variant="secondary" onClick={() => setOpen(false)}>
