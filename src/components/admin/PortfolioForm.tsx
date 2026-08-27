@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { Toggle } from "@/components/ui/Toggle";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { useToast } from "@/context/ToastContext";
 import type { GithubStatKey, HomeSettings, Settings } from "@/types/settings";
 import type { Locale } from "@/types";
@@ -22,6 +23,7 @@ const STAT_LABELS: Record<GithubStatKey, string> = {
 export function PortfolioForm({ settings, locale }: { settings: Settings; locale: Locale }) {
   const toast = useToast();
   const [home, setHome] = useState<HomeSettings>(settings.home);
+  const [personal, setPersonal] = useState<Settings["personal"]>(settings.personal);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function updateText(locale: Locale, field: keyof HomeSettings["translations"][Locale], value: string) {
@@ -42,6 +44,13 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
     }));
   }
 
+  function updatePersonal(field: "name" | "title" | "location" | "bio" | "longBio", value: string) {
+    setPersonal((prev) => ({
+      ...prev,
+      translations: { ...prev.translations, [locale]: { ...prev.translations[locale], [field]: value } },
+    }));
+  }
+
   async function onSave() {
     setIsSubmitting(true);
     try {
@@ -49,7 +58,7 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         // Only this page's slice — the API merges it into what's stored.
-        body: JSON.stringify({ home }),
+        body: JSON.stringify({ home, personal }),
       });
       if (!res.ok) throw new Error("Request failed");
       toast.success("Portfolio salvato");
@@ -67,11 +76,62 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
         attivano da <span className="text-foreground">Moduli</span>.
       </p>
 
-      <Tabs defaultValue="hero">
+      <Tabs defaultValue="profilo">
         <TabsList>
+          <TabsTrigger value="profilo">Profilo</TabsTrigger>
           <TabsTrigger value="hero">Hero</TabsTrigger>
           <TabsTrigger value="stats">Statistiche</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="profilo">
+          <Card className="space-y-4 p-5">
+            <ImageUploadField
+              value={personal.avatar}
+              onChange={(url) => setPersonal((prev) => ({ ...prev, avatar: url }))}
+              folder="settings"
+              label="Avatar"
+            />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Input
+                placeholder="Email"
+                value={personal.email}
+                onChange={(e) => setPersonal((prev) => ({ ...prev, email: e.target.value }))}
+              />
+              <Input
+                placeholder="Link al CV"
+                value={personal.resumeUrl}
+                onChange={(e) => setPersonal((prev) => ({ ...prev, resumeUrl: e.target.value }))}
+              />
+            </div>
+            <Input
+              placeholder="Nome"
+              value={personal.translations[locale].name}
+              onChange={(e) => updatePersonal("name", e.target.value)}
+            />
+            <Input
+              placeholder="Ruolo"
+              value={personal.translations[locale].title}
+              onChange={(e) => updatePersonal("title", e.target.value)}
+            />
+            <Input
+              placeholder="Località"
+              value={personal.translations[locale].location}
+              onChange={(e) => updatePersonal("location", e.target.value)}
+            />
+            <Textarea
+              rows={2}
+              placeholder="Bio breve"
+              value={personal.translations[locale].bio}
+              onChange={(e) => updatePersonal("bio", e.target.value)}
+            />
+            <Textarea
+              rows={4}
+              placeholder="Bio estesa"
+              value={personal.translations[locale].longBio}
+              onChange={(e) => updatePersonal("longBio", e.target.value)}
+            />
+          </Card>
+        </TabsContent>
 
         <TabsContent value="hero">
           <div className="space-y-6">

@@ -24,7 +24,7 @@ export function CallToAction() {
             />
             <div className="relative">
               <h2 className="text-balance text-3xl font-medium tracking-tight text-foreground sm:text-5xl">
-                {t.home.ctaSecondary}?
+                {t.home.ctaHeading}
               </h2>
               <p className="mx-auto mt-4 max-w-md text-muted-foreground">{t.home.heroSubtitle}</p>
               <div className="mt-8">

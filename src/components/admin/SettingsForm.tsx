@@ -41,19 +41,6 @@ async function resetContentType(type: string) {
 }
 
 interface SettingsFormValues {
-  nameEn: string;
-  titleEn: string;
-  bioEn: string;
-  longBioEn: string;
-  locationEn: string;
-  nameIt: string;
-  titleIt: string;
-  bioIt: string;
-  longBioIt: string;
-  locationIt: string;
-  avatar: string;
-  email: string;
-  resumeUrl: string;
   github: string;
   linkedin: string;
   twitter: string;
@@ -84,19 +71,6 @@ interface SettingsFormValues {
 
 function toFormValues(settings: Settings): SettingsFormValues {
   return {
-    nameEn: settings.personal.translations.en.name,
-    titleEn: settings.personal.translations.en.title,
-    bioEn: settings.personal.translations.en.bio,
-    longBioEn: settings.personal.translations.en.longBio,
-    locationEn: settings.personal.translations.en.location,
-    nameIt: settings.personal.translations.it.name,
-    titleIt: settings.personal.translations.it.title,
-    bioIt: settings.personal.translations.it.bio,
-    longBioIt: settings.personal.translations.it.longBio,
-    locationIt: settings.personal.translations.it.location,
-    avatar: settings.personal.avatar,
-    email: settings.personal.email,
-    resumeUrl: settings.personal.resumeUrl,
     github: settings.social.github ?? "",
     linkedin: settings.social.linkedin ?? "",
     twitter: settings.social.twitter ?? "",
@@ -134,7 +108,6 @@ export function SettingsForm({ settings, locale }: { settings: Settings; locale:
     defaultValues: toFormValues(settings),
   });
 
-  const avatar = watch("avatar");
   const ogImage = watch("ogImage");
   const storageProvider = watch("storageProvider");
 
@@ -149,27 +122,6 @@ export function SettingsForm({ settings, locale }: { settings: Settings; locale:
         https: values.https,
         themePalette: values.themePalette,
         themeMode: values.themeMode,
-      },
-      personal: {
-        translations: {
-          en: {
-            name: values.nameEn,
-            title: values.titleEn,
-            bio: values.bioEn,
-            longBio: values.longBioEn,
-            location: values.locationEn,
-          },
-          it: {
-            name: values.nameIt,
-            title: values.titleIt,
-            bio: values.bioIt,
-            longBio: values.longBioIt,
-            location: values.locationIt,
-          },
-        },
-        avatar: values.avatar,
-        email: values.email,
-        resumeUrl: values.resumeUrl,
       },
       social: {
         github: values.github || null,
@@ -225,53 +177,14 @@ export function SettingsForm({ settings, locale }: { settings: Settings; locale:
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-      <Tabs defaultValue="personal">
+      <Tabs defaultValue="social">
         <TabsList>
-          <TabsTrigger value="personal">Profilo</TabsTrigger>
           <TabsTrigger value="social">Social</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
           <TabsTrigger value="site">Generale</TabsTrigger>
           <TabsTrigger value="storage">Archiviazione</TabsTrigger>
           <TabsTrigger value="reset">Reimposta</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="personal">
-          <div className="space-y-6">
-            <ImageUploadField
-              value={avatar}
-              onChange={(url) => setValue("avatar", url)}
-              folder="settings"
-              label="Avatar"
-            />
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Input {...register("email")} placeholder="Email" />
-              <Input {...register("resumeUrl")} placeholder="Resume URL" />
-            </div>
-            {/* Only the authoring language is shown; the other locales are
-                generated on save and reviewed under Admin → Lingua. The hidden
-                group stays mounted so its stored values round-trip untouched. */}
-            <Tabs defaultValue={locale}>
-              <TabsContent value="en">
-                <div className="space-y-4">
-                  <Input {...register("nameEn")} placeholder="Name" />
-                  <Input {...register("titleEn")} placeholder="Title" />
-                  <Input {...register("locationEn")} placeholder="Location" />
-                  <Textarea rows={2} {...register("bioEn")} placeholder="Short bio" />
-                  <Textarea rows={4} {...register("longBioEn")} placeholder="Long bio" />
-                </div>
-              </TabsContent>
-              <TabsContent value="it">
-                <div className="space-y-4">
-                  <Input {...register("nameIt")} placeholder="Nome" />
-                  <Input {...register("titleIt")} placeholder="Titolo" />
-                  <Input {...register("locationIt")} placeholder="Posizione" />
-                  <Textarea rows={2} {...register("bioIt")} placeholder="Bio breve" />
-                  <Textarea rows={4} {...register("longBioIt")} placeholder="Bio estesa" />
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </TabsContent>
 
         <TabsContent value="social">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
