@@ -1,4 +1,4 @@
-import type { HomeSettings } from "@/types/settings";
+import type { HomeSettings, LanguageSettings } from "@/types/settings";
 
 export const DEFAULT_PERSONAL = {
   translations: {
@@ -38,6 +38,12 @@ export const DEFAULT_SEO = {
   },
   ogImage: "",
   siteUrl: "http://localhost:3000",
+};
+
+export const DEFAULT_LANGUAGE: LanguageSettings = {
+  defaultLocale: "en",
+  autoDetect: true,
+  allowSwitch: true,
 };
 
 export const DEFAULT_CONTACT_FORM = { enabled: true };

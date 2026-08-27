@@ -3,7 +3,7 @@ import { prisma } from "./prisma";
 import { isPaletteKey, isThemeMode } from "./theme";
 import { DEFAULT_STORAGE_SETTINGS } from "./storage/types";
 import { mergeModules } from "./modules";
-import { DEFAULT_HOME } from "./default-settings";
+import { DEFAULT_HOME, DEFAULT_LANGUAGE } from "./default-settings";
 import type { StorageSettings } from "./storage/types";
 import type { Prisma } from "@/generated/prisma-sqlite/client";
 import type {
@@ -445,6 +445,13 @@ function mergeStorageSettings(stored: unknown): StorageSettings {
   };
 }
 
+function mergeLanguage(stored: unknown, storedDefault: Locale): Settings["language"] {
+  const value = (stored ?? {}) as Partial<Settings["language"]>;
+  // defaultLocale keeps living in its own column (the setup wizard writes it
+  // before this blob exists), so the column stays the source of truth for it.
+  return { ...DEFAULT_LANGUAGE, ...value, defaultLocale: storedDefault };
+}
+
 function mergeHome(stored: unknown): Settings["home"] {
   const value = (stored ?? {}) as Partial<Settings["home"]>;
   // Stats used to hold hand-entered numbers; anything without a GitHub key
@@ -456,8 +463,8 @@ function mergeHome(stored: unknown): Settings["home"] {
 export const getSettings = cache(async (): Promise<Settings> => {
   const row = await prisma.settings.findUniqueOrThrow({ where: { id: SETTINGS_ID } });
   return {
+    language: mergeLanguage(row.language, row.defaultLocale as Locale),
     site: {
-      defaultLocale: row.defaultLocale as Locale,
       domain: row.domain,
       https: row.https,
       themePalette: isPaletteKey(row.themePalette) ? row.themePalette : "violet",
@@ -478,7 +485,8 @@ export async function saveSettings(data: Settings): Promise<void> {
   await prisma.settings.update({
     where: { id: SETTINGS_ID },
     data: {
-      defaultLocale: data.site.defaultLocale,
+      defaultLocale: data.language.defaultLocale,
+      language: toJson(data.language),
       domain: data.site.domain,
       https: data.site.https,
       themePalette: data.site.themePalette,

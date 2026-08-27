@@ -6,9 +6,17 @@ import { CursorProvider } from "./CursorProvider";
 import { ToastProvider } from "@/context/ToastContext";
 import type { Locale } from "@/types";
 
-export function Providers({ children, defaultLocale }: { children: ReactNode; defaultLocale?: Locale }) {
+export function Providers({
+  children,
+  defaultLocale,
+  allowSwitch,
+}: {
+  children: ReactNode;
+  defaultLocale?: Locale;
+  allowSwitch?: boolean;
+}) {
   return (
-    <LanguageProvider defaultLocale={defaultLocale}>
+    <LanguageProvider defaultLocale={defaultLocale} allowSwitch={allowSwitch}>
       <ToastProvider>
         <CursorProvider>{children}</CursorProvider>
       </ToastProvider>

@@ -17,9 +17,12 @@ function writeLocaleCookie(locale: Locale) {
   document.cookie = `${STORAGE_KEY}=${locale};path=/;max-age=31536000;samesite=lax`;
 }
 
-function makeSnapshotGetters(fallback: Locale) {
+function makeSnapshotGetters(fallback: Locale, allowSwitch: boolean) {
   return {
     getSnapshot(): Locale {
+      // With switching disabled the server ignores any stored preference, so
+      // the client must too — otherwise it swaps language after hydration.
+      if (!allowSwitch) return fallback;
       const stored = window.localStorage.getItem(STORAGE_KEY);
       if (stored && (LOCALES as string[]).includes(stored)) {
         return stored as Locale;
@@ -40,11 +43,13 @@ function subscribe(callback: () => void) {
 export function LanguageProvider({
   children,
   defaultLocale = DEFAULT_LOCALE,
+  allowSwitch = true,
 }: {
   children: ReactNode;
   defaultLocale?: Locale;
+  allowSwitch?: boolean;
 }) {
-  const { getSnapshot, getServerSnapshot } = makeSnapshotGetters(defaultLocale);
+  const { getSnapshot, getServerSnapshot } = makeSnapshotGetters(defaultLocale, allowSwitch);
   const locale = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   // Keeps the cookie in step with the active locale, including the first

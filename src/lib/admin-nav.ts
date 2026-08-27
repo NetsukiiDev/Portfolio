@@ -8,6 +8,7 @@ import {
   Settings,
   Home,
   Blocks,
+  Languages,
   type LucideIcon,
 } from "lucide-react";
 
@@ -20,5 +21,6 @@ export const ADMIN_LINKS: { href: string; label: string; icon: LucideIcon }[] = 
   { href: "/admin/experience", label: "Experience", icon: Briefcase },
   { href: "/admin/blog", label: "Blog", icon: Newspaper },
   { href: "/admin/ai-gallery", label: "AI Gallery", icon: ImageIcon },
+  { href: "/admin/language", label: "Lingua", icon: Languages },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];

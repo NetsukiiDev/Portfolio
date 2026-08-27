@@ -98,6 +98,7 @@ model Settings {
   storage          Json?
   modules          Json?
   home             Json?
+  language         Json?
   setupCompletedAt DateTime?
 }
 

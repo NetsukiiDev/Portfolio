@@ -10,11 +10,13 @@ export function MobileMenu({
   open,
   onClose,
   links,
+  allowSwitch,
 }: {
   open: boolean;
   onClose: () => void;
   /** Already filtered by the active modules — see Navbar. */
   links: typeof NAV_LINKS;
+  allowSwitch: boolean;
 }) {
   const { t, locale, setLocale } = useTranslation();
 
@@ -54,13 +56,15 @@ export function MobileMenu({
                 </Link>
               </motion.div>
             ))}
-            <button
-              type="button"
-              onClick={() => setLocale(locale === "en" ? "it" : "en")}
-              className="mt-4 rounded-full border border-border px-4 py-2 text-xs font-medium text-muted-foreground"
-            >
-              {locale === "en" ? "Switch to Italiano" : "Switch to English"}
-            </button>
+            {allowSwitch && (
+              <button
+                type="button"
+                onClick={() => setLocale(locale === "en" ? "it" : "en")}
+                className="mt-4 rounded-full border border-border px-4 py-2 text-xs font-medium text-muted-foreground"
+              >
+                {locale === "en" ? "Passa all'italiano" : "Switch to English"}
+              </button>
+            )}
           </nav>
         </motion.div>
       )}

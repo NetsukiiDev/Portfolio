@@ -24,9 +24,19 @@ export interface HomeSettings {
   stats: HomeStat[];
 }
 
+/** Owned by Admin → Lingua. */
+export interface LanguageSettings {
+  /** The one language the admin writes in; every other locale is derived from it. */
+  defaultLocale: Locale;
+  /** Serve visitors their own language when their browser asks for one we have. */
+  autoDetect: boolean;
+  /** Show the language switcher in the navbar. */
+  allowSwitch: boolean;
+}
+
 export interface Settings {
+  language: LanguageSettings;
   site: {
-    defaultLocale: Locale;
     domain: string;
     https: boolean;
     themePalette: PaletteKey;

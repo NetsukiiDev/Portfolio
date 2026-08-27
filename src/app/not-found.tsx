@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { NotFoundContent } from "@/components/errors/NotFoundContent";
 import { getSettings } from "@/lib/data";
 import { DEFAULT_MODULES, type ModulesSettings } from "@/lib/modules";
+import { DEFAULT_LANGUAGE } from "@/lib/default-settings";
 
 export const metadata: Metadata = {
   title: "404",
@@ -11,15 +12,18 @@ export const metadata: Metadata = {
 
 export default async function NotFound() {
   let modules: ModulesSettings = DEFAULT_MODULES;
+  let allowSwitch = DEFAULT_LANGUAGE.allowSwitch;
   try {
-    modules = (await getSettings()).modules;
+    const settings = await getSettings();
+    modules = settings.modules;
+    allowSwitch = settings.language.allowSwitch;
   } catch {
     // Settings row doesn't exist yet (pre-setup) — fall back to defaults.
   }
 
   return (
     <>
-      <Navbar modules={modules} />
+      <Navbar modules={modules} allowSwitch={allowSwitch} />
       <main className="flex-1 pt-20">
         <NotFoundContent />
       </main>

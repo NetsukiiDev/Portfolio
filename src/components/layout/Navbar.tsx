@@ -11,7 +11,7 @@ import { NAV_LINKS, SITE_NAME } from "@/lib/constants";
 import { isNavKeyVisible, type ModulesSettings } from "@/lib/modules";
 import { cn } from "@/lib/cn";
 
-export function Navbar({ modules }: { modules: ModulesSettings }) {
+export function Navbar({ modules, allowSwitch }: { modules: ModulesSettings; allowSwitch: boolean }) {
   const pathname = usePathname();
   const { t, locale, setLocale } = useTranslation();
   const links = NAV_LINKS.filter((link) => isNavKeyVisible(link.key, modules));
@@ -57,6 +57,7 @@ export function Navbar({ modules }: { modules: ModulesSettings }) {
           </nav>
 
           <div className="flex items-center gap-2">
+            {allowSwitch && (
             <button
               type="button"
               onClick={() => setLocale(locale === "en" ? "it" : "en")}
@@ -66,6 +67,7 @@ export function Navbar({ modules }: { modules: ModulesSettings }) {
               <Globe className="h-3.5 w-3.5" />
               {locale.toUpperCase()}
             </button>
+            )}
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
@@ -77,7 +79,7 @@ export function Navbar({ modules }: { modules: ModulesSettings }) {
           </div>
         </Container>
       </header>
-      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} links={links} />
+      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} links={links} allowSwitch={allowSwitch} />
     </>
   );
 }

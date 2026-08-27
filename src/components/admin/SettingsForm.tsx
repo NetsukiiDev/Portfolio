@@ -14,12 +14,9 @@ import { ResetSiteButton } from "@/components/admin/ResetSiteButton";
 import { useToast } from "@/context/ToastContext";
 import { cn } from "@/lib/cn";
 import { PALETTES, PALETTE_KEYS, type PaletteKey, type ThemeMode } from "@/lib/theme";
-import { LOCALES } from "@/lib/constants";
 import type { StorageProviderKey } from "@/lib/storage/types";
-import type { Settings, Locale } from "@/types";
+import type { Settings } from "@/types";
 
-const LOCALE_LABELS: Record<Locale, string> = { en: "English", it: "Italiano" };
-const LOCALE_OPTIONS = LOCALES.map((locale) => ({ value: locale, label: LOCALE_LABELS[locale] }));
 
 const STORAGE_PROVIDER_OPTIONS: { value: StorageProviderKey; label: string }[] = [
   { value: "local", label: "Locale (disco del server)" },
@@ -70,7 +67,6 @@ interface SettingsFormValues {
   ogImage: string;
   domain: string;
   https: boolean;
-  defaultLocale: Locale;
   themePalette: PaletteKey;
   themeMode: ThemeMode;
   maintenanceEnabled: boolean;
@@ -114,7 +110,6 @@ function toFormValues(settings: Settings): SettingsFormValues {
     ogImage: settings.seo.ogImage,
     domain: settings.site.domain,
     https: settings.site.https,
-    defaultLocale: settings.site.defaultLocale,
     themePalette: settings.site.themePalette,
     themeMode: settings.site.themeMode,
     maintenanceEnabled: settings.maintenance.enabled,
@@ -150,7 +145,6 @@ export function SettingsForm({ settings }: { settings: Settings }) {
     // Moduli and Portfolio keep whatever they last saved.
     const payload: Partial<Settings> = {
       site: {
-        defaultLocale: values.defaultLocale,
         domain: values.domain,
         https: values.https,
         themePalette: values.themePalette,
@@ -334,22 +328,6 @@ export function SettingsForm({ settings }: { settings: Settings }) {
                   )}
                 />
               </div>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-foreground">Primary language</label>
-              <Controller
-                control={control}
-                name="defaultLocale"
-                render={({ field }) => (
-                  <Select
-                    value={field.value}
-                    onChange={(value) => field.onChange(value as Locale)}
-                    options={LOCALE_OPTIONS}
-                    className="max-w-xs"
-                  />
-                )}
-              />
             </div>
 
             <div>

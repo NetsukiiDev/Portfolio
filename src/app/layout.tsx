@@ -1,11 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/providers/Providers";
 import { SITE_NAME, LOCALES } from "@/lib/constants";
 import { getSettings } from "@/lib/data";
+import { DEFAULT_LANGUAGE } from "@/lib/default-settings";
 import { PALETTES } from "@/lib/theme";
 import type { Locale } from "@/types";
+import type { LanguageSettings } from "@/types/settings";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,12 +25,33 @@ const geistMono = Geist_Mono({
 // generation: content must be fetched per-request, not baked in once at build.
 export const dynamic = "force-dynamic";
 
-// The visitor's own choice, mirrored into a cookie by LanguageProvider, so
-// the first render already matches what the client will settle on — no
-// post-hydration language swap (which re-ran every entrance animation).
-async function resolveLocale(fallback: Locale): Promise<Locale> {
-  const stored = (await cookies()).get("locale")?.value;
-  return (LOCALES as string[]).includes(stored ?? "") ? (stored as Locale) : fallback;
+/**
+ * Picks the language to render in, in order of authority:
+ *   1. what the visitor chose (cookie), if switching is even allowed;
+ *   2. what their browser asks for, if auto-detect is on;
+ *   3. the language the admin writes in.
+ *
+ * LanguageProvider mirrors the visitor's choice into that cookie so the first
+ * render already matches what the client settles on — otherwise the page
+ * swaps language after hydration and replays every entrance animation.
+ */
+async function resolveLocale(language: LanguageSettings): Promise<Locale> {
+  if (language.allowSwitch) {
+    const chosen = (await cookies()).get("locale")?.value;
+    if ((LOCALES as string[]).includes(chosen ?? "")) return chosen as Locale;
+  }
+
+  if (language.autoDetect) {
+    // Accept-Language is what the browser actually asks for, which beats
+    // guessing from an IP: someone in Italy may well want English.
+    const header = (await headers()).get("accept-language") ?? "";
+    for (const part of header.split(",")) {
+      const tag = part.split(";")[0]?.trim().toLowerCase().split("-")[0];
+      if (tag && (LOCALES as string[]).includes(tag)) return tag as Locale;
+    }
+  }
+
+  return language.defaultLocale;
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -41,7 +64,7 @@ export async function generateMetadata(): Promise<Metadata> {
     siteUrl = settings.seo.siteUrl || siteUrl;
     // Reads what the admin actually saved under Settings → SEO, in the
     // visitor's language, instead of a hardcoded tagline.
-    const seo = settings.seo.translations[await resolveLocale(settings.site.defaultLocale)];
+    const seo = settings.seo.translations[await resolveLocale(settings.language)];
     title = seo.siteTitle || SITE_NAME;
     description = seo.siteDescription || undefined;
   } catch {
@@ -76,20 +99,20 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let defaultLocale: Locale = "en";
+  let language = DEFAULT_LANGUAGE;
   let themeMode: "light" | "dark" = "dark";
   let palette = PALETTES.violet;
 
   try {
     const settings = await getSettings();
-    defaultLocale = settings.site.defaultLocale;
+    language = settings.language;
     themeMode = settings.site.themeMode;
     palette = PALETTES[settings.site.themePalette] ?? PALETTES.violet;
   } catch {
     // Settings row doesn't exist yet (pre-setup) — fall back to defaults.
   }
 
-  const locale = await resolveLocale(defaultLocale);
+  const locale = await resolveLocale(language);
 
   return (
     <html
@@ -101,7 +124,7 @@ export default async function RootLayout({
         <style>{`:root{--accent:${palette.accent};--accent-soft:${palette.accentSoft}}`}</style>
       </head>
       <body id="top" className="flex min-h-full flex-col">
-        <Providers defaultLocale={locale}>{children}</Providers>
+        <Providers defaultLocale={locale} allowSwitch={language.allowSwitch}>{children}</Providers>
       </body>
     </html>
   );
