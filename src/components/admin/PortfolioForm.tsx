@@ -9,10 +9,18 @@ import { Toggle } from "@/components/ui/Toggle";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { useToast } from "@/context/ToastContext";
 import { LOCALES } from "@/lib/constants";
-import type { HomeSettings, Settings } from "@/types/settings";
+import type { GithubStatKey, HomeSettings, Settings } from "@/types/settings";
 import type { Locale } from "@/types";
 
 const LOCALE_LABELS: Record<Locale, string> = { en: "English", it: "Italiano" };
+
+/** Which GitHub figure each row shows — the wording below it is editable. */
+const STAT_LABELS: Record<GithubStatKey, string> = {
+  repos: "Repository pubblici",
+  followers: "Follower",
+  stars: "Stelle ricevute",
+  years: "Anni su GitHub",
+};
 
 export function PortfolioForm({ settings }: { settings: Settings }) {
   const toast = useToast();
@@ -23,13 +31,6 @@ export function PortfolioForm({ settings }: { settings: Settings }) {
     setHome((prev) => ({
       ...prev,
       translations: { ...prev.translations, [locale]: { ...prev.translations[locale], [field]: value } },
-    }));
-  }
-
-  function updateStatValue(index: number, value: number) {
-    setHome((prev) => ({
-      ...prev,
-      stats: prev.stats.map((stat, i) => (i === index ? { ...stat, value } : stat)),
     }));
   }
 
@@ -50,7 +51,8 @@ export function PortfolioForm({ settings }: { settings: Settings }) {
       const res = await fetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...settings, home } satisfies Settings),
+        // Only this page's slice — the API merges it into what's stored.
+        body: JSON.stringify({ home }),
       });
       if (!res.ok) throw new Error("Request failed");
       toast.success("Portfolio salvato");
@@ -126,15 +128,15 @@ export function PortfolioForm({ settings }: { settings: Settings }) {
               label="Mostra la sezione statistiche"
             />
 
+            <p className="text-sm text-muted-foreground">
+              I numeri arrivano dal profilo GitHub impostato in{" "}
+              <span className="text-foreground">Impostazioni → Social</span> e si aggiornano da soli: qui
+              modifichi solo le etichette. Senza un profilo GitHub la sezione non compare.
+            </p>
+
             {home.stats.map((stat, index) => (
-              <Card key={index} className="space-y-4 p-5">
-                <Input
-                  type="number"
-                  placeholder="Valore"
-                  value={String(stat.value)}
-                  onChange={(e) => updateStatValue(index, Number(e.target.value) || 0)}
-                  className="max-w-40"
-                />
+              <Card key={stat.key} className="space-y-4 p-5">
+                <h3 className="text-sm font-medium text-foreground">{STAT_LABELS[stat.key]}</h3>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {LOCALES.map((locale) => (
                     <Input

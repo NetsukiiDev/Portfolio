@@ -16,14 +16,20 @@ export async function PUT(request: NextRequest) {
   const authError = await requireAuth(request);
   if (authError) return authError;
 
-  const body = (await request.json()) as Settings;
+  // Accepts a partial: several admin pages own different top-level slices
+  // (Settings, Portfolio, Moduli). Merging against what's stored means each
+  // one can send only what it edits, instead of echoing back a whole
+  // settings object built from a snapshot that may already be stale — which
+  // silently reverted the other pages' changes.
+  const patch = (await request.json()) as Partial<Settings>;
   const current = await getSettings();
+  const next: Settings = { ...current, ...patch };
 
-  if (body.storage.s3.secretAccessKey === SECRET_MASK) {
-    body.storage.s3.secretAccessKey = current.storage.s3.secretAccessKey;
+  if (next.storage.s3.secretAccessKey === SECRET_MASK) {
+    next.storage.s3.secretAccessKey = current.storage.s3.secretAccessKey;
   }
 
-  await saveSettings(body);
+  await saveSettings(next);
 
-  return NextResponse.json({ ...body, storage: maskStorageSecrets(body.storage) });
+  return NextResponse.json({ ...next, storage: maskStorageSecrets(next.storage) });
 }

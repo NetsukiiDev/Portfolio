@@ -445,6 +445,14 @@ function mergeStorageSettings(stored: unknown): StorageSettings {
   };
 }
 
+function mergeHome(stored: unknown): Settings["home"] {
+  const value = (stored ?? {}) as Partial<Settings["home"]>;
+  // Stats used to hold hand-entered numbers; anything without a GitHub key
+  // predates that change and is replaced wholesale rather than half-migrated.
+  const stats = value.stats?.every((stat) => stat && "key" in stat) ? value.stats : DEFAULT_HOME.stats;
+  return { ...DEFAULT_HOME, ...value, stats } as Settings["home"];
+}
+
 export const getSettings = cache(async (): Promise<Settings> => {
   const row = await prisma.settings.findUniqueOrThrow({ where: { id: SETTINGS_ID } });
   return {
@@ -462,7 +470,7 @@ export const getSettings = cache(async (): Promise<Settings> => {
     contactForm: row.contactForm as Settings["contactForm"],
     maintenance: row.maintenance as Settings["maintenance"],
     modules: mergeModules(row.modules),
-    home: (row.home ?? DEFAULT_HOME) as Settings["home"],
+    home: mergeHome(row.home),
   };
 });
 

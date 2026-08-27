@@ -1,3 +1,5 @@
+import type { HomeSettings } from "@/types/settings";
+
 export const DEFAULT_PERSONAL = {
   translations: {
     en: {
@@ -43,7 +45,7 @@ export const DEFAULT_CONTACT_FORM = { enabled: true };
 // Mirrors the placeholder copy that used to live in translations.ts, now
 // editable from /admin/portfolio. Stats start at zero rather than invented
 // figures — see StatsSection.
-export const DEFAULT_HOME = {
+export const DEFAULT_HOME: HomeSettings = {
   translations: {
     en: {
       kicker: "Your status or availability",
@@ -62,10 +64,10 @@ export const DEFAULT_HOME = {
   },
   statsEnabled: true,
   stats: [
-    { value: 0, translations: { en: { label: "Projects shipped" }, it: { label: "Progetti realizzati" } } },
-    { value: 0, translations: { en: { label: "Years of experience" }, it: { label: "Anni di esperienza" } } },
-    { value: 0, translations: { en: { label: "Happy clients" }, it: { label: "Clienti soddisfatti" } } },
-    { value: 0, translations: { en: { label: "Cups of coffee" }, it: { label: "Tazze di caffè" } } },
+    { key: "repos", translations: { en: { label: "Public repositories" }, it: { label: "Repository pubblici" } } },
+    { key: "followers", translations: { en: { label: "Followers" }, it: { label: "Follower" } } },
+    { key: "stars", translations: { en: { label: "Stars earned" }, it: { label: "Stelle ricevute" } } },
+    { key: "years", translations: { en: { label: "Years on GitHub" }, it: { label: "Anni su GitHub" } } },
   ],
 };
 

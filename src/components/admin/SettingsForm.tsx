@@ -146,7 +146,9 @@ export function SettingsForm({ settings }: { settings: Settings }) {
   async function onSubmit(values: SettingsFormValues) {
     setIsSubmitting(true);
 
-    const payload: Settings = {
+    // Only this page's slices — the API merges them into what's stored, so
+    // Moduli and Portfolio keep whatever they last saved.
+    const payload: Partial<Settings> = {
       site: {
         defaultLocale: values.defaultLocale,
         domain: values.domain,
@@ -191,8 +193,6 @@ export function SettingsForm({ settings }: { settings: Settings }) {
         ogImage: values.ogImage,
         siteUrl: settings.seo.siteUrl,
       },
-      // Owned by Moduli → Contatti; carried through so saving here keeps it.
-      contactForm: settings.contactForm,
       maintenance: {
         enabled: values.maintenanceEnabled,
         translations: {
@@ -212,10 +212,6 @@ export function SettingsForm({ settings }: { settings: Settings }) {
           publicUrlBase: values.s3PublicUrlBase,
         },
       },
-      // Owned by the Moduli and Portfolio pages — carried through untouched
-      // so saving here doesn't wipe them.
-      modules: settings.modules,
-      home: settings.home,
     };
 
     try {

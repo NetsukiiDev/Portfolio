@@ -3,8 +3,14 @@ import type { PaletteKey, ThemeMode } from "@/lib/theme";
 import type { StorageSettings } from "@/lib/storage/types";
 import type { ModulesSettings } from "@/lib/modules";
 
+/** The figures pulled from the GitHub profile configured under Settings → Social. */
+export const GITHUB_STAT_KEYS = ["repos", "followers", "stars", "years"] as const;
+
+export type GithubStatKey = (typeof GITHUB_STAT_KEYS)[number];
+
 export interface HomeStat {
-  value: number;
+  key: GithubStatKey;
+  /** Only the wording is editable — the number comes from GitHub. */
   translations: Record<Locale, { label: string }>;
 }
 

@@ -34,11 +34,8 @@ export function ModulesForm({ settings }: { settings: Settings }) {
       const res = await fetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...settings,
-          modules,
-          contactForm: { enabled: contactFormEnabled },
-        } satisfies Settings),
+        // Only this page's slice — the API merges it into what's stored.
+        body: JSON.stringify({ modules, contactForm: { enabled: contactFormEnabled } }),
       });
       if (!res.ok) throw new Error("Request failed");
       toast.success("Moduli salvati");
