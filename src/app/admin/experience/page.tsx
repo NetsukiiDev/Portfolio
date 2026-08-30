@@ -8,7 +8,7 @@ import { ButtonLink } from "@/components/ui/Button";
 export default async function AdminExperiencePage() {
   const experience = await getExperience();
   const locale = await getAuthoringLocale();
-  const sorted = [...experience].sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+  const sorted = [...experience].sort((a, b) => a.order - b.order);
 
   return (
     <div>

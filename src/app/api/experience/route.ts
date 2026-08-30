@@ -13,7 +13,12 @@ export async function POST(request: NextRequest) {
   if (authError) return authError;
 
   const body = (await request.json()) as Omit<Experience, "id">;
-  const entry = await createExperience({ ...body, id: crypto.randomUUID() });
+  const entry = await createExperience({
+    ...body,
+    // Ordering is done by dragging the list, so a new one joins at the end.
+    order: (await getExperience()).length,
+    id: crypto.randomUUID(),
+  });
 
   return NextResponse.json(entry, { status: 201 });
 }

@@ -702,6 +702,34 @@ export async function replaceTools(tools: Tool[]): Promise<Tool[]> {
   return getTools();
 }
 
+// ---------- Ordering ----------
+
+export const REORDERABLE = ["projects", "skills", "experience", "tools"] as const;
+
+export type Reorderable = (typeof REORDERABLE)[number];
+
+/**
+ * Writes each item's position from where it now sits in the list. One
+ * transaction, so a half-applied order can't survive a failure partway
+ * through and leave two items claiming the same slot.
+ */
+export async function reorder(type: Reorderable, ids: string[]): Promise<void> {
+  const write = (id: string, order: number) => {
+    switch (type) {
+      case "projects":
+        return prisma.project.update({ where: { id }, data: { order } });
+      case "skills":
+        return prisma.skill.update({ where: { id }, data: { order } });
+      case "experience":
+        return prisma.experience.update({ where: { id }, data: { order } });
+      case "tools":
+        return prisma.tool.update({ where: { id }, data: { order } });
+    }
+  };
+
+  await prisma.$transaction(ids.map((id, index) => write(id, index)));
+}
+
 // ---------- Contact messages ----------
 
 export interface ContactMessage {

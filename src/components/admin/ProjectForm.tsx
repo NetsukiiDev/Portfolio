@@ -18,7 +18,6 @@ interface ProjectFormValues {
   slug: string;
   category: ProjectCategory;
   featured: boolean;
-  order: number;
   image: string;
   demo: string;
   github: string;
@@ -34,7 +33,6 @@ function toFormValues(project: Project | undefined, locale: Locale): ProjectForm
     slug: project?.slug ?? "",
     category: project?.category ?? "web",
     featured: project?.featured ?? false,
-    order: project?.order ?? 0,
     image: project?.images[0] ?? "",
     demo: project?.links.demo ?? "",
     github: project?.links.github ?? "",
@@ -64,7 +62,6 @@ export function ProjectForm({ project, locale }: { project?: Project; locale: Lo
       slug: values.slug,
       category: values.category,
       featured: values.featured,
-      order: Number(values.order),
       images: values.image ? [values.image] : [],
       links: {
         ...(values.demo ? { demo: values.demo } : {}),
@@ -130,10 +127,6 @@ export function ProjectForm({ project, locale }: { project?: Project; locale: Lo
               />
             )}
           />
-        </div>
-        <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Ordine</label>
-          <Input type="number" {...register("order", { valueAsNumber: true })} />
         </div>
         <div className="flex items-end">
           <Controller

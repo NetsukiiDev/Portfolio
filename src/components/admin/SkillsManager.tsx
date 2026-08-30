@@ -11,6 +11,7 @@ import { Select } from "@/components/ui/Select";
 import { Progress } from "@/components/ui/Progress";
 import { Button } from "@/components/ui/Button";
 import { DeleteButton } from "@/components/admin/DeleteButton";
+import { SortableList } from "@/components/admin/SortableList";
 import { useToast } from "@/context/ToastContext";
 import type { Skill, SkillCategory , Locale} from "@/types";
 
@@ -110,6 +111,22 @@ export function SkillsManager({
     }
   }
 
+  /** Drag only moves a skill within its own category — crossing one would
+   *  mean changing what it belongs to, which is the form's job. */
+  async function saveOrder(categoryId: string, ordered: Skill[]) {
+    setSkills((prev) => [...prev.filter((skill) => skill.categoryId !== categoryId), ...ordered]);
+    try {
+      await fetch("/api/admin/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "skills", ids: ordered.map((skill) => skill.id) }),
+      });
+      router.refresh();
+    } catch {
+      toast.error("Ordine non salvato");
+    }
+  }
+
   async function handleDelete(id: string) {
     await fetch(`/api/skills/${id}`, { method: "DELETE" });
     setSkills((prev) => prev.filter((skill) => skill.id !== id));
@@ -127,13 +144,25 @@ export function SkillsManager({
 
       <div className="space-y-10">
         {sortedCategories.map((category) => {
-          const categorySkills = skills.filter((skill) => skill.categoryId === category.id);
+          const categorySkills = skills
+            .filter((skill) => skill.categoryId === category.id)
+            .sort((a, b) => a.order - b.order);
           return (
             <div key={category.id}>
               <h2 className="mb-3 text-sm font-medium text-muted-foreground">{category.translations[locale]?.name}</h2>
-              <div className="space-y-3">
-                {categorySkills.map((skill) => (
-                  <Card key={skill.id} className="flex items-center justify-between gap-4 p-4">
+              {categorySkills.length === 0 && (
+                <p className="text-xs text-muted-foreground">Nessuna competenza.</p>
+              )}
+              <SortableList
+                items={categorySkills}
+                onReorder={(next) =>
+                  setSkills((prev) => [...prev.filter((s) => s.categoryId !== category.id), ...next])
+                }
+                onCommit={() => saveOrder(category.id, categorySkills)}
+                getKey={(skill) => skill.id}
+              >
+                {(skill) => (
+                  <Card className="flex items-center justify-between gap-4 p-4">
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-foreground">{skill.translations[locale]?.name}</p>
                       <Progress value={skill.proficiency} className="mt-2 max-w-xs" />
@@ -149,9 +178,8 @@ export function SkillsManager({
                       <DeleteButton onConfirm={() => handleDelete(skill.id)} label="la competenza" />
                     </div>
                   </Card>
-                ))}
-                {categorySkills.length === 0 && <p className="text-xs text-muted-foreground">Nessuna competenza.</p>}
-              </div>
+                )}
+              </SortableList>
             </div>
           );
         })}

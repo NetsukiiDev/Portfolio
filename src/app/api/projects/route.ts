@@ -17,6 +17,8 @@ export async function POST(request: NextRequest) {
 
   const project = await createProject({
     ...body,
+    // Ordering is done by dragging the list, so a new one joins at the end.
+    order: (await getProjects()).length,
     id: crypto.randomUUID(),
     createdAt: now,
     updatedAt: now,

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, X, Search, ChevronUp, ChevronDown } from "lucide-react";
+import { Plus, X, Search } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { ToolLogo } from "@/components/tools/ToolLogo";
+import { SortableList } from "@/components/admin/SortableList";
 import { useToast } from "@/context/ToastContext";
 import { cn } from "@/lib/cn";
 import type { ToolGroup, ToolIcon } from "@/lib/tools/catalogue";
@@ -79,16 +80,6 @@ export function ToolsManager({
         ...prev,
         { id: crypto.randomUUID(), slug: icon.slug, name: null, image: null, url: null, order: prev.length, icon },
       ];
-    });
-  }
-
-  function move(index: number, by: number) {
-    setPicked((prev) => {
-      const next = [...prev];
-      const target = index + by;
-      if (target < 0 || target >= next.length) return prev;
-      [next[index], next[target]] = [next[target], next[index]];
-      return next;
     });
   }
 
@@ -185,12 +176,17 @@ export function ToolsManager({
             Nessuno selezionato. Spunta qui sotto quelli che usi.
           </p>
         ) : (
-          <ul className="mt-4 space-y-2">
-            {picked.map((tool, index) => (
-              <li
-                key={tool.id}
-                className="flex items-center gap-3 rounded-xl border border-border bg-surface-wash px-3 py-2"
-              >
+          <SortableList
+            className="mt-4 space-y-2"
+            items={picked}
+            onReorder={setPicked}
+            // Nothing to persist yet: the whole selection is saved by the
+            // button at the bottom, order included.
+            onCommit={() => {}}
+            getKey={(tool) => tool.id}
+          >
+            {(tool) => (
+              <div className="flex items-center gap-3 rounded-xl border border-border bg-surface-wash px-3 py-2">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center">
                   {tool.icon ? (
                     <ToolLogo icon={tool.icon} className="h-5 w-5" />
@@ -201,37 +197,17 @@ export function ToolsManager({
                   )}
                 </span>
                 <span className="min-w-0 flex-1 truncate text-sm text-foreground">{labelOf(tool)}</span>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => move(index, -1)}
-                    disabled={index === 0}
-                    aria-label="Sposta su"
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground disabled:opacity-30"
-                  >
-                    <ChevronUp className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => move(index, 1)}
-                    disabled={index === picked.length - 1}
-                    aria-label="Sposta giù"
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground disabled:opacity-30"
-                  >
-                    <ChevronDown className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPicked((prev) => prev.filter((t) => t.id !== tool.id))}
-                    aria-label="Rimuovi"
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
+                <button
+                  type="button"
+                  onClick={() => setPicked((prev) => prev.filter((t) => t.id !== tool.id))}
+                  aria-label="Rimuovi"
+                  className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+          </SortableList>
         )}
       </Card>
 

@@ -22,7 +22,6 @@ interface ExperienceFormValues {
   startDate: string;
   endDate: string;
   current: boolean;
-  order: number;
   position: string;
   description: string;
   highlights: string;
@@ -38,7 +37,6 @@ function toFormValues(experience: Experience | undefined, locale: Locale): Exper
     startDate: experience?.startDate?.slice(0, 10) ?? "",
     endDate: experience?.endDate?.slice(0, 10) ?? "",
     current: experience?.current ?? false,
-    order: experience?.order ?? 0,
     position: text?.position ?? "",
     description: text?.description ?? "",
     highlights: text?.highlights.join("\n") ?? "",
@@ -69,7 +67,6 @@ export function ExperienceForm({ experience, locale }: { experience?: Experience
       startDate: values.startDate,
       endDate: values.current ? null : values.endDate || null,
       current: values.current,
-      order: Number(values.order),
       // Only the authoring language is written here; the rest is generated
       // server-side, and any locale already stored rides along untouched.
       translations: {
@@ -137,10 +134,6 @@ export function ExperienceForm({ experience, locale }: { experience?: Experience
         <div>
           <label className="mb-2 block text-sm font-medium text-foreground">Sito web</label>
           <Input {...register("website")} placeholder="https://…" />
-        </div>
-        <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">Ordine</label>
-          <Input type="number" {...register("order", { valueAsNumber: true })} />
         </div>
         <div>
           <label className="mb-2 block text-sm font-medium text-foreground">Data di inizio</label>

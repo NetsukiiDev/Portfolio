@@ -7,13 +7,27 @@ import { Pencil } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { DeleteButton } from "@/components/admin/DeleteButton";
+import { SortableList } from "@/components/admin/SortableList";
 import { useToast } from "@/context/ToastContext";
 import type { Experience, Locale } from "@/types";
 
 export function ExperienceTable({ items: initialItems, locale }: { items: Experience[]; locale: Locale }) {
-  const [items, setItems] = useState(initialItems);
+  const [items, setItems] = useState(() => [...initialItems].sort((a, b) => a.order - b.order));
   const router = useRouter();
   const toast = useToast();
+
+  async function saveOrder(next: Experience[]) {
+    try {
+      await fetch("/api/admin/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "experience", ids: next.map((item) => item.id) }),
+      });
+      router.refresh();
+    } catch {
+      toast.error("Ordine non salvato");
+    }
+  }
 
   async function handleDelete(id: string) {
     await fetch(`/api/experience/${id}`, { method: "DELETE" });
@@ -27,9 +41,9 @@ export function ExperienceTable({ items: initialItems, locale }: { items: Experi
   }
 
   return (
-    <div className="space-y-3">
-      {items.map((item) => (
-        <Card key={item.id} className="flex items-center justify-between gap-4 p-4">
+    <SortableList items={items} onReorder={setItems} onCommit={() => saveOrder(items)} getKey={(item) => item.id}>
+      {(item) => (
+        <Card className="flex items-center justify-between gap-4 p-4">
           <div className="min-w-0">
             <p className="truncate text-sm font-medium text-foreground">{item.translations[locale]?.position}</p>
             <p className="text-xs text-muted-foreground">{item.company}</p>
@@ -45,7 +59,7 @@ export function ExperienceTable({ items: initialItems, locale }: { items: Experi
             <DeleteButton onConfirm={() => handleDelete(item.id)} label="la voce" />
           </div>
         </Card>
-      ))}
-    </div>
+      )}
+    </SortableList>
   );
 }
