@@ -5,6 +5,7 @@ import { getGithubStats, parseGithubUsername, type GithubStats } from "@/lib/git
 import { getSectionText, getPageDescriptions } from "@/lib/site.server";
 import { socialIcons } from "@/lib/tools/catalogue";
 import { HeroSection } from "@/components/home/HeroSection";
+import { SectionSnap } from "@/components/home/SectionSnap";
 import { HomeSection } from "@/components/home/HomeSection";
 import { SectionLink } from "@/components/home/SectionLink";
 import { AboutSection } from "@/components/home/AboutSection";
@@ -75,6 +76,8 @@ export default async function HomePage() {
 
   return (
     <>
+      <SectionSnap />
+
       <HeroSection
         home={home}
         social={social}
