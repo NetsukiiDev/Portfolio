@@ -2,6 +2,8 @@ import { Container } from "@/components/layout/Container";
 import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { RevealOnScroll, TextMarquee } from "@/components/animations";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import { ToolLogo } from "@/components/tools/ToolLogo";
+import { findToolIcon } from "@/lib/tools/catalogue";
 import { ToolsSectionHeader } from "./ToolsSectionHeader";
 import { getSectionText } from "@/lib/site.server";
 import type { Tool } from "@/types";
@@ -11,12 +13,21 @@ import type { ToolsDisplay } from "@/types/settings";
 const MARQUEE_THRESHOLD = 8;
 
 function ToolBadge({ tool }: { tool: Tool }) {
+  // A catalogue pick draws its own vector; a manual entry falls back to the
+  // logo that was uploaded for it.
+  const icon = findToolIcon(tool.slug);
+  const label = icon?.title ?? tool.name ?? "";
+
   const content = (
     <>
-      <span className="relative h-7 w-7 shrink-0 overflow-hidden">
-        <ImageWithFallback src={tool.image} alt="" fill className="object-contain" />
-      </span>
-      <span className="text-sm whitespace-nowrap text-foreground">{tool.name}</span>
+      {icon ? (
+        <ToolLogo icon={icon} brand className="h-6 w-6" />
+      ) : (
+        <span className="relative h-6 w-6 shrink-0 overflow-hidden">
+          <ImageWithFallback src={tool.image ?? ""} alt="" fill className="object-contain" />
+        </span>
+      )}
+      <span className="text-sm whitespace-nowrap text-foreground">{label}</span>
     </>
   );
 
@@ -40,7 +51,7 @@ function ToolBadge({ tool }: { tool: Tool }) {
  * it reads as motion rather than as something asking to be operated.
  */
 export async function ToolsSection({ tools, display }: { tools: Tool[]; display: ToolsDisplay }) {
-  const visible = tools.filter((tool) => tool.visible).sort((a, b) => a.order - b.order);
+  const visible = [...tools].sort((a, b) => a.order - b.order);
   if (visible.length === 0) return null;
 
   const scrolling = display === "marquee" || (display === "auto" && visible.length > MARQUEE_THRESHOLD);
@@ -60,7 +71,7 @@ export async function ToolsSection({ tools, display }: { tools: Tool[]; display:
             <div
               className="[--fade:4rem] [mask-image:linear-gradient(to_right,transparent,black_var(--fade),black_calc(100%-var(--fade)),transparent)]"
               // The strip repeats itself, so screen readers get it once.
-              aria-label={visible.map((tool) => tool.name).join(", ")}
+              aria-label={visible.map((tool) => findToolIcon(tool.slug)?.title ?? tool.name).join(", ")}
             >
               <TextMarquee>
                 {visible.map((tool) => (

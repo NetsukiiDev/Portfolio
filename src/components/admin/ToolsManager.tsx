@@ -1,18 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, GripVertical } from "lucide-react";
+import { Plus, X, Search, ChevronUp, ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
-import { Toggle } from "@/components/ui/Toggle";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
-import { DeleteButton } from "@/components/admin/DeleteButton";
+import { ToolLogo } from "@/components/tools/ToolLogo";
 import { useToast } from "@/context/ToastContext";
+import { cn } from "@/lib/cn";
+import type { ToolGroup, ToolIcon } from "@/lib/tools/catalogue";
 import type { Tool } from "@/types";
 import type { ToolsSettings } from "@/types/settings";
 
@@ -22,89 +23,130 @@ const DISPLAY_OPTIONS = [
   { value: "marquee", label: "Sempre a scorrimento" },
 ];
 
-const EMPTY: Omit<Tool, "id"> = { name: "", image: "", url: null, order: 0, visible: true };
+/** A picked tool, paired with its catalogue icon when it has one. */
+interface Picked extends Tool {
+  icon: ToolIcon | null;
+}
 
-export function ToolsManager({ tools: initial, settings }: { tools: Tool[]; settings: ToolsSettings }) {
+function labelOf(tool: Picked): string {
+  return tool.icon?.title ?? tool.name ?? "—";
+}
+
+export function ToolsManager({
+  tools: initial,
+  catalogue,
+  settings,
+}: {
+  tools: Tool[];
+  catalogue: ToolGroup[];
+  settings: ToolsSettings;
+}) {
   const router = useRouter();
   const toast = useToast();
-  const [tools, setTools] = useState(initial);
+
+  const iconBySlug = useMemo(
+    () => new Map(catalogue.flatMap((group) => group.icons).map((icon) => [icon.slug, icon])),
+    [catalogue],
+  );
+
+  const [picked, setPicked] = useState<Picked[]>(() =>
+    initial.map((tool) => ({ ...tool, icon: tool.slug ? (iconBySlug.get(tool.slug) ?? null) : null })),
+  );
   const [display, setDisplay] = useState(settings.display);
-  const [editing, setEditing] = useState<Tool | null>(null);
-  const [draft, setDraft] = useState<Omit<Tool, "id">>(EMPTY);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [customOpen, setCustomOpen] = useState(false);
+  const [custom, setCustom] = useState({ name: "", image: "", url: "" });
+  const [isSaving, setIsSaving] = useState(false);
 
-  const shown = tools.filter((tool) => tool.visible).length;
+  const pickedSlugs = new Set(picked.map((tool) => tool.slug).filter(Boolean));
 
-  function openNew() {
-    setEditing(null);
-    setDraft({ ...EMPTY, order: tools.length });
-    setModalOpen(true);
+  const results = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return catalogue;
+    return catalogue
+      .map((group) => ({
+        ...group,
+        icons: group.icons.filter((icon) => icon.title.toLowerCase().includes(needle)),
+      }))
+      .filter((group) => group.icons.length > 0);
+  }, [catalogue, query]);
+
+  function toggle(icon: ToolIcon) {
+    setPicked((prev) => {
+      const existing = prev.find((tool) => tool.slug === icon.slug);
+      if (existing) return prev.filter((tool) => tool.slug !== icon.slug);
+      return [
+        ...prev,
+        { id: crypto.randomUUID(), slug: icon.slug, name: null, image: null, url: null, order: prev.length, icon },
+      ];
+    });
   }
 
-  function openEdit(tool: Tool) {
-    setEditing(tool);
-    setDraft({ name: tool.name, image: tool.image, url: tool.url, order: tool.order, visible: tool.visible });
-    setModalOpen(true);
+  function move(index: number, by: number) {
+    setPicked((prev) => {
+      const next = [...prev];
+      const target = index + by;
+      if (target < 0 || target >= next.length) return prev;
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
   }
 
-  async function saveDisplay(next: ToolsSettings["display"]) {
-    setDisplay(next);
-    try {
-      const res = await fetch("/api/settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        // Only this slice — the API merges it into what's stored.
-        body: JSON.stringify({ tools: { display: next } }),
-      });
-      if (!res.ok) throw new Error("Request failed");
-      router.refresh();
-    } catch {
-      toast.error("Salvataggio non riuscito");
-    }
-  }
-
-  async function submit() {
-    if (!draft.name.trim()) {
+  function addCustom() {
+    if (!custom.name.trim()) {
       toast.error("Manca il nome");
       return;
     }
-    try {
-      const res = await fetch(editing ? `/api/tools/${editing.id}` : "/api/tools", {
-        method: editing ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(draft),
-      });
-      if (!res.ok) throw new Error("Request failed");
-      const saved = (await res.json()) as Tool;
-
-      setTools((prev) => (editing ? prev.map((t) => (t.id === saved.id ? saved : t)) : [...prev, saved]));
-      toast.success(editing ? "Strumento aggiornato" : "Strumento aggiunto");
-      setModalOpen(false);
-      router.refresh();
-    } catch {
-      toast.error("Qualcosa è andato storto");
-    }
+    setPicked((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        slug: null,
+        name: custom.name.trim(),
+        image: custom.image || null,
+        url: custom.url || null,
+        order: prev.length,
+        icon: null,
+      },
+    ]);
+    setCustom({ name: "", image: "", url: "" });
+    setCustomOpen(false);
   }
 
-  async function toggleVisible(tool: Tool, visible: boolean) {
-    setTools((prev) => prev.map((t) => (t.id === tool.id ? { ...t, visible } : t)));
+  async function save() {
+    setIsSaving(true);
     try {
-      await fetch(`/api/tools/${tool.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ visible }),
-      });
+      const [tools, settingsRes] = await Promise.all([
+        fetch("/api/tools", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            // The catalogue icon is looked up for display; only the pick itself is stored.
+            tools: picked.map((tool) => ({
+              id: tool.id,
+              slug: tool.slug,
+              name: tool.name,
+              image: tool.image,
+              url: tool.url,
+              order: tool.order,
+            })),
+          }),
+        }),
+        fetch("/api/settings", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          // Only this slice — the API merges it into what's stored.
+          body: JSON.stringify({ tools: { display } }),
+        }),
+      ]);
+      if (!tools.ok || !settingsRes.ok) throw new Error("Request failed");
+      toast.success("Strumenti salvati");
       router.refresh();
     } catch {
-      toast.error("Qualcosa è andato storto");
+      toast.error("Salvataggio non riuscito");
+    } finally {
+      setIsSaving(false);
     }
-  }
-
-  async function handleDelete(id: string) {
-    await fetch(`/api/tools/${id}`, { method: "DELETE" });
-    setTools((prev) => prev.filter((tool) => tool.id !== id));
-    toast.success("Strumento eliminato");
-    router.refresh();
   }
 
   return (
@@ -114,15 +156,13 @@ export function ToolsManager({ tools: initial, settings }: { tools: Tool[]; sett
           <label className="mb-2 block text-sm font-medium text-foreground">Come vengono mostrati</label>
           <Select
             value={display}
-            onChange={(value) => saveDisplay(value as ToolsSettings["display"])}
+            onChange={(value) => setDisplay(value as ToolsSettings["display"])}
             options={DISPLAY_OPTIONS}
             className="max-w-xs"
           />
           <p className="mt-1.5 text-xs text-muted-foreground">
             {display === "auto"
-              ? "Fermi finché sono pochi; oltre gli otto visibili scorrono da soli. Al momento ne hai " +
-                shown +
-                " visibili."
+              ? `Fermi finché sono pochi, a scorrimento oltre gli otto. Ne hai selezionati ${picked.length}.`
               : display === "grid"
                 ? "Sempre fermi, disposti su più righe."
                 : "Sempre a scorrimento continuo, anche se sono pochi."}
@@ -130,68 +170,145 @@ export function ToolsManager({ tools: initial, settings }: { tools: Tool[]; sett
         </div>
       </Card>
 
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          {tools.length === 0
-            ? "Nessuno strumento."
-            : `${tools.length} in elenco, ${shown} mostrati sul sito.`}
+      <Card className="p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-sm font-medium text-foreground">
+            Selezionati <span className="text-muted-foreground">({picked.length})</span>
+          </h2>
+          <Button type="button" variant="secondary" size="sm" onClick={() => setCustomOpen(true)}>
+            <Plus className="h-4 w-4" /> Aggiungi manualmente
+          </Button>
+        </div>
+
+        {picked.length === 0 ? (
+          <p className="mt-4 text-sm text-muted-foreground">
+            Nessuno selezionato. Spunta qui sotto quelli che usi.
+          </p>
+        ) : (
+          <ul className="mt-4 space-y-2">
+            {picked.map((tool, index) => (
+              <li
+                key={tool.id}
+                className="flex items-center gap-3 rounded-xl border border-border bg-surface-wash px-3 py-2"
+              >
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+                  {tool.icon ? (
+                    <ToolLogo icon={tool.icon} className="h-5 w-5" />
+                  ) : (
+                    <span className="relative h-5 w-5 overflow-hidden">
+                      <ImageWithFallback src={tool.image ?? ""} alt="" fill className="object-contain" />
+                    </span>
+                  )}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-sm text-foreground">{labelOf(tool)}</span>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => move(index, -1)}
+                    disabled={index === 0}
+                    aria-label="Sposta su"
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground disabled:opacity-30"
+                  >
+                    <ChevronUp className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => move(index, 1)}
+                    disabled={index === picked.length - 1}
+                    aria-label="Sposta giù"
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground disabled:opacity-30"
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPicked((prev) => prev.filter((t) => t.id !== tool.id))}
+                    aria-label="Rimuovi"
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
+
+      <div>
+        <div className="relative">
+          <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            className="pl-11"
+            placeholder="Cerca fra gli strumenti disponibili…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+
+        {results.length === 0 ? (
+          <p className="mt-6 text-sm text-muted-foreground">
+            Nessuna corrispondenza. Se il logo non c&apos;è, aggiungilo con{" "}
+            <span className="text-foreground">Aggiungi manualmente</span>.
+          </p>
+        ) : (
+          <div className="mt-6 space-y-8">
+            {results.map((group) => (
+              <div key={group.id}>
+                <h3 className="mb-3 text-xs font-medium tracking-wider text-muted-foreground/70 uppercase">
+                  {group.label}
+                </h3>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                  {group.icons.map((icon) => {
+                    const isPicked = pickedSlugs.has(icon.slug);
+                    return (
+                      <button
+                        key={icon.slug}
+                        type="button"
+                        onClick={() => toggle(icon)}
+                        aria-pressed={isPicked}
+                        className={cn(
+                          "flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-colors",
+                          isPicked
+                            ? "border-accent bg-accent-soft text-foreground"
+                            : "border-border text-muted-foreground hover:border-border-strong hover:text-foreground",
+                        )}
+                      >
+                        <ToolLogo icon={icon} className="h-5 w-5 shrink-0" />
+                        <span className="truncate text-sm">{icon.title}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Button type="button" onClick={save} disabled={isSaving}>
+        {isSaving ? "Salvataggio…" : "Salva strumenti"}
+      </Button>
+
+      <Modal open={customOpen} onClose={() => setCustomOpen(false)}>
+        <h2 className="text-lg font-medium text-foreground">Aggiungi manualmente</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Per quello che il catalogo non copre. Alcuni marchi noti — Java, AWS, VS Code, Adobe, Slack — non
+          sono nel set di icone perché i titolari ne hanno chiesto la rimozione.
         </p>
-        <Button size="sm" onClick={openNew}>
-          <Plus className="h-4 w-4" /> Nuovo strumento
-        </Button>
-      </div>
-
-      <div className="space-y-3">
-        {[...tools]
-          .sort((a, b) => a.order - b.order)
-          .map((tool) => (
-            <Card key={tool.id} className="flex items-center justify-between gap-4 p-4">
-              <div className="flex min-w-0 items-center gap-3">
-                <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/50" />
-                <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-border bg-white/[0.03]">
-                  <ImageWithFallback src={tool.image} alt="" fill className="object-contain p-1.5" />
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-foreground">{tool.name}</p>
-                  {tool.url && <p className="truncate text-xs text-muted-foreground">{tool.url}</p>}
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Toggle
-                  checked={tool.visible}
-                  onChange={(checked) => toggleVisible(tool, checked)}
-                  label={tool.visible ? "Mostrato" : "Nascosto"}
-                />
-                <button
-                  type="button"
-                  onClick={() => openEdit(tool)}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  <Pencil className="h-4 w-4" />
-                </button>
-                <DeleteButton onConfirm={() => handleDelete(tool.id)} label="lo strumento" />
-              </div>
-            </Card>
-          ))}
-      </div>
-
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <h2 className="text-lg font-medium text-foreground">
-          {editing ? "Modifica strumento" : "Nuovo strumento"}
-        </h2>
         <div className="mt-6 space-y-4">
           <ImageUploadField
-            value={draft.image}
-            onChange={(url) => setDraft((prev) => ({ ...prev, image: url }))}
+            value={custom.image}
+            onChange={(url) => setCustom((prev) => ({ ...prev, image: url }))}
             folder="tools"
             label="Logo"
           />
           <div>
             <label className="mb-2 block text-sm font-medium text-foreground">Nome</label>
             <Input
-              placeholder="TypeScript"
-              value={draft.name}
-              onChange={(e) => setDraft((prev) => ({ ...prev, name: e.target.value }))}
+              placeholder="Java"
+              value={custom.name}
+              onChange={(e) => setCustom((prev) => ({ ...prev, name: e.target.value }))}
             />
           </div>
           <div>
@@ -200,29 +317,16 @@ export function ToolsManager({ tools: initial, settings }: { tools: Tool[]; sett
             </label>
             <Input
               placeholder="https://…"
-              value={draft.url ?? ""}
-              onChange={(e) => setDraft((prev) => ({ ...prev, url: e.target.value || null }))}
+              value={custom.url}
+              onChange={(e) => setCustom((prev) => ({ ...prev, url: e.target.value }))}
             />
           </div>
-          <div>
-            <label className="mb-2 block text-sm font-medium text-foreground">Ordine</label>
-            <Input
-              type="number"
-              value={draft.order}
-              onChange={(e) => setDraft((prev) => ({ ...prev, order: Number(e.target.value) }))}
-            />
-          </div>
-          <Toggle
-            checked={draft.visible}
-            onChange={(checked) => setDraft((prev) => ({ ...prev, visible: checked }))}
-            label="Mostra sul sito"
-          />
           <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
+            <Button type="button" variant="secondary" onClick={() => setCustomOpen(false)}>
               Annulla
             </Button>
-            <Button type="button" onClick={submit}>
-              Salva
+            <Button type="button" onClick={addCustom}>
+              Aggiungi
             </Button>
           </div>
         </div>

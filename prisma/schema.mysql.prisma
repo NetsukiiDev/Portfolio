@@ -111,12 +111,12 @@ model Settings {
 }
 
 model Tool {
-  id      String  @id
-  name    String
-  image   String
-  url     String?
-  order   Int     @default(0)
-  visible Boolean @default(true)
+  id    String  @id
+  slug  String?
+  name  String?
+  image String?
+  url   String?
+  order Int     @default(0)
 }
 
 model ContactMessage {

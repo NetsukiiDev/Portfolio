@@ -664,13 +664,13 @@ export async function saveSettings(data: Settings): Promise<void> {
 
 function mapTool(row: {
   id: string;
-  name: string;
-  image: string;
+  slug: string | null;
+  name: string | null;
+  image: string | null;
   url: string | null;
   order: number;
-  visible: boolean;
 }): Tool {
-  return { id: row.id, name: row.name, image: row.image, url: row.url, order: row.order, visible: row.visible };
+  return { id: row.id, slug: row.slug, name: row.name, image: row.image, url: row.url, order: row.order };
 }
 
 export async function getTools(): Promise<Tool[]> {
@@ -678,40 +678,28 @@ export async function getTools(): Promise<Tool[]> {
   return rows.map(mapTool);
 }
 
-export async function createTool(tool: Tool): Promise<Tool> {
-  const row = await prisma.tool.create({
-    data: {
-      id: tool.id,
-      name: tool.name,
-      image: tool.image,
-      url: tool.url,
-      order: tool.order,
-      visible: tool.visible,
-    },
-  });
-  return mapTool(row);
-}
-
-export async function updateTool(id: string, data: Partial<Tool>): Promise<Tool | null> {
-  try {
-    const row = await prisma.tool.update({
-      where: { id },
-      data: {
-        ...(data.name !== undefined && { name: data.name }),
-        ...(data.image !== undefined && { image: data.image }),
-        ...(data.url !== undefined && { url: data.url }),
-        ...(data.order !== undefined && { order: data.order }),
-        ...(data.visible !== undefined && { visible: data.visible }),
-      },
-    });
-    return mapTool(row);
-  } catch {
-    return null;
-  }
-}
-
-export async function deleteTool(id: string): Promise<void> {
-  await prisma.tool.deleteMany({ where: { id } });
+/**
+ * Swaps the whole selection for a new one. Rewriting the list wholesale keeps
+ * ordering honest: `order` is the array index, so there's no way to end up
+ * with gaps or duplicates.
+ */
+export async function replaceTools(tools: Tool[]): Promise<Tool[]> {
+  await prisma.$transaction([
+    prisma.tool.deleteMany({}),
+    ...tools.map((tool) =>
+      prisma.tool.create({
+        data: {
+          id: tool.id,
+          slug: tool.slug,
+          name: tool.name,
+          image: tool.image,
+          url: tool.url,
+          order: tool.order,
+        },
+      }),
+    ),
+  ]);
+  return getTools();
 }
 
 // ---------- Contact messages ----------
