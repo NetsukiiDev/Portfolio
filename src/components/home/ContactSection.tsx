@@ -1,17 +1,24 @@
 "use client";
 
+import { Card } from "@/components/ui/Card";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { ContactInfo } from "@/components/contact/ContactInfo";
 import type { Settings } from "@/types";
 
-/** Details on the left, the form on the right — or just the details. */
+/**
+ * The details on one line, and the form in a panel under them — a single
+ * centred column rather than two.
+ */
 export function ContactSection({ settings }: { settings: Settings }) {
-  const withForm = settings.contactForm.enabled;
-
   return (
-    <div className={withForm ? "grid grid-cols-1 gap-10 md:grid-cols-[1fr_1.5fr]" : ""}>
+    <div className="mx-auto w-full max-w-2xl">
       <ContactInfo settings={settings} />
-      {withForm && <ContactForm />}
+
+      {settings.contactForm.enabled && (
+        <Card className="mt-10 p-6 sm:p-8">
+          <ContactForm />
+        </Card>
+      )}
     </div>
   );
 }

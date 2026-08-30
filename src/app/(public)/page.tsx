@@ -161,6 +161,7 @@ export default async function HomePage() {
           eyebrow="Contatti"
           heading={await getSectionText("contact")}
           description={await getPageDescriptions("contact")}
+          centered
         >
           <ContactSection settings={settings} />
         </HomeSection>
