@@ -1,4 +1,4 @@
-import { getSettings } from "./data";
+import { getSettings, getSectionCounts } from "./data";
 import { resolveLocale } from "./locale.server";
 import { DEFAULT_MODULES, type ModulesSettings } from "./modules";
 import { DEFAULT_LANGUAGE, DEFAULT_PAGES, DEFAULT_SECTIONS } from "./default-settings";
@@ -16,6 +16,8 @@ export interface SiteChrome {
   siteName: string;
   /** The profile picture, doubling as the site's mark in the navbar. */
   avatar: string;
+  /** Modules whose band is actually on the page, so the navbar can link to it. */
+  presentSections: string[];
 }
 
 /**
@@ -35,7 +37,26 @@ export async function getSiteChrome(): Promise<SiteChrome> {
   const locale = await resolveLocale(language);
   const siteName = settings?.personal.translations[locale]?.name?.trim() || SITE_NAME;
 
-  return { settings, modules, language, locale, siteName, avatar: settings?.personal.avatar ?? "" };
+  // A module with nothing in it renders no band, so it gets no menu entry.
+  const counts = await getSectionCounts();
+  const presentSections = Object.entries(counts)
+    .filter(([key, count]) => count > 0 && modules[key as keyof ModulesSettings]?.enabled)
+    .map(([key]) => key);
+  // Neither of these is a collection, so neither has a count. About is the
+  // profile and is there as soon as the site is set up; contact is a form and
+  // some details, there whenever its module is.
+  if (settings) presentSections.push("about");
+  if (modules.contact.enabled) presentSections.push("contact");
+
+  return {
+    settings,
+    modules,
+    language,
+    locale,
+    siteName,
+    avatar: settings?.personal.avatar ?? "",
+    presentSections,
+  };
 }
 
 /**

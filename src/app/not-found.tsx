@@ -9,11 +9,11 @@ export const metadata: Metadata = {
 };
 
 export default async function NotFound() {
-  const { modules, language, locale, siteName, avatar } = await getSiteChrome();
+  const { modules, language, locale, siteName, avatar, presentSections } = await getSiteChrome();
 
   return (
     <>
-      <Navbar modules={modules} allowSwitch={language.allowSwitch} siteName={siteName} avatar={avatar} />
+      <Navbar modules={modules} allowSwitch={language.allowSwitch} siteName={siteName} avatar={avatar} presentSections={presentSections} />
       <main className="flex-1 pt-20">
         <NotFoundContent />
       </main>

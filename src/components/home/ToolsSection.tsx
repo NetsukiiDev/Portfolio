@@ -1,10 +1,8 @@
-import { Container } from "@/components/layout/Container";
-import { SectionWrapper } from "@/components/layout/SectionWrapper";
-import { RevealOnScroll, TextMarquee } from "@/components/animations";
+import { TextMarquee } from "@/components/animations";
+import { HomeSection } from "./HomeSection";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { ToolLogo } from "@/components/tools/ToolLogo";
 import { findToolIcon, findToolGroup, TOOL_GROUP_ORDER } from "@/lib/tools/catalogue";
-import { ToolsSectionHeader } from "./ToolsSectionHeader";
 import { getSectionText } from "@/lib/site.server";
 import type { Tool } from "@/types";
 import type { ToolsDisplay } from "@/types/settings";
@@ -87,48 +85,40 @@ export async function ToolsSection({ tools, display }: { tools: Tool[]; display:
   const groups = groupTools(visible);
 
   return (
-    <SectionWrapper className="border-t border-border">
-      <Container>
-        <RevealOnScroll className="text-center">
-          <ToolsSectionHeader heading={heading} />
-        </RevealOnScroll>
+    <HomeSection id="tools" eyebrow="Stack" heading={heading}>
+      <div className="space-y-10">
+        {groups.map((group) => (
+          <div key={group.id}>
+            <p className="mb-4 text-xs font-medium tracking-wider text-muted-foreground/70 uppercase">
+              {group.label}
+            </p>
 
-        <div className="mt-10 space-y-10">
-          {groups.map((group) => (
-            <div key={group.id}>
-              <p className="mb-4 text-center text-xs font-medium tracking-wider text-muted-foreground/70 uppercase">
-                {group.label}
-              </p>
-
-              {scrolling ? (
-                // Faded at both ends so items enter and leave rather than
-                // being cut off mid-badge.
-                <div
-                  className="[--fade:4rem] [mask-image:linear-gradient(to_right,transparent,black_var(--fade),black_calc(100%-var(--fade)),transparent)]"
-                  // The strip repeats itself, so screen readers get it once.
-                  aria-label={group.tools
-                    .map((tool) => findToolIcon(tool.slug)?.title ?? tool.name)
-                    .join(", ")}
+            {scrolling ? (
+              // Faded at both ends so items enter and leave rather than being
+              // cut off mid-badge.
+              <div
+                className="[--fade:4rem] [mask-image:linear-gradient(to_right,transparent,black_var(--fade),black_calc(100%-var(--fade)),transparent)]"
+                // The strip repeats itself, so screen readers get it once.
+                aria-label={group.tools.map((tool) => findToolIcon(tool.slug)?.title ?? tool.name).join(", ")}
+              >
+                <TextMarquee
+                  duration={Math.max(MIN_MARQUEE_SECONDS, group.tools.length * SECONDS_PER_TOOL)}
                 >
-                  <TextMarquee
-                    duration={Math.max(MIN_MARQUEE_SECONDS, group.tools.length * SECONDS_PER_TOOL)}
-                  >
-                    {group.tools.map((tool) => (
-                      <ToolBadge key={tool.id} tool={tool} />
-                    ))}
-                  </TextMarquee>
-                </div>
-              ) : (
-                <div className="flex flex-wrap justify-center gap-3">
                   {group.tools.map((tool) => (
                     <ToolBadge key={tool.id} tool={tool} />
                   ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </Container>
-    </SectionWrapper>
+                </TextMarquee>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-3">
+                {group.tools.map((tool) => (
+                  <ToolBadge key={tool.id} tool={tool} />
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </HomeSection>
   );
 }

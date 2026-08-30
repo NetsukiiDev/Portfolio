@@ -7,15 +7,20 @@ export const SITE_NAME = "Portfolio";
 export const DEFAULT_LOCALE: Locale = "en";
 export const LOCALES: Locale[] = ["en", "it"];
 
+/**
+ * The site is one page. Everything but the blog and the gallery — the two
+ * collections that grow and keep an archive of their own — is a band on it,
+ * reached by its anchor.
+ */
 export const ROUTES = {
   home: "/",
-  about: "/about",
-  projects: "/projects",
-  skills: "/skills",
-  experience: "/experience",
+  about: "/#about",
+  projects: "/#projects",
+  skills: "/#skills",
+  experience: "/#experience",
   blog: "/blog",
   aiGallery: "/ai-gallery",
-  contact: "/contact",
+  contact: "/#contact",
 } as const;
 
 export const NAV_LINKS: { href: string; key: NavKey }[] = [

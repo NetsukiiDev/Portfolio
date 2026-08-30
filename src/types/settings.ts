@@ -41,10 +41,15 @@ export interface HomeSettings {
  * the home copy moved into settings.
  */
 export const SECTION_KEYS = [
+  "about",
   "featuredProjects",
   "viewAll",
+  "skills",
   "tools",
+  "experience",
   "recentPosts",
+  "gallery",
+  "contact",
   "ctaHeading",
 ] as const;
 

@@ -742,6 +742,31 @@ export async function replaceTools(tools: Tool[]): Promise<Tool[]> {
   return getTools();
 }
 
+// ---------- Section presence ----------
+
+/**
+ * Which of the single page's bands actually have something in them.
+ *
+ * The navbar needs this: an anchor for a section that isn't rendered scrolls
+ * nowhere, which is worse than the entry not being there. Counts rather than
+ * rows, and cached per request alongside everything else.
+ */
+export const getSectionCounts = cache(async (): Promise<Record<string, number>> => {
+  try {
+    const [projects, skills, experience, blog, aiGallery] = await Promise.all([
+      prisma.project.count(),
+      prisma.skill.count(),
+      prisma.experience.count(),
+      prisma.blogPost.count({ where: { status: "published" } }),
+      prisma.aiImage.count(),
+    ]);
+    return { projects, skills, experience, blog, aiGallery };
+  } catch {
+    // Pre-setup: nothing exists, so nothing is linkable.
+    return {};
+  }
+});
+
 // ---------- Ordering ----------
 
 export const REORDERABLE = ["projects", "skills", "experience", "tools"] as const;

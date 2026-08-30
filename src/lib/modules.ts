@@ -39,19 +39,23 @@ export interface ModuleDefinition {
 }
 
 // Home and About aren't listed: one is the page these modules compose, the
-// other is the identity page a portfolio can't meaningfully turn off.
+// other is the profile, which a portfolio can't meaningfully turn off.
+//
+// `href: null` is now the common case. The site is a single page, so most
+// modules are a band on it rather than a route — only the blog and the
+// gallery keep an archive of their own.
 export const MODULES: ModuleDefinition[] = [
-  { key: "projects", href: "/projects", navKey: "projects", adminHref: "/admin/projects", hasHomeSection: true },
-  { key: "skills", href: "/skills", navKey: "skills", adminHref: "/admin/skills", hasHomeSection: false },
+  { key: "projects", href: null, navKey: "projects", adminHref: "/admin/projects", hasHomeSection: true },
+  { key: "skills", href: null, navKey: "skills", adminHref: "/admin/skills", hasHomeSection: true },
   // Home-only: a page listing nothing but logos would be a thin thing to
   // give a URL to, so this module lives entirely in the home page strip.
   { key: "tools", href: null, navKey: null, adminHref: "/admin/tools", hasHomeSection: true },
   {
     key: "experience",
-    href: "/experience",
+    href: null,
     navKey: "experience",
     adminHref: "/admin/experience",
-    hasHomeSection: false,
+    hasHomeSection: true,
   },
   { key: "blog", href: "/blog", navKey: "blog", adminHref: "/admin/blog", hasHomeSection: true },
   {
@@ -59,9 +63,9 @@ export const MODULES: ModuleDefinition[] = [
     href: "/ai-gallery",
     navKey: "aiGallery",
     adminHref: "/admin/ai-gallery",
-    hasHomeSection: false,
+    hasHomeSection: true,
   },
-  { key: "contact", href: "/contact", navKey: "contact", adminHref: null, hasHomeSection: true },
+  { key: "contact", href: null, navKey: "contact", adminHref: null, hasHomeSection: true },
 ];
 
 export const DEFAULT_MODULES: ModulesSettings = Object.fromEntries(

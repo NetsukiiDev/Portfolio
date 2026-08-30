@@ -14,10 +14,15 @@ import type { GithubStatKey, HomeSettings, PageKey, SectionKey, Settings, Locale
 
 /** The heading each of these sits above on the home page. */
 const SECTION_LABELS: Record<SectionKey, string> = {
+  about: "Titolo della sezione «chi sono»",
   featuredProjects: "Titolo della sezione progetti",
   viewAll: "Link «vedi tutti»",
+  skills: "Titolo della sezione competenze",
   tools: "Titolo della sezione strumenti",
+  experience: "Titolo della sezione esperienza",
   recentPosts: "Titolo della sezione blog",
+  gallery: "Titolo della sezione galleria",
+  contact: "Titolo della sezione contatti",
   ctaHeading: "Titolo del riquadro finale",
 };
 
@@ -275,8 +280,8 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
         <TabsContent value="pagine">
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              La riga che compare sotto il titolo di ogni pagina pubblica. La pagina{" "}
-              <span className="text-foreground">Chi sono</span> non è qui: la sua apertura è il profilo.
+              La riga sotto il titolo di ogni sezione della home. Blog e Galleria hanno anche una pagina
+              d&apos;archivio, dove compare la stessa riga.
             </p>
             {PAGE_KEYS.map((page) => (
               <Card key={page} className="space-y-3 p-5">

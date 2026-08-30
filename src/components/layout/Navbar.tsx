@@ -17,15 +17,24 @@ export function Navbar({
   allowSwitch,
   siteName,
   avatar,
+  presentSections,
 }: {
   modules: ModulesSettings;
   allowSwitch: boolean;
   siteName: string;
   avatar?: string;
+  /** Module keys whose band is on the page; anchors for the rest are dropped. */
+  presentSections: string[];
 }) {
   const pathname = usePathname();
   const { t, locale, setLocale } = useTranslation();
-  const links = NAV_LINKS.filter((link) => isNavKeyVisible(link.key, modules));
+  const links = NAV_LINKS.filter((link) => {
+    if (!isNavKeyVisible(link.key, modules)) return false;
+    // Home, and anything with a page of its own, always resolves. An anchor
+    // only does when its band was rendered.
+    if (!link.href.startsWith("/#")) return true;
+    return presentSections.includes(link.key);
+  });
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
