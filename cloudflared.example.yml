@@ -1,0 +1,35 @@
+# Cloudflare Tunnel — example configuration.
+#
+# Copy to the machine running the site (Linux: ~/.cloudflared/config.yml,
+# Windows: %USERPROFILE%\.cloudflared\config.yml), fill in the three values
+# marked CHANGE ME, and start it. The README's "Cloudflare Tunnel" section has
+# the commands that go around this file.
+#
+# The tunnel dials out to Cloudflare, so the machine needs no open inbound
+# port, no public IP and no port forwarding on the router.
+
+# CHANGE ME — the tunnel's name or UUID, from `cloudflared tunnel create`.
+tunnel: portfolio
+
+# CHANGE ME — the credentials file that command wrote, by absolute path.
+credentials-file: /home/USER/.cloudflared/00000000-0000-0000-0000-000000000000.json
+
+ingress:
+  # CHANGE ME — the hostname you routed to this tunnel. It has to match the
+  # domain saved under Impostazioni → Generale, or canonical URLs and OG tags
+  # will point somewhere else.
+  - hostname: portfolio.example.com
+    # The app itself, over plain HTTP on the loopback interface. Nothing else
+    # needs to be able to reach this port.
+    service: http://localhost:3000
+    originRequest:
+      # Deliberately not setting httpHostHeader: left alone, cloudflared
+      # forwards the visitor's Host, which is what Next.js builds redirects
+      # from. Pinning it here would send them back to localhost.
+
+      # Room for a cold start on a small box; the 30s default is plenty once
+      # the app is warm.
+      connectTimeout: 60s
+
+  # Anything not matched above is refused rather than quietly forwarded.
+  - service: http_status:404

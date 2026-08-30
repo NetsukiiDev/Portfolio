@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { createToken, getAdminAccount } from "@/lib/auth";
+import { isSecureRequest } from "@/lib/forwarded";
 
 export async function POST(request: NextRequest) {
   const { username, password } = await request.json();
@@ -23,7 +24,9 @@ export async function POST(request: NextRequest) {
   response.cookies.set("admin-session", token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    // Follows the scheme the browser is actually using, which behind a
+    // tunnel is HTTPS even though this process only ever sees HTTP.
+    secure: isSecureRequest(request),
     path: "/",
     maxAge: 86400,
   });
