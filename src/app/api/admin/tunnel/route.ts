@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSettings } from "@/lib/data";
 import { requireAuth } from "@/app/api/lib/auth-check";
-import { getFullStatus, restartTunnel, startTunnel, stopTunnel } from "@/lib/tunnel/manager";
+import {
+  downloadBinary,
+  getFullStatus,
+  restartTunnel,
+  startTunnel,
+  stopTunnel,
+} from "@/lib/tunnel/manager";
 
 /**
  * Drives the cloudflared process. The tunnel's *settings* are saved through
@@ -30,6 +36,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(await restartTunnel(tunnel));
     case "stop":
       await stopTunnel();
+      return NextResponse.json(await getFullStatus(tunnel));
+    case "install":
+      try {
+        await downloadBinary();
+      } catch (error) {
+        return NextResponse.json(
+          { error: error instanceof Error ? error.message : "Download non riuscito" },
+          { status: 502 },
+        );
+      }
       return NextResponse.json(await getFullStatus(tunnel));
     default:
       return NextResponse.json({ error: "Azione non riconosciuta" }, { status: 400 });

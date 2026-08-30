@@ -1,4 +1,6 @@
 import { spawn, type ChildProcess } from "child_process";
+import { existsSync } from "fs";
+import { bin as managedBin, install as installManagedBin } from "cloudflared";
 import type { TunnelSettings, TunnelState, TunnelStatus } from "./types";
 
 /**
@@ -55,8 +57,34 @@ export function readTunnelOutput(text: string): { url: string | null; connected:
   };
 }
 
+/**
+ * Which cloudflared to run, in order: one the admin pointed at explicitly,
+ * the copy the `cloudflared` package fetches into node_modules on install,
+ * or whatever is on PATH.
+ *
+ * The managed copy is why this doesn't ask anyone to install anything: it
+ * arrives with `npm install`, lives outside the repo, and can be re-fetched
+ * from the panel if it's missing.
+ */
 function binary(settings: TunnelSettings): string {
-  return settings.binaryPath.trim() || "cloudflared";
+  const explicit = settings.binaryPath.trim();
+  if (explicit) return explicit;
+  if (existsSync(managedBin)) return managedBin;
+  return "cloudflared";
+}
+
+/** True when the bundled copy is on disk, as opposed to one found on PATH. */
+export function hasManagedBinary(): boolean {
+  return existsSync(managedBin);
+}
+
+/**
+ * Fetches the bundled copy from Cloudflare's own release channel. Only
+ * needed when `npm install` couldn't (no network at the time, or install
+ * scripts skipped).
+ */
+export async function downloadBinary(): Promise<void> {
+  await installManagedBin(managedBin);
 }
 
 /**
@@ -103,7 +131,7 @@ export async function isBinaryAvailable(settings: TunnelSettings): Promise<boole
   });
 }
 
-export function getTunnelStatus(): Omit<TunnelStatus, "binaryFound"> {
+export function getTunnelStatus(): Omit<TunnelStatus, "binaryFound" | "managedBinary"> {
   const state = runtime();
   return {
     state: state.state,
@@ -132,7 +160,9 @@ export async function startTunnel(settings: TunnelSettings): Promise<TunnelStatu
 
   if (!(await isBinaryAvailable(settings))) {
     state.state = "error";
-    state.error = `cloudflared non è eseguibile${settings.binaryPath ? ` da "${settings.binaryPath}"` : " e non è nel PATH"}.`;
+    state.error = settings.binaryPath
+      ? `cloudflared non è eseguibile da "${settings.binaryPath}".`
+      : "cloudflared non è disponibile. Scaricalo qui sopra, oppure indica dove si trova.";
     return withBinary(settings);
   }
 
@@ -216,7 +246,11 @@ export async function restartTunnel(settings: TunnelSettings): Promise<TunnelSta
 }
 
 async function withBinary(settings: TunnelSettings): Promise<TunnelStatus> {
-  return { ...getTunnelStatus(), binaryFound: await isBinaryAvailable(settings) };
+  return {
+    ...getTunnelStatus(),
+    binaryFound: await isBinaryAvailable(settings),
+    managedBinary: hasManagedBinary(),
+  };
 }
 
 export async function getFullStatus(settings: TunnelSettings): Promise<TunnelStatus> {

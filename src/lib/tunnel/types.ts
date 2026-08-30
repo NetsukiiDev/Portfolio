@@ -55,6 +55,8 @@ export interface TunnelStatus {
   startedAt: string | null;
   /** False when cloudflared isn't installed, which is its own kind of stopped. */
   binaryFound: boolean;
+  /** Whether the copy that ships with the app is on disk, or only one on PATH. */
+  managedBinary: boolean;
 }
 
 export const TUNNEL_SECRET_MASK = "••••••••";

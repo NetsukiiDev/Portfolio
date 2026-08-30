@@ -89,12 +89,14 @@ export function TunnelPanel({ tunnel: initial }: { tunnel: TunnelSettings }) {
     }
   }
 
-  async function act(action: "start" | "stop" | "restart") {
+  async function act(action: "start" | "stop" | "restart" | "install") {
     setIsActing(true);
     try {
       // Always saves first: starting a tunnel with a token still sitting
       // unsaved in the form would use the previous one and look like a bug.
-      if (action !== "stop" && !(await save())) return;
+      if (action === "start" || action === "restart") {
+        if (!(await save())) return;
+      }
 
       const res = await fetch("/api/admin/tunnel", {
         method: "POST",
@@ -158,12 +160,16 @@ export function TunnelPanel({ tunnel: initial }: { tunnel: TunnelSettings }) {
         {status?.error && <p className="text-sm text-rose-300">{status.error}</p>}
 
         {status && !status.binaryFound && (
-          <p className="text-xs text-muted-foreground">
-            <code className="text-foreground">cloudflared</code> non risulta installato. Su Windows:{" "}
-            <code className="text-foreground">winget install Cloudflare.cloudflared</code>. Su Debian/Ubuntu il
-            pacchetto <code className="text-foreground">cloudflared</code> di Cloudflare. Se è installato altrove,
-            indica il percorso qui sotto.
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+            <p className="text-xs text-muted-foreground">
+              <code className="text-foreground">cloudflared</code> arriva con il progetto, ma qui non c&apos;è —
+              probabilmente <code className="text-foreground">npm install</code> non ha potuto scaricarlo.
+              Riprovo io.
+            </p>
+            <Button type="button" variant="secondary" size="sm" onClick={() => act("install")} disabled={isActing}>
+              {isActing ? "Download…" : "Scarica cloudflared"}
+            </Button>
+          </div>
         )}
       </Card>
 
@@ -230,7 +236,9 @@ export function TunnelPanel({ tunnel: initial }: { tunnel: TunnelSettings }) {
             onChange={(e) => set("binaryPath", e.target.value)}
           />
           <p className="mt-1.5 text-xs text-muted-foreground">
-            Da compilare solo se non è nel PATH.
+            {status?.managedBinary && !tunnel.binaryPath
+              ? "Sta usando la copia che arriva con il progetto. Compila questo campo solo per usarne un’altra."
+              : "Da compilare solo per usare una copia diversa da quella del progetto."}
           </p>
         </div>
 

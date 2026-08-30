@@ -48,13 +48,11 @@ Both the SQLite and MySQL Prisma clients are generated ahead of time into separa
 
 The site is self-hosted, and a tunnel is the least exposed way to put it online: `cloudflared` dials out to Cloudflare and traffic comes back down that connection, so the machine needs no open inbound port, no static IP and nothing forwarded on the router. Only loopback ever reaches the Next.js process.
 
-The app runs `cloudflared` itself. Install the binary, then drive it from `/admin/settings` → **Tunnel**: pick the mode, press **Avvia**, and the panel shows the connection state, the public address and cloudflared's own log as it comes up. With "Avvia il tunnel insieme al sito" on, it starts with the server (`src/instrumentation.ts`), so a reboot doesn't quietly take the site off the internet.
+`cloudflared` comes with the project — the `cloudflared` npm package fetches the right build for your platform into `node_modules` during `npm install`, so there is nothing to install by hand and nothing extra in the repo. Drive it from `/admin/settings` → **Tunnel**: pick the mode, press **Avvia**, and the panel shows the connection state, the public address and cloudflared's own log as it comes up. If the download didn't happen (no network at install time, scripts skipped), the panel offers to fetch it.
 
-```bash
-winget install Cloudflare.cloudflared
-```
+With "Avvia il tunnel insieme al sito" on, it starts with the server (`src/instrumentation.ts`) — which means that switch publishes the site every time the server boots, including after a reboot you didn't plan. Leave it off unless that's what you want.
 
-If it's installed somewhere that isn't on `PATH`, put the full path in the panel's **Percorso di cloudflared** field.
+To use a cloudflared you installed yourself instead, put its path in the panel's **Percorso di cloudflared** field.
 
 ### Two modes
 

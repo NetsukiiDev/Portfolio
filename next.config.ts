@@ -10,7 +10,9 @@ const devOrigins = (process.env.TUNNEL_HOSTNAME ?? "")
   .filter(Boolean);
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["mariadb"],
+  // Both resolve paths inside their own package directory at runtime, so
+  // they have to stay out of the bundle.
+  serverExternalPackages: ["mariadb", "cloudflared"],
   ...(devOrigins.length > 0 && { allowedDevOrigins: devOrigins }),
 };
 
