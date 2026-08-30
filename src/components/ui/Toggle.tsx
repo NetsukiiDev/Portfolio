@@ -22,9 +22,12 @@ export function Toggle({ checked, onChange, label, className }: ToggleProps) {
           checked ? "bg-accent" : "bg-surface-wash-strong",
         )}
       >
+        {/* The track is 24px tall with a 1px border, so its inside is 22px:
+            a 20px knob has exactly 1px to spare on each side. Insetting it by
+            2px, as it was, left 2px above and none below. */}
         <span
           className={cn(
-            "absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform",
+            "absolute top-px left-px h-5 w-5 rounded-full bg-white transition-transform",
             checked && "translate-x-5",
           )}
         />
