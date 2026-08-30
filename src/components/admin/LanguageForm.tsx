@@ -67,7 +67,6 @@ const SECTIONS: { id: string; label: string; entries: Entry[] }[] = [
       { group: "pages", field: "blog", label: "Blog · riga", multiline: true },
       { group: "sections", field: "gallery", label: "Galleria · titolo" },
       { group: "pages", field: "aiGallery", label: "Galleria · riga", multiline: true },
-      { group: "sections", field: "ctaHeading", label: "Riquadro finale · titolo" },
       { group: "sections", field: "contact", label: "Contatti · titolo" },
       { group: "pages", field: "contact", label: "Contatti · riga", multiline: true },
       { group: "sections", field: "viewAll", label: "Link «vedi tutti»" },

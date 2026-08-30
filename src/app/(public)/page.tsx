@@ -12,7 +12,6 @@ import { AboutSection } from "@/components/home/AboutSection";
 import { ContactSection } from "@/components/home/ContactSection";
 import { StatsSection } from "@/components/home/StatsSection";
 import { ToolsSection } from "@/components/home/ToolsSection";
-import { CallToAction } from "@/components/home/CallToAction";
 import { ProjectGrid } from "@/components/projects/ProjectGrid";
 import { SkillGrid } from "@/components/skills/SkillGrid";
 import { Timeline } from "@/components/experience/Timeline";
@@ -155,9 +154,6 @@ export default async function HomePage() {
           <GalleryGrid images={[...gallery].slice(0, 6)} />
         </HomeSection>
       )}
-
-      {/* The invitation comes before the form it invites you to fill in. */}
-      {onHome("contact") && <CallToAction home={home} heading={await getSectionText("ctaHeading")} />}
 
       {onHome("contact") && settings && (
         <HomeSection

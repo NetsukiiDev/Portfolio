@@ -132,7 +132,6 @@ export const DEFAULT_SECTIONS: SectionsSettings = {
       recentPosts: "Recent posts",
       gallery: "AI gallery",
       contact: "Start a conversation",
-      ctaHeading: "Need a hand?",
     },
     it: {
       about: "Chi scrive",
@@ -144,7 +143,6 @@ export const DEFAULT_SECTIONS: SectionsSettings = {
       recentPosts: "Ultimi articoli",
       gallery: "Galleria AI",
       contact: "Parliamone",
-      ctaHeading: "Hai bisogno?",
     },
   },
 };

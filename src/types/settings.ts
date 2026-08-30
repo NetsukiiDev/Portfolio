@@ -50,7 +50,6 @@ export const SECTION_KEYS = [
   "recentPosts",
   "gallery",
   "contact",
-  "ctaHeading",
 ] as const;
 
 export type SectionKey = (typeof SECTION_KEYS)[number];

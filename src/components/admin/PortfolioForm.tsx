@@ -35,7 +35,6 @@ const BANDS: { label: string; heading: SectionKey; description?: PageKey; hint?:
     description: "aiGallery",
     hint: "Ha anche una pagina d’archivio, dove compare la stessa riga.",
   },
-  { label: "Riquadro finale", heading: "ctaHeading" },
   { label: "Contatti", heading: "contact", description: "contact" },
 ];
 
