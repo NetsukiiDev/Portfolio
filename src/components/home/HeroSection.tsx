@@ -39,15 +39,6 @@ export function HeroSection({
     <section className="relative -mt-20 overflow-hidden px-6 pt-20">
       <HeroBackground />
 
-      {text.availability && (
-        <div className="relative z-10 flex justify-end pt-6">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface-wash px-4 py-1.5 text-xs font-medium text-muted-foreground">
-            <span className="animate-glow-pulse h-1.5 w-1.5 rounded-full bg-accent" />
-            {text.availability}
-          </span>
-        </div>
-      )}
-
       <div className="relative z-10 mx-auto flex min-h-[78vh] max-w-6xl items-center py-16">
         <div
           className={
@@ -57,13 +48,22 @@ export function HeroSection({
           }
         >
           <div className="max-w-2xl">
+            {/* At the top of the column rather than floating in the corner:
+                it belongs to the introduction, not to the page furniture. */}
+            {text.availability && (
+              <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface-wash px-4 py-1.5 text-xs font-medium text-muted-foreground">
+                <span className="animate-glow-pulse h-1.5 w-1.5 rounded-full bg-accent" />
+                {text.availability}
+              </span>
+            )}
+
             {text.kicker && (
-              <p className="text-xs font-medium tracking-[0.2em] text-muted-foreground uppercase">
+              <p className="mt-6 text-xs font-medium tracking-[0.2em] text-muted-foreground uppercase">
                 {text.kicker}
               </p>
             )}
 
-            <h1 className="mt-5 text-5xl font-medium tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+            <h1 className="mt-4 text-5xl font-medium tracking-tight text-foreground sm:text-6xl lg:text-7xl">
               {/* Every line after the first is drawn as an outline, which is
                   what gives a two-line name its weight without doubling it. */}
               <AnimatedText text={text.title} outlineFrom={1} />
