@@ -49,9 +49,10 @@ export function ProjectsTable({ projects, locale }: { projects: Project[]; local
       onCommit={() => saveOrder(items)}
       getKey={(project) => project.id}
     >
-      {(project) => (
-        <Card className="flex items-center justify-between gap-4 p-4">
-          <div className="min-w-0">
+      {(project, handle) => (
+        <Card className="flex items-center justify-between gap-3 p-4">
+          {handle}
+          <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium text-foreground">{project.translations[locale]?.title}</p>
             <p className="text-xs text-muted-foreground">/{project.slug}</p>
           </div>

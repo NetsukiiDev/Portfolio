@@ -185,8 +185,9 @@ export function ToolsManager({
             onCommit={() => {}}
             getKey={(tool) => tool.id}
           >
-            {(tool) => (
-              <div className="flex items-center gap-3 rounded-xl border border-border bg-surface-wash px-3 py-2">
+            {(tool, handle) => (
+              <div className="flex items-center gap-2.5 rounded-xl border border-border bg-surface-wash px-3 py-2">
+                {handle}
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center">
                   {tool.icon ? (
                     <ToolLogo icon={tool.icon} className="h-5 w-5" />

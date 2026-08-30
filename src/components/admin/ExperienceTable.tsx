@@ -42,9 +42,10 @@ export function ExperienceTable({ items: initialItems, locale }: { items: Experi
 
   return (
     <SortableList items={items} onReorder={setItems} onCommit={() => saveOrder(items)} getKey={(item) => item.id}>
-      {(item) => (
-        <Card className="flex items-center justify-between gap-4 p-4">
-          <div className="min-w-0">
+      {(item, handle) => (
+        <Card className="flex items-center justify-between gap-3 p-4">
+          {handle}
+          <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium text-foreground">{item.translations[locale]?.position}</p>
             <p className="text-xs text-muted-foreground">{item.company}</p>
           </div>

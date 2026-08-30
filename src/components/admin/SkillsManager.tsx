@@ -161,8 +161,9 @@ export function SkillsManager({
                 onCommit={() => saveOrder(category.id, categorySkills)}
                 getKey={(skill) => skill.id}
               >
-                {(skill) => (
-                  <Card className="flex items-center justify-between gap-4 p-4">
+                {(skill, handle) => (
+                  <Card className="flex items-center justify-between gap-3 p-4">
+                    {handle}
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-foreground">{skill.translations[locale]?.name}</p>
                       <Progress value={skill.proficiency} className="mt-2 max-w-xs" />
