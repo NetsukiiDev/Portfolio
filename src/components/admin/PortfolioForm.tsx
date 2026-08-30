@@ -9,8 +9,17 @@ import { Toggle } from "@/components/ui/Toggle";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { useToast } from "@/context/ToastContext";
-import { PAGE_KEYS } from "@/types/settings";
-import type { GithubStatKey, HomeSettings, PageKey, Settings, Locale } from "@/types";
+import { PAGE_KEYS, SECTION_KEYS } from "@/types/settings";
+import type { GithubStatKey, HomeSettings, PageKey, SectionKey, Settings, Locale } from "@/types";
+
+/** The heading each of these sits above on the home page. */
+const SECTION_LABELS: Record<SectionKey, string> = {
+  featuredProjects: "Titolo della sezione progetti",
+  viewAll: "Link «vedi tutti»",
+  skills: "Titolo della sezione competenze",
+  recentPosts: "Titolo della sezione blog",
+  ctaHeading: "Titolo del riquadro finale",
+};
 
 /** The public page each editable intro belongs to. */
 const PAGE_LABELS: Record<PageKey, string> = {
@@ -35,6 +44,7 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
   const [home, setHome] = useState<HomeSettings>(settings.home);
   const [personal, setPersonal] = useState<Settings["personal"]>(settings.personal);
   const [pages, setPages] = useState<Settings["pages"]>(settings.pages);
+  const [sections, setSections] = useState<Settings["sections"]>(settings.sections);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function updateText(locale: Locale, field: keyof HomeSettings["translations"][Locale], value: string) {
@@ -68,6 +78,12 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
     }));
   }
 
+  function updateSection(key: SectionKey, value: string) {
+    setSections((prev) => ({
+      translations: { ...prev.translations, [locale]: { ...prev.translations[locale], [key]: value } },
+    }));
+  }
+
   async function onSave() {
     setIsSubmitting(true);
     try {
@@ -75,7 +91,7 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         // Only this page's slice — the API merges it into what's stored.
-        body: JSON.stringify({ home, personal, pages }),
+        body: JSON.stringify({ home, personal, pages, sections }),
       });
       if (!res.ok) throw new Error("Request failed");
       toast.success("Portfolio salvato");
@@ -98,6 +114,7 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
           <TabsTrigger value="profilo">Profilo</TabsTrigger>
           <TabsTrigger value="hero">Hero</TabsTrigger>
           <TabsTrigger value="stats">Statistiche</TabsTrigger>
+          <TabsTrigger value="sezioni">Sezioni</TabsTrigger>
           <TabsTrigger value="pagine">Pagine</TabsTrigger>
         </TabsList>
 
@@ -220,6 +237,25 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
             ))}
           </div>
         </TabsContent>
+        <TabsContent value="sezioni">
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              I titoli che separano le sezioni della home. Compaiono solo quando la sezione a cui appartengono
+              è attiva.
+            </p>
+            {SECTION_KEYS.map((key) => (
+              <Card key={key} className="space-y-3 p-5">
+                <h3 className="text-sm font-medium text-foreground">{SECTION_LABELS[key]}</h3>
+                <Input
+                  placeholder="Testo"
+                  value={sections.translations[locale]?.[key] ?? ""}
+                  onChange={(e) => updateSection(key, e.target.value)}
+                />
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
         <TabsContent value="pagine">
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">

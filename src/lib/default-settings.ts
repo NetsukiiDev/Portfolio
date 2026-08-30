@@ -1,4 +1,4 @@
-import type { HomeSettings, LanguageSettings, PagesSettings } from "@/types/settings";
+import type { HomeSettings, LanguageSettings, PagesSettings, SectionsSettings } from "@/types/settings";
 
 export const DEFAULT_PERSONAL = {
   translations: {
@@ -104,6 +104,27 @@ export const DEFAULT_PAGES: PagesSettings = {
       blog: "Appunti, articoli e idee.",
       aiGallery: "Immagini generate dall'AI con i metadati completi di generazione.",
       contact: "Scrivimi pure — leggo tutto quello che arriva.",
+    },
+  },
+};
+
+// The headings between the home page's sections. Editable from
+// /admin/portfolio → Sezioni; these are only the starting point.
+export const DEFAULT_SECTIONS: SectionsSettings = {
+  translations: {
+    en: {
+      featuredProjects: "Featured projects",
+      viewAll: "View all",
+      skills: "Tools & technologies",
+      recentPosts: "Recent posts",
+      ctaHeading: "Need a hand?",
+    },
+    it: {
+      featuredProjects: "Progetti in evidenza",
+      viewAll: "Vedi tutti",
+      skills: "Strumenti e tecnologie",
+      recentPosts: "Ultimi articoli",
+      ctaHeading: "Hai bisogno?",
     },
   },
 };

@@ -16,7 +16,7 @@ import type { Locale } from "@/types";
 const LOCALE_LABELS: Record<Locale, string> = { en: "Inglese", it: "Italiano" };
 const LOCALE_OPTIONS = LOCALES.map((locale) => ({ value: locale, label: LOCALE_LABELS[locale] }));
 
-type Group = "personal" | "seo" | "home" | "pages" | "maintenance";
+type Group = "personal" | "seo" | "home" | "sections" | "pages" | "maintenance";
 
 interface Entry {
   group: Group;
@@ -47,6 +47,17 @@ const SECTIONS: { id: string; label: string; entries: Entry[] }[] = [
       { group: "home", field: "subtitle", label: "Sottotitolo", multiline: true },
       { group: "home", field: "ctaPrimary", label: "Pulsante principale" },
       { group: "home", field: "ctaSecondary", label: "Pulsante secondario" },
+    ],
+  },
+  {
+    id: "sezioni",
+    label: "Sezioni",
+    entries: [
+      { group: "sections", field: "featuredProjects", label: "Titolo della sezione progetti" },
+      { group: "sections", field: "viewAll", label: "Link «vedi tutti»" },
+      { group: "sections", field: "skills", label: "Titolo della sezione competenze" },
+      { group: "sections", field: "recentPosts", label: "Titolo della sezione blog" },
+      { group: "sections", field: "ctaHeading", label: "Titolo del riquadro finale" },
     ],
   },
   {
@@ -83,6 +94,7 @@ function readGroup(settings: Settings, group: Group): Bag {
   if (group === "seo") return settings.seo.translations as unknown as Bag;
   if (group === "home") return settings.home.translations as unknown as Bag;
   if (group === "pages") return settings.pages.translations as unknown as Bag;
+  if (group === "sections") return settings.sections.translations as unknown as Bag;
   return settings.maintenance.translations as unknown as Bag;
 }
 
@@ -112,8 +124,8 @@ export function LanguageForm({ settings }: { settings: Settings }) {
     try {
       // Rebuilt from what's on screen, so a translation corrected by hand is
       // what gets stored.
-      const groups: Record<Group, Bag> = { personal: {}, seo: {}, home: {}, pages: {}, maintenance: {} };
-      for (const group of ["personal", "seo", "home", "pages", "maintenance"] as Group[]) {
+      const groups: Record<Group, Bag> = { personal: {}, seo: {}, home: {}, sections: {}, pages: {}, maintenance: {} };
+      for (const group of ["personal", "seo", "home", "sections", "pages", "maintenance"] as Group[]) {
         for (const locale of LOCALES) {
           groups[group][locale] = { ...readGroup(settings, group)[locale] };
         }
@@ -135,6 +147,7 @@ export function LanguageForm({ settings }: { settings: Settings }) {
           personal: { ...settings.personal, translations: groups.personal },
           seo: { ...settings.seo, translations: groups.seo },
           home: { ...settings.home, translations: groups.home },
+          sections: { ...settings.sections, translations: groups.sections },
           pages: { ...settings.pages, translations: groups.pages },
           maintenance: { ...settings.maintenance, translations: groups.maintenance },
         }),

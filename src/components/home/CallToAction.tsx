@@ -8,9 +8,10 @@ import { BlurReveal } from "@/components/animations";
 import { useTranslation } from "@/hooks/useTranslation";
 import { ROUTES } from "@/lib/constants";
 import type { HomeSettings } from "@/types/settings";
+import type { Locale } from "@/types";
 
-export function CallToAction({ home }: { home: HomeSettings }) {
-  const { t, locale } = useTranslation();
+export function CallToAction({ home, heading }: { home: HomeSettings; heading: Record<Locale, string> }) {
+  const { locale } = useTranslation();
   const text = home.translations[locale];
 
   return (
@@ -26,7 +27,7 @@ export function CallToAction({ home }: { home: HomeSettings }) {
             />
             <div className="relative">
               <h2 className="text-balance text-3xl font-medium tracking-tight text-foreground sm:text-5xl">
-                {t.home.ctaHeading}
+                {heading[locale]}
               </h2>
               <p className="mx-auto mt-4 max-w-md text-muted-foreground">{text.subtitle}</p>
               <div className="mt-8">

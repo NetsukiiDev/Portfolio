@@ -4,6 +4,7 @@ import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { RevealOnScroll } from "@/components/animations";
 import { ProjectGrid } from "@/components/projects/ProjectGrid";
 import { FeaturedProjectsHeader } from "./FeaturedProjectsHeader";
+import { getSectionText } from "@/lib/site.server";
 
 export async function FeaturedProjects() {
   const projects = await getProjects();
@@ -16,7 +17,10 @@ export async function FeaturedProjects() {
     <SectionWrapper>
       <Container>
         <RevealOnScroll>
-          <FeaturedProjectsHeader />
+          <FeaturedProjectsHeader
+            heading={await getSectionText("featuredProjects")}
+            viewAll={await getSectionText("viewAll")}
+          />
         </RevealOnScroll>
         <div className="mt-12">
           <ProjectGrid projects={featured} />

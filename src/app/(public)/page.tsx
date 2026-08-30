@@ -1,4 +1,5 @@
 import { getSettings } from "@/lib/data";
+import { getSectionText } from "@/lib/site.server";
 import { DEFAULT_HOME } from "@/lib/default-settings";
 import { DEFAULT_MODULES } from "@/lib/modules";
 import { getGithubStats, parseGithubUsername, type GithubStats } from "@/lib/github";
@@ -41,7 +42,7 @@ export default async function HomePage() {
       {onHome("skills") && <SkillsPreview />}
       {githubStats && <StatsSection stats={home.stats} values={githubStats} />}
       {onHome("blog") && <RecentBlog />}
-      {onHome("contact") && <CallToAction home={home} />}
+      {onHome("contact") && <CallToAction home={home} heading={await getSectionText("ctaHeading")} />}
     </>
   );
 }

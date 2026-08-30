@@ -26,6 +26,25 @@ export interface HomeSettings {
 }
 
 /**
+ * The headings on the home page that sit between the editable blocks — the
+ * ones that were left as fixed strings in translations.ts when the rest of
+ * the home copy moved into settings.
+ */
+export const SECTION_KEYS = [
+  "featuredProjects",
+  "viewAll",
+  "skills",
+  "recentPosts",
+  "ctaHeading",
+] as const;
+
+export type SectionKey = (typeof SECTION_KEYS)[number];
+
+export interface SectionsSettings {
+  translations: Record<Locale, Record<SectionKey, string>>;
+}
+
+/**
  * The public pages that carry an editable intro under their title. About
  * isn't one: its opening is the profile itself.
  */
@@ -89,4 +108,5 @@ export interface Settings {
   modules: ModulesSettings;
   home: HomeSettings;
   pages: PagesSettings;
+  sections: SectionsSettings;
 }

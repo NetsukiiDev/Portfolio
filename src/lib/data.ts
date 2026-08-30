@@ -6,7 +6,7 @@ import { mergeTunnelSettings } from "./tunnel/types";
 import { mergeModules } from "./modules";
 import { fillTranslations } from "./translate";
 import { LOCALES } from "./constants";
-import { DEFAULT_HOME, DEFAULT_LANGUAGE, DEFAULT_PAGES } from "./default-settings";
+import { DEFAULT_HOME, DEFAULT_LANGUAGE, DEFAULT_PAGES, DEFAULT_SECTIONS } from "./default-settings";
 import type { StorageSettings } from "./storage/types";
 import type { Prisma } from "@/generated/prisma-sqlite/client";
 import type {
@@ -553,6 +553,16 @@ function mergePages(stored: unknown): Settings["pages"] {
   };
 }
 
+function mergeSections(stored: unknown): Settings["sections"] {
+  const value = (stored ?? {}) as Partial<Settings["sections"]>;
+  return {
+    translations: {
+      en: { ...DEFAULT_SECTIONS.translations.en, ...value.translations?.en },
+      it: { ...DEFAULT_SECTIONS.translations.it, ...value.translations?.it },
+    },
+  };
+}
+
 export const getSettings = cache(async (): Promise<Settings> => {
   const row = await prisma.settings.findUniqueOrThrow({ where: { id: SETTINGS_ID } });
   return {
@@ -573,6 +583,7 @@ export const getSettings = cache(async (): Promise<Settings> => {
     modules: mergeModules(row.modules),
     home: mergeHome(row.home),
     pages: mergePages(row.pages),
+    sections: mergeSections(row.sections),
   };
 });
 
@@ -594,6 +605,10 @@ export async function saveSettings(data: Settings): Promise<void> {
   const pages = {
     ...data.pages,
     translations: await withTranslations(data.pages.translations, previous?.pages.translations),
+  };
+  const sections = {
+    ...data.sections,
+    translations: await withTranslations(data.sections.translations, previous?.sections.translations),
   };
   const home = {
     ...data.home,
@@ -631,6 +646,7 @@ export async function saveSettings(data: Settings): Promise<void> {
       modules: toJson(data.modules),
       home: toJson(home),
       pages: toJson(pages),
+      sections: toJson(sections),
     },
   });
 }

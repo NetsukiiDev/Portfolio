@@ -4,6 +4,7 @@ import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { RevealOnScroll } from "@/components/animations";
 import { BlogGrid } from "@/components/blog/BlogGrid";
 import { RecentBlogHeader } from "./RecentBlogHeader";
+import { getSectionText } from "@/lib/site.server";
 
 export async function RecentBlog() {
   const posts = await getBlogPosts();
@@ -18,7 +19,10 @@ export async function RecentBlog() {
     <SectionWrapper className="border-t border-border">
       <Container>
         <RevealOnScroll>
-          <RecentBlogHeader />
+          <RecentBlogHeader
+            heading={await getSectionText("recentPosts")}
+            viewAll={await getSectionText("viewAll")}
+          />
         </RevealOnScroll>
         <div className="mt-12">
           <BlogGrid posts={recent} />

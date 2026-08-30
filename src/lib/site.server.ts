@@ -1,10 +1,10 @@
 import { getSettings } from "./data";
 import { resolveLocale } from "./locale.server";
 import { DEFAULT_MODULES, type ModulesSettings } from "./modules";
-import { DEFAULT_LANGUAGE, DEFAULT_PAGES } from "./default-settings";
+import { DEFAULT_LANGUAGE, DEFAULT_PAGES, DEFAULT_SECTIONS } from "./default-settings";
 import { SITE_NAME, LOCALES } from "./constants";
 import type { Locale, Settings } from "@/types";
-import type { LanguageSettings, PageKey } from "@/types/settings";
+import type { LanguageSettings, PageKey, SectionKey } from "@/types/settings";
 
 export interface SiteChrome {
   /** Null before /setup has run, which every caller has to survive. */
@@ -37,9 +37,20 @@ export async function getSiteChrome(): Promise<SiteChrome> {
 }
 
 /**
- * The intro line under a public page's title, in every language, so the
- * client can follow a language switch without another request.
+ * One admin-written string in every language. The whole record is handed to
+ * the client so a language switch doesn't need another round trip — the
+ * components that render these are client components by necessity.
  */
+function everyLocale(
+  translations: Record<string, Record<string, string>>,
+  key: string,
+): Record<Locale, string> {
+  return Object.fromEntries(
+    LOCALES.map((locale) => [locale, translations[locale]?.[key] ?? ""]),
+  ) as Record<Locale, string>;
+}
+
+/** The intro line under a public page's title. */
 export async function getPageDescriptions(page: PageKey): Promise<Record<Locale, string>> {
   let pages = DEFAULT_PAGES;
   try {
@@ -47,7 +58,16 @@ export async function getPageDescriptions(page: PageKey): Promise<Record<Locale,
   } catch {
     // Settings row doesn't exist yet (pre-setup) — fall back to defaults.
   }
-  return Object.fromEntries(
-    LOCALES.map((locale) => [locale, pages.translations[locale]?.[page] ?? ""]),
-  ) as Record<Locale, string>;
+  return everyLocale(pages.translations, page);
+}
+
+/** A heading between the home page's sections. */
+export async function getSectionText(key: SectionKey): Promise<Record<Locale, string>> {
+  let sections = DEFAULT_SECTIONS;
+  try {
+    sections = (await getSettings()).sections;
+  } catch {
+    // Settings row doesn't exist yet (pre-setup) — fall back to defaults.
+  }
+  return everyLocale(sections.translations, key);
 }
