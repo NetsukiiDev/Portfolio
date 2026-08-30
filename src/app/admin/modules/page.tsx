@@ -1,5 +1,5 @@
 import { getSettings } from "@/lib/data";
-import { maskStorageSecrets } from "@/lib/storage/types";
+import { maskSettingsSecrets } from "@/lib/settings-secrets";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { ModulesForm } from "@/components/admin/ModulesForm";
 
@@ -9,7 +9,7 @@ export default async function AdminModulesPage() {
   return (
     <div>
       <AdminHeader title="Moduli" />
-      <ModulesForm settings={{ ...settings, storage: maskStorageSecrets(settings.storage) }} />
+      <ModulesForm settings={maskSettingsSecrets(settings)} />
     </div>
   );
 }

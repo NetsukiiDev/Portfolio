@@ -2,6 +2,7 @@ import type { Locale } from "./index";
 import type { PaletteKey, ThemeMode } from "@/lib/theme";
 import type { StorageSettings } from "@/lib/storage/types";
 import type { ModulesSettings } from "@/lib/modules";
+import type { TunnelSettings } from "@/lib/tunnel/types";
 
 /** The figures pulled from the GitHub profile configured under Settings → Social. */
 export const GITHUB_STAT_KEYS = ["repos", "followers", "stars", "years"] as const;
@@ -60,6 +61,7 @@ export interface Settings {
     themeMode: ThemeMode;
   };
   storage: StorageSettings;
+  tunnel: TunnelSettings;
   personal: {
     translations: Record<
       Locale,

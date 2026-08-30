@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSettings, saveSettings } from "@/lib/data";
 import { requireAuth } from "@/app/api/lib/auth-check";
-import { SECRET_MASK, maskStorageSecrets } from "@/lib/storage/types";
+import { SECRET_MASK } from "@/lib/storage/types";
+import { TUNNEL_SECRET_MASK } from "@/lib/tunnel/types";
+import { maskSettingsSecrets } from "@/lib/settings-secrets";
 import type { Settings } from "@/types";
 
 export async function GET(request: NextRequest) {
@@ -9,7 +11,7 @@ export async function GET(request: NextRequest) {
   if (authError) return authError;
 
   const settings = await getSettings();
-  return NextResponse.json({ ...settings, storage: maskStorageSecrets(settings.storage) });
+  return NextResponse.json(maskSettingsSecrets(settings));
 }
 
 export async function PUT(request: NextRequest) {
@@ -28,8 +30,11 @@ export async function PUT(request: NextRequest) {
   if (next.storage.s3.secretAccessKey === SECRET_MASK) {
     next.storage.s3.secretAccessKey = current.storage.s3.secretAccessKey;
   }
+  if (next.tunnel.token === TUNNEL_SECRET_MASK) {
+    next.tunnel.token = current.tunnel.token;
+  }
 
   await saveSettings(next);
 
-  return NextResponse.json({ ...next, storage: maskStorageSecrets(next.storage) });
+  return NextResponse.json(maskSettingsSecrets(next));
 }

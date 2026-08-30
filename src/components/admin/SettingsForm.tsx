@@ -10,6 +10,7 @@ import { Select } from "@/components/ui/Select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { ResetButton } from "@/components/admin/ResetButton";
+import { TunnelPanel } from "@/components/admin/TunnelPanel";
 import { ResetSiteButton } from "@/components/admin/ResetSiteButton";
 import { useToast } from "@/context/ToastContext";
 import { cn } from "@/lib/cn";
@@ -179,6 +180,7 @@ export function SettingsForm({ settings, locale }: { settings: Settings; locale:
           <TabsTrigger value="seo">SEO</TabsTrigger>
           <TabsTrigger value="site">Generale</TabsTrigger>
           <TabsTrigger value="storage">Archiviazione</TabsTrigger>
+          <TabsTrigger value="tunnel">Tunnel</TabsTrigger>
           <TabsTrigger value="reset">Reimposta</TabsTrigger>
         </TabsList>
 
@@ -324,6 +326,12 @@ export function SettingsForm({ settings, locale }: { settings: Settings; locale:
               </div>
             )}
           </div>
+        </TabsContent>
+
+        <TabsContent value="tunnel">
+          {/* Saves and starts on its own: it drives a process, so it can't
+              wait for the form-wide submit below. */}
+          <TunnelPanel tunnel={settings.tunnel} />
         </TabsContent>
 
         <TabsContent value="reset">

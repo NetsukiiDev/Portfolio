@@ -1,4 +1,5 @@
 import { getSettings } from "@/lib/data";
+import { maskSettingsSecrets } from "@/lib/settings-secrets";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { LanguageForm } from "@/components/admin/LanguageForm";
 
@@ -8,7 +9,7 @@ export default async function AdminLanguagePage() {
   return (
     <div>
       <AdminHeader title="Lingua" />
-      <LanguageForm settings={settings} />
+      <LanguageForm settings={maskSettingsSecrets(settings)} />
     </div>
   );
 }

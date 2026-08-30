@@ -104,6 +104,7 @@ model Settings {
   home             Json?
   language         Json?
   pages            Json?
+  tunnel           Json?
   setupCompletedAt DateTime?
 }
 

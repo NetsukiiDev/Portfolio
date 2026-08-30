@@ -15,6 +15,7 @@ import {
 } from "@/lib/default-settings";
 import { DEFAULT_MODULES } from "@/lib/modules";
 import { DEFAULT_STORAGE_SETTINGS } from "@/lib/storage/types";
+import { DEFAULT_TUNNEL_SETTINGS } from "@/lib/tunnel/types";
 import type { Prisma } from "@/generated/prisma-sqlite/client";
 
 function toJson<T>(value: T): Prisma.InputJsonValue {
@@ -71,6 +72,7 @@ export async function POST(request: NextRequest) {
       contactForm: toJson(DEFAULT_CONTACT_FORM),
       maintenance: toJson(DEFAULT_MAINTENANCE),
       storage: toJson(storageSettings),
+      tunnel: toJson(DEFAULT_TUNNEL_SETTINGS),
       modules: toJson(DEFAULT_MODULES),
       home: toJson(DEFAULT_HOME),
       pages: toJson(DEFAULT_PAGES),

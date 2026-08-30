@@ -48,7 +48,33 @@ Both the SQLite and MySQL Prisma clients are generated ahead of time into separa
 
 The site is self-hosted, and a tunnel is the least exposed way to put it online: `cloudflared` dials out to Cloudflare and traffic comes back down that connection, so the machine needs no open inbound port, no static IP and nothing forwarded on the router. Only loopback ever reaches the Next.js process.
 
-[`cloudflared.example.yml`](cloudflared.example.yml) is a ready-to-fill config. The commands around it:
+The app runs `cloudflared` itself. Install the binary, then drive it from `/admin/settings` → **Tunnel**: pick the mode, press **Avvia**, and the panel shows the connection state, the public address and cloudflared's own log as it comes up. With "Avvia il tunnel insieme al sito" on, it starts with the server (`src/instrumentation.ts`), so a reboot doesn't quietly take the site off the internet.
+
+```bash
+winget install Cloudflare.cloudflared
+```
+
+If it's installed somewhere that isn't on `PATH`, put the full path in the panel's **Percorso di cloudflared** field.
+
+### Two modes
+
+**Tunnel del mio account (token)** — the one for a site meant to stay up. Create a tunnel in [Cloudflare Zero Trust](https://one.dash.cloudflare.com/) → Networks → Tunnels, point its public hostname at `http://localhost:3000`, and copy the connector token into the panel. Routing and DNS stay in the dashboard; the app only needs the token, which is stored like any other secret — masked whenever it leaves the server, and stripped from the logs the panel shows.
+
+**Tunnel rapido** — no account, no token. Cloudflare hands out a random `*.trycloudflare.com` address that lives as long as the process. Good for showing someone the site for ten minutes; not for anything permanent.
+
+### Set the domain to match
+
+Under `/admin/settings` → Generale, the domain and the HTTPS toggle are what canonical URLs, OG tags and `metadataBase` are built from. Set them to the tunnel hostname with HTTPS on. If you run `/setup` through the tunnel the wizard prefills both correctly; if you set the site up locally first, they'll still say `localhost:3000` until you change them.
+
+### Before you route the DNS
+
+**Finish the setup wizard first.** Until setup completes, every request lands on `/setup` — and whoever gets there first creates the admin account.
+
+**Consider Cloudflare Access on `/admin` and `/setup`.** A tunnel makes the admin panel internet-facing, and the admin panel can now start and stop a tunnel and holds a token for your Cloudflare account. A Zero Trust application covering `/admin*` and `/setup*`, restricted to your own email, adds a second gate in front of the password.
+
+### Running cloudflared yourself instead
+
+If you'd rather keep the tunnel outside the app — as a system service that comes up before the site, say — leave the panel switched off and use [`cloudflared.example.yml`](cloudflared.example.yml):
 
 ```bash
 cloudflared tunnel login
@@ -56,23 +82,7 @@ cloudflared tunnel create portfolio
 cloudflared tunnel route dns portfolio portfolio.example.com
 ```
 
-Copy the example to `~/.cloudflared/config.yml`, fill in the tunnel name, the credentials file path printed by `create`, and your hostname. Then run it — in the foreground to check it works, as a service to keep it up:
-
-```bash
-cloudflared tunnel run portfolio
-```
-
-```bash
-sudo cloudflared service install
-```
-
-Start the app the usual way (`npm run build && npm run start`); the tunnel points at `http://localhost:3000`.
-
-**Set the domain to match.** Under `/admin/settings` → Generale, the domain and the HTTPS toggle are what canonical URLs, OG tags and `metadataBase` are built from. Set them to the tunnel hostname with HTTPS on. If you run `/setup` through the tunnel the wizard prefills both correctly; if you set the site up locally first, they'll still say `localhost:3000` until you change them.
-
-**Complete the setup wizard before creating the DNS route.** Until setup finishes, every request lands on `/setup` — and whoever gets there first creates the admin account. Route the hostname only once the site is set up, or put the tunnel behind Cloudflare Access from the start.
-
-**Consider Cloudflare Access on `/admin` and `/setup`.** A tunnel makes the admin panel internet-facing. A Zero Trust application covering `/admin*` and `/setup*`, restricted to your own email, adds a second gate in front of the password. Leave the rest of the site public.
+Copy the example to `~/.cloudflared/config.yml`, fill in the tunnel name, the credentials file path printed by `create`, and your hostname, then `sudo cloudflared service install`. Nothing in the app needs to know.
 
 ### What the app does differently behind a proxy
 

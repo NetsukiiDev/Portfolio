@@ -1,6 +1,6 @@
 import { getSettings } from "@/lib/data";
 import { getAuthoringLocale } from "@/lib/authoring.server";
-import { maskStorageSecrets } from "@/lib/storage/types";
+import { maskSettingsSecrets } from "@/lib/settings-secrets";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { SettingsForm } from "@/components/admin/SettingsForm";
 
@@ -12,7 +12,7 @@ export default async function AdminSettingsPage() {
     <div>
       <AdminHeader title="Impostazioni" />
       <SettingsForm
-        settings={{ ...settings, storage: maskStorageSecrets(settings.storage) }}
+        settings={maskSettingsSecrets(settings)}
         locale={authoringLocale}
       />
     </div>

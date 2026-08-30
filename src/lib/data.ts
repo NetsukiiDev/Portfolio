@@ -2,6 +2,7 @@ import { cache } from "react";
 import { prisma } from "./prisma";
 import { isPaletteKey, isThemeMode } from "./theme";
 import { DEFAULT_STORAGE_SETTINGS } from "./storage/types";
+import { mergeTunnelSettings } from "./tunnel/types";
 import { mergeModules } from "./modules";
 import { fillTranslations } from "./translate";
 import { LOCALES } from "./constants";
@@ -563,6 +564,7 @@ export const getSettings = cache(async (): Promise<Settings> => {
       themeMode: isThemeMode(row.themeMode) ? row.themeMode : "dark",
     },
     storage: mergeStorageSettings(row.storage),
+    tunnel: mergeTunnelSettings(row.tunnel),
     personal: row.personal as Settings["personal"],
     social: row.social as Settings["social"],
     seo: row.seo as Settings["seo"],
@@ -617,6 +619,7 @@ export async function saveSettings(data: Settings): Promise<void> {
       themePalette: data.site.themePalette,
       themeMode: data.site.themeMode,
       storage: toJson(data.storage),
+      tunnel: toJson(data.tunnel),
       personal: toJson(personal),
       social: toJson(data.social),
       seo: toJson({
