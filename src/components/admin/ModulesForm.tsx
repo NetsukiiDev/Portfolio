@@ -50,8 +50,8 @@ export function ModulesForm({ settings }: { settings: Settings }) {
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
-        Disattivare un modulo ne nasconde la pagina pubblica e la voce nel menu del sito. I contenuti restano
-        salvati e continui a gestirli da qui nel pannello.
+        Il sito è una pagina sola: ogni modulo attivo è una fascia di quella pagina, e la voce nel menu ci
+        porta. Disattivarlo la toglie dal sito; i contenuti restano salvati e continui a gestirli da qui.
       </p>
 
       <div className="space-y-3">
@@ -63,7 +63,7 @@ export function ModulesForm({ settings }: { settings: Settings }) {
                 <div>
                   <h3 className="text-sm font-medium text-foreground">{LABELS[mod.key]}</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {mod.href ?? "Solo in home"}
+                    {mod.href ? `Fascia in home · archivio su ${mod.href}` : "Fascia in home"}
                     {mod.adminHref && (
                       <>
                         {" · "}
@@ -88,11 +88,11 @@ export function ModulesForm({ settings }: { settings: Settings }) {
                       <Toggle
                         checked={config.showOnHome}
                         onChange={(checked) => update(mod.key, { showOnHome: checked })}
-                        label="Mostra la sezione in home"
+                        label="Mostra la fascia nella pagina"
                       />
                       {!config.enabled && (
                         <p className="mt-1.5 text-xs text-muted-foreground">
-                          Il modulo è disattivato, quindi la sezione non appare comunque.
+                          Il modulo è disattivato, quindi la fascia non appare comunque.
                         </p>
                       )}
                     </div>

@@ -9,32 +9,35 @@ import { Toggle } from "@/components/ui/Toggle";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { useToast } from "@/context/ToastContext";
-import { PAGE_KEYS, SECTION_KEYS } from "@/types/settings";
 import type { GithubStatKey, HomeSettings, PageKey, SectionKey, Settings, Locale } from "@/types";
 
-/** The heading each of these sits above on the home page. */
-const SECTION_LABELS: Record<SectionKey, string> = {
-  about: "Titolo della sezione «chi sono»",
-  featuredProjects: "Titolo della sezione progetti",
-  viewAll: "Link «vedi tutti»",
-  skills: "Titolo della sezione competenze",
-  tools: "Titolo della sezione strumenti",
-  experience: "Titolo della sezione esperienza",
-  recentPosts: "Titolo della sezione blog",
-  gallery: "Titolo della sezione galleria",
-  contact: "Titolo della sezione contatti",
-  ctaHeading: "Titolo del riquadro finale",
-};
-
-/** The public page each editable intro belongs to. */
-const PAGE_LABELS: Record<PageKey, string> = {
-  projects: "Progetti",
-  skills: "Competenze",
-  experience: "Esperienza",
-  blog: "Blog",
-  aiGallery: "Galleria AI",
-  contact: "Contatti",
-};
+/**
+ * The page, in the order it is read. Each band has a heading, and most have a
+ * line under it — they used to live in two separate tabs, "Sezioni" and
+ * "Pagine", which is a split that stopped meaning anything when the pages
+ * became sections.
+ */
+const BANDS: { label: string; heading: SectionKey; description?: PageKey; hint?: string }[] = [
+  { label: "Progetti", heading: "featuredProjects", description: "projects" },
+  { label: "Stack", heading: "tools" },
+  { label: "Competenze", heading: "skills", description: "skills" },
+  { label: "Esperienza", heading: "experience", description: "experience" },
+  { label: "Chi sono", heading: "about" },
+  {
+    label: "Blog",
+    heading: "recentPosts",
+    description: "blog",
+    hint: "Ha anche una pagina d’archivio, dove compare la stessa riga.",
+  },
+  {
+    label: "Galleria AI",
+    heading: "gallery",
+    description: "aiGallery",
+    hint: "Ha anche una pagina d’archivio, dove compare la stessa riga.",
+  },
+  { label: "Riquadro finale", heading: "ctaHeading" },
+  { label: "Contatti", heading: "contact", description: "contact" },
+];
 
 /** Which GitHub figure each row shows — the wording below it is editable. */
 const STAT_LABELS: Record<GithubStatKey, string> = {
@@ -114,13 +117,12 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
         attivano da <span className="text-foreground">Moduli</span>.
       </p>
 
-      <Tabs defaultValue="profilo">
+      <Tabs defaultValue="hero">
         <TabsList>
-          <TabsTrigger value="profilo">Profilo</TabsTrigger>
           <TabsTrigger value="hero">Hero</TabsTrigger>
-          <TabsTrigger value="stats">Statistiche</TabsTrigger>
           <TabsTrigger value="sezioni">Sezioni</TabsTrigger>
-          <TabsTrigger value="pagine">Pagine</TabsTrigger>
+          <TabsTrigger value="stats">Statistiche</TabsTrigger>
+          <TabsTrigger value="profilo">Profilo</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profilo">
@@ -213,7 +215,7 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
                     onChange={(e) => updateText(locale, "availability", e.target.value)}
                   />
                   <p className="mt-1.5 text-xs text-muted-foreground">
-                    Compare in alto a destra. Lasciala vuota per non mostrarla.
+                    Compare in cima alla hero, sopra il titolo. Lasciala vuota per non mostrarla.
                   </p>
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -261,39 +263,41 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
         <TabsContent value="sezioni">
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              I titoli che separano le sezioni della home. Compaiono solo quando la sezione a cui appartengono
-              è attiva.
+              Il sito è una pagina sola: ogni riquadro qui sotto è una fascia di quella pagina, nell&apos;ordine
+              in cui si incontrano. Compaiono solo quando il modulo corrispondente è attivo e ha contenuti.
             </p>
-            {SECTION_KEYS.map((key) => (
-              <Card key={key} className="space-y-3 p-5">
-                <h3 className="text-sm font-medium text-foreground">{SECTION_LABELS[key]}</h3>
-                <Input
-                  placeholder="Testo"
-                  value={sections.translations[locale]?.[key] ?? ""}
-                  onChange={(e) => updateSection(key, e.target.value)}
-                />
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
 
-        <TabsContent value="pagine">
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              La riga sotto il titolo di ogni sezione della home. Blog e Galleria hanno anche una pagina
-              d&apos;archivio, dove compare la stessa riga.
-            </p>
-            {PAGE_KEYS.map((page) => (
-              <Card key={page} className="space-y-3 p-5">
-                <h3 className="text-sm font-medium text-foreground">{PAGE_LABELS[page]}</h3>
-                <Textarea
-                  rows={2}
-                  placeholder="Descrizione della pagina"
-                  value={pages.translations[locale]?.[page] ?? ""}
-                  onChange={(e) => updatePage(page, e.target.value)}
+            {BANDS.map((band) => (
+              <Card key={band.heading} className="space-y-3 p-5">
+                <h3 className="text-sm font-medium text-foreground">{band.label}</h3>
+                <Input
+                  placeholder="Titolo"
+                  value={sections.translations[locale]?.[band.heading] ?? ""}
+                  onChange={(e) => updateSection(band.heading, e.target.value)}
                 />
+                {band.description && (
+                  <Textarea
+                    rows={2}
+                    placeholder="Riga sotto il titolo"
+                    value={pages.translations[locale]?.[band.description] ?? ""}
+                    onChange={(e) => updatePage(band.description!, e.target.value)}
+                  />
+                )}
+                {band.hint && <p className="text-xs text-muted-foreground">{band.hint}</p>}
               </Card>
             ))}
+
+            <Card className="space-y-3 p-5">
+              <h3 className="text-sm font-medium text-foreground">Link «vedi tutti»</h3>
+              <Input
+                placeholder="Testo"
+                value={sections.translations[locale]?.viewAll ?? ""}
+                onChange={(e) => updateSection("viewAll", e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Porta all&apos;archivio dalle fasce del blog e della galleria.
+              </p>
+            </Card>
           </div>
         </TabsContent>
       </Tabs>
