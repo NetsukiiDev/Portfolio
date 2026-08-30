@@ -34,6 +34,7 @@ import type {
   AiLora,
   Settings,
   Tool,
+  ProjectImage,
 } from "@/types";
 
 // Prisma's Json input type requires an index signature our plain data interfaces
@@ -79,6 +80,34 @@ async function priorTranslations(
 
 // ---------- Projects ----------
 
+/**
+ * Projects used to store plain URLs. Anything still in that shape is read as
+ * an uncaptioned image rather than migrated, so an old row keeps working and
+ * gains a caption the first time it's saved.
+ */
+function mapProjectImages(stored: unknown): ProjectImage[] {
+  if (!Array.isArray(stored)) return [];
+  return stored.map((entry) =>
+    typeof entry === "string"
+      ? { url: entry, translations: emptyCaptions() }
+      : (entry as ProjectImage),
+  );
+}
+
+function emptyCaptions(): ProjectImage["translations"] {
+  return Object.fromEntries(LOCALES.map((locale) => [locale, { caption: "" }])) as ProjectImage["translations"];
+}
+
+/** Gallery captions get the same treatment as every other admin-written text. */
+async function withImageCaptions(images: ProjectImage[]): Promise<ProjectImage[]> {
+  return Promise.all(
+    images.map(async (image) => ({
+      ...image,
+      translations: await withTranslations(image.translations),
+    })),
+  );
+}
+
 function mapProject(row: {
   id: string;
   slug: string;
@@ -98,7 +127,7 @@ function mapProject(row: {
     featured: row.featured,
     order: row.order,
     category: row.category as ProjectCategory,
-    images: row.images as string[],
+    images: mapProjectImages(row.images),
     links: row.links as { demo?: string; github?: string },
     techStack: row.techStack as string[],
     translations: row.translations as Record<Locale, ProjectTranslation>,
@@ -120,7 +149,7 @@ export async function createProject(project: Project): Promise<Project> {
       featured: project.featured,
       order: project.order,
       category: project.category,
-      images: toJson(project.images),
+      images: toJson(await withImageCaptions(project.images)),
       links: toJson(project.links),
       techStack: toJson(project.techStack),
       translations: toJson(await withTranslations(project.translations)),
@@ -140,7 +169,7 @@ export async function updateProject(id: string, data: Partial<Project>): Promise
         ...(data.featured !== undefined && { featured: data.featured }),
         ...(data.order !== undefined && { order: data.order }),
         ...(data.category !== undefined && { category: data.category }),
-        ...(data.images !== undefined && { images: toJson(data.images) }),
+        ...(data.images !== undefined && { images: toJson(await withImageCaptions(data.images)) }),
         ...(data.links !== undefined && { links: toJson(data.links) }),
         ...(data.techStack !== undefined && { techStack: toJson(data.techStack) }),
         ...(data.translations !== undefined && {

@@ -12,6 +12,10 @@ export const translations = {
     },
     common: {
       all: "All",
+      liveDemo: "Live demo",
+      sourceCode: "Source code",
+      gallery: "Gallery",
+      builtWith: "Built with",
       required: "Required",
       invalidEmail: "Enter a valid email",
       messageTooShort: "Tell me a bit more",
@@ -52,6 +56,10 @@ export const translations = {
     },
     common: {
       all: "Tutti",
+      liveDemo: "Guarda il sito",
+      sourceCode: "Codice sorgente",
+      gallery: "Galleria",
+      builtWith: "Realizzato con",
       required: "Campo obbligatorio",
       invalidEmail: "Inserisci un'email valida",
       messageTooShort: "Scrivi qualcosa in più",

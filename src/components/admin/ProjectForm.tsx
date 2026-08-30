@@ -8,17 +8,17 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Select } from "@/components/ui/Select";
 import { Toggle } from "@/components/ui/Toggle";
 import { Button } from "@/components/ui/Button";
-import { ImageUploadField } from "@/components/admin/ImageUploadField";
+import { ProjectGalleryField } from "@/components/admin/ProjectGalleryField";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { useToast } from "@/context/ToastContext";
 import { PROJECT_CATEGORIES } from "@/lib/constants";
-import type { Project, ProjectCategory , Locale} from "@/types";
+import type { Project, ProjectCategory, ProjectImage, Locale } from "@/types";
 
 interface ProjectFormValues {
   slug: string;
   category: ProjectCategory;
   featured: boolean;
-  image: string;
+  images: ProjectImage[];
   demo: string;
   github: string;
   techStack: string;
@@ -33,7 +33,7 @@ function toFormValues(project: Project | undefined, locale: Locale): ProjectForm
     slug: project?.slug ?? "",
     category: project?.category ?? "web",
     featured: project?.featured ?? false,
-    image: project?.images[0] ?? "",
+    images: project?.images ?? [],
     demo: project?.links.demo ?? "",
     github: project?.links.github ?? "",
     techStack: project?.techStack.join(", ") ?? "",
@@ -53,7 +53,7 @@ export function ProjectForm({ project, locale }: { project?: Project; locale: Lo
     defaultValues: toFormValues(project, locale),
   });
 
-  const image = watch("image");
+  const images = watch("images");
 
   async function onSubmit(values: ProjectFormValues) {
     setIsSubmitting(true);
@@ -62,7 +62,7 @@ export function ProjectForm({ project, locale }: { project?: Project; locale: Lo
       slug: values.slug,
       category: values.category,
       featured: values.featured,
-      images: values.image ? [values.image] : [],
+      images: values.images,
       links: {
         ...(values.demo ? { demo: values.demo } : {}),
         ...(values.github ? { github: values.github } : {}),
@@ -128,13 +128,6 @@ export function ProjectForm({ project, locale }: { project?: Project; locale: Lo
             )}
           />
         </div>
-        <div className="flex items-end">
-          <Controller
-            control={control}
-            name="featured"
-            render={({ field }) => <Toggle checked={field.value} onChange={field.onChange} label="In evidenza" />}
-          />
-        </div>
         <div>
           <label className="mb-2 block text-sm font-medium text-foreground">Demo URL</label>
           <Input {...register("demo")} placeholder="https://…" />
@@ -150,11 +143,23 @@ export function ProjectForm({ project, locale }: { project?: Project; locale: Lo
         <Input {...register("techStack")} placeholder="Next.js, React, Tailwind" />
       </div>
 
-      <ImageUploadField
-        value={image}
-        onChange={(url) => setValue("image", url)}
-        folder="projects"
-        label="Immagine di copertina"
+      <div className="rounded-2xl border border-border p-4">
+        <Controller
+          control={control}
+          name="featured"
+          render={({ field }) => (
+            <Toggle checked={field.value} onChange={field.onChange} label="Metti in evidenza" />
+          )}
+        />
+        <p className="mt-1.5 text-xs text-muted-foreground">
+          I progetti in evidenza sono quelli che compaiono in home, fino a tre, nell&apos;ordine dell&apos;elenco.
+        </p>
+      </div>
+
+      <ProjectGalleryField
+        images={images}
+        onChange={(next) => setValue("images", next)}
+        locale={locale}
       />
 
       {/* Only the authoring language is written; the other locales are
