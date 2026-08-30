@@ -163,6 +163,7 @@ export default async function HomePage() {
           heading={await getSectionText("contact")}
           description={await getPageDescriptions("contact")}
           split
+          centered
           action={<ContactInfo settings={settings} />}
         >
           <ContactSection settings={settings} />

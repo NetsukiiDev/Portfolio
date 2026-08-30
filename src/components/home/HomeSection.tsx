@@ -51,7 +51,8 @@ export function HomeSection({
           centered && "flex-col items-center text-center",
           // Side by side, the header is a column of its own and its extras
           // stack under the text rather than sitting off to one side.
-          split && "flex-col items-start justify-start",
+          split && "flex-col justify-start",
+          split && (centered ? "items-center text-center" : "items-start"),
         )}
       >
         <div className={cn("max-w-2xl", centered && "mx-auto")}>
