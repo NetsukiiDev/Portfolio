@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Menu, Globe } from "lucide-react";
 import { Container } from "./Container";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { MobileMenu } from "./MobileMenu";
 import { useTranslation } from "@/hooks/useTranslation";
 import { NAV_LINKS } from "@/lib/constants";
@@ -15,10 +16,12 @@ export function Navbar({
   modules,
   allowSwitch,
   siteName,
+  avatar,
 }: {
   modules: ModulesSettings;
   allowSwitch: boolean;
   siteName: string;
+  avatar?: string;
 }) {
   const pathname = usePathname();
   const { t, locale, setLocale } = useTranslation();
@@ -42,7 +45,12 @@ export function Navbar({
         )}
       >
         <Container className="flex h-20 items-center justify-between">
-          <Link href="/" className="text-sm font-semibold tracking-tight">
+          <Link href="/" className="flex items-center gap-2.5 text-sm font-semibold tracking-tight">
+            {avatar && (
+              <span className="relative h-8 w-8 overflow-hidden rounded-xl border border-border">
+                <ImageWithFallback src={avatar} alt="" fill className="object-cover" sizes="32px" />
+              </span>
+            )}
             {siteName}
           </Link>
 

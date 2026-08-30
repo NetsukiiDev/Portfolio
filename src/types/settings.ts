@@ -19,7 +19,17 @@ export interface HomeStat {
 export interface HomeSettings {
   translations: Record<
     Locale,
-    { kicker: string; title: string; subtitle: string; ctaPrimary: string; ctaSecondary: string }
+    {
+      kicker: string;
+      title: string;
+      subtitle: string;
+      /** The smaller paragraph under the statement. */
+      intro: string;
+      /** The pill in the corner. Empty hides it. */
+      availability: string;
+      ctaPrimary: string;
+      ctaSecondary: string;
+    }
   >;
   statsEnabled: boolean;
   stats: HomeStat[];

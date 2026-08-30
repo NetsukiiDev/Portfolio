@@ -44,7 +44,9 @@ const SECTIONS: { id: string; label: string; entries: Entry[] }[] = [
     entries: [
       { group: "home", field: "kicker", label: "Kicker" },
       { group: "home", field: "title", label: "Titolo", multiline: true },
-      { group: "home", field: "subtitle", label: "Sottotitolo", multiline: true },
+      { group: "home", field: "subtitle", label: "Frase principale", multiline: true },
+      { group: "home", field: "intro", label: "Paragrafo di presentazione", multiline: true },
+      { group: "home", field: "availability", label: "Pillola di disponibilità" },
       { group: "home", field: "ctaPrimary", label: "Pulsante principale" },
       { group: "home", field: "ctaSecondary", label: "Pulsante secondario" },
     ],

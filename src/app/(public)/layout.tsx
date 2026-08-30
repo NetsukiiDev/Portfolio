@@ -4,11 +4,11 @@ import { Footer } from "@/components/layout/Footer";
 import { getSiteChrome } from "@/lib/site.server";
 
 export default async function PublicLayout({ children }: { children: ReactNode }) {
-  const { modules, language, locale, siteName } = await getSiteChrome();
+  const { modules, language, locale, siteName, avatar } = await getSiteChrome();
 
   return (
     <>
-      <Navbar modules={modules} allowSwitch={language.allowSwitch} siteName={siteName} />
+      <Navbar modules={modules} allowSwitch={language.allowSwitch} siteName={siteName} avatar={avatar} />
       {/* No page-transition wrapper here on purpose. AnimatePresence with
           mode="wait" mounts the incoming page immediately, then mounts it a
           second time when the outgoing page's exit finishes and the keyed

@@ -575,7 +575,18 @@ function mergeHome(stored: unknown): Settings["home"] {
   // Stats used to hold hand-entered numbers; anything without a GitHub key
   // predates that change and is replaced wholesale rather than half-migrated.
   const stats = value.stats?.every((stat) => stat && "key" in stat) ? value.stats : DEFAULT_HOME.stats;
-  return { ...DEFAULT_HOME, ...value, stats } as Settings["home"];
+  // Per locale rather than wholesale: a spread would replace the whole
+  // translations object, so a field added later would arrive undefined on
+  // every site that already had a row.
+  return {
+    ...DEFAULT_HOME,
+    ...value,
+    translations: {
+      en: { ...DEFAULT_HOME.translations.en, ...value.translations?.en },
+      it: { ...DEFAULT_HOME.translations.it, ...value.translations?.it },
+    },
+    stats,
+  } as Settings["home"];
 }
 
 function mergePages(stored: unknown): Settings["pages"] {

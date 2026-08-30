@@ -200,3 +200,15 @@
     animation: none;
   }
 }
+
+/* An outlined line of display type: the glyphs are drawn as a hairline with
+   nothing inside. Falls back to solid text where text-stroke isn't
+   supported, which is the right way round — unreadable would be worse. */
+@supports (-webkit-text-stroke: 1px currentColor) {
+  .text-outline {
+    -webkit-text-stroke: 1.5px currentColor;
+    /* Only the fill goes: setting `color` to transparent would take
+       currentColor — and therefore the stroke — with it. */
+    -webkit-text-fill-color: transparent;
+  }
+}

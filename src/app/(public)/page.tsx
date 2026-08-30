@@ -1,6 +1,7 @@
-import { getSettings, getTools } from "@/lib/data";
+import { getSettings, getTools, getExperience } from "@/lib/data";
 import { getSectionText } from "@/lib/site.server";
-import { DEFAULT_HOME, DEFAULT_TOOLS } from "@/lib/default-settings";
+import { socialIcons } from "@/lib/tools/catalogue";
+import { DEFAULT_HOME, DEFAULT_TOOLS, DEFAULT_SOCIAL } from "@/lib/default-settings";
 import { DEFAULT_MODULES } from "@/lib/modules";
 import { getGithubStats, parseGithubUsername, type GithubStats } from "@/lib/github";
 import { HeroSection } from "@/components/home/HeroSection";
@@ -17,6 +18,7 @@ export default async function HomePage() {
   let home: HomeSettings = DEFAULT_HOME;
   let modules: ModulesSettings = DEFAULT_MODULES;
   let githubUrl: string | null = null;
+  let social: Settings["social"] = DEFAULT_SOCIAL;
   let toolsDisplay: Settings["tools"]["display"] = DEFAULT_TOOLS.display;
 
   try {
@@ -24,6 +26,7 @@ export default async function HomePage() {
     home = settings.home;
     modules = settings.modules;
     githubUrl = settings.social.github;
+    social = settings.social;
     toolsDisplay = settings.tools.display;
   } catch {
     // Settings row doesn't exist yet (pre-setup) — fall back to defaults.
@@ -40,7 +43,17 @@ export default async function HomePage() {
 
   return (
     <>
-      <HeroSection home={home} />
+      <HeroSection
+        home={home}
+        social={social}
+        socialIcons={socialIcons()}
+        experience={
+          // Newest first, three at most: the hero is a summary, not the CV.
+          modules.experience.enabled
+            ? [...(await getExperience())].sort((a, b) => a.order - b.order).slice(0, 3)
+            : []
+        }
+      />
       {onHome("projects") && <FeaturedProjects />}
       {onHome("tools") && <ToolsSection tools={await getTools()} display={toolsDisplay} />}
       {githubStats && <StatsSection stats={home.stats} values={githubStats} />}

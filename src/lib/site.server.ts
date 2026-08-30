@@ -14,6 +14,8 @@ export interface SiteChrome {
   locale: Locale;
   /** What the navbar and footer sign the site with. */
   siteName: string;
+  /** The profile picture, doubling as the site's mark in the navbar. */
+  avatar: string;
 }
 
 /**
@@ -33,7 +35,7 @@ export async function getSiteChrome(): Promise<SiteChrome> {
   const locale = await resolveLocale(language);
   const siteName = settings?.personal.translations[locale]?.name?.trim() || SITE_NAME;
 
-  return { settings, modules, language, locale, siteName };
+  return { settings, modules, language, locale, siteName, avatar: settings?.personal.avatar ?? "" };
 }
 
 /**

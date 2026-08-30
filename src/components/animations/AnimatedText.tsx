@@ -14,10 +14,13 @@ export function AnimatedText({
   text,
   className,
   delay = 0,
+  outlineFrom,
 }: {
   text: string;
   className?: string;
   delay?: number;
+  /** Line index from which the type is drawn as an outline rather than solid. */
+  outlineFrom?: number;
 }) {
   const lines = text.split("\n");
 
@@ -26,7 +29,10 @@ export function AnimatedText({
       {lines.map((line, lineIndex) => (
         <span key={line} className="block overflow-hidden">
           <span
-            className="animate-reveal-up block"
+            className={cn(
+              "animate-reveal-up block",
+              outlineFrom !== undefined && lineIndex >= outlineFrom && "text-outline",
+            )}
             style={{ animationDelay: `${delay + lineIndex * 0.08}s` }}
           >
             {line}

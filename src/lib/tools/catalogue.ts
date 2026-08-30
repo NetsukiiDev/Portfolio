@@ -114,6 +114,23 @@ export function findToolGroup(slug: string | null): { id: string; label: string 
 /** The order the groups are declared in, so the strip reads the same way. */
 export const TOOL_GROUP_ORDER: string[] = TOOL_CATALOGUE.map((group) => group.id);
 
+/**
+ * The brand marks for the social links. Not part of the tools catalogue —
+ * these are looked up straight from the icon set, and LinkedIn simply isn't
+ * in it any more, so the caller has to cope with a null.
+ */
+export function socialIcons(): Record<string, ToolIcon | null> {
+  const pick = (slug: string) => bySlug.get(slug) ?? null;
+  return {
+    github: pick("github"),
+    linkedin: pick("linkedin"),
+    twitter: pick("x"),
+    instagram: pick("instagram"),
+    dribbble: pick("dribbble"),
+    youtube: pick("youtube"),
+  };
+}
+
 export function findToolIcon(slug: string | null): ToolIcon | null {
   return slug ? (TOOL_ICONS.get(slug) ?? bySlug.get(slug) ?? null) : null;
 }

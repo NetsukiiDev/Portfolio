@@ -191,10 +191,26 @@ export function PortfolioForm({ settings, locale }: { settings: Settings; locale
                 </div>
                 <Textarea
                   rows={2}
-                  placeholder="Sottotitolo"
+                  placeholder="Frase principale"
                   value={home.translations[locale].subtitle}
                   onChange={(e) => updateText(locale, "subtitle", e.target.value)}
                 />
+                <Textarea
+                  rows={3}
+                  placeholder="Paragrafo di presentazione"
+                  value={home.translations[locale].intro}
+                  onChange={(e) => updateText(locale, "intro", e.target.value)}
+                />
+                <div>
+                  <Input
+                    placeholder="Pillola di disponibilità"
+                    value={home.translations[locale].availability}
+                    onChange={(e) => updateText(locale, "availability", e.target.value)}
+                  />
+                  <p className="mt-1.5 text-xs text-muted-foreground">
+                    Compare in alto a destra. Lasciala vuota per non mostrarla.
+                  </p>
+                </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Input
                     placeholder="Pulsante principale"
