@@ -94,6 +94,7 @@ export default async function HomePage() {
           eyebrow="Portfolio"
           heading={await getSectionText("featuredProjects")}
           description={await getPageDescriptions("projects")}
+          centered
         >
           <ProjectGrid projects={[...projects].sort((a, b) => a.order - b.order)} />
         </HomeSection>
