@@ -9,7 +9,10 @@ export function NotFoundContent() {
   const { t } = useTranslation();
 
   return (
-    <section className="relative flex min-h-[calc(100vh-5rem)] items-center justify-center overflow-hidden px-6 py-20">
+    // Pulled up under the fixed navbar and given the height back as
+    // padding, the way the home hero does it: otherwise the starfield starts
+    // below the navbar and leaves a seam across the top of the page.
+    <section className="relative -mt-20 flex min-h-screen items-center justify-center overflow-hidden px-6 py-20">
       <div className="absolute inset-0">
         <div className="starfield-layer-1 animate-drift-1 absolute inset-0 opacity-80" />
         <div className="starfield-layer-2 animate-drift-2 absolute inset-0 opacity-60" />
