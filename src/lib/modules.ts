@@ -42,7 +42,7 @@ export interface ModuleDefinition {
 // other is the identity page a portfolio can't meaningfully turn off.
 export const MODULES: ModuleDefinition[] = [
   { key: "projects", href: "/projects", navKey: "projects", adminHref: "/admin/projects", hasHomeSection: true },
-  { key: "skills", href: "/skills", navKey: "skills", adminHref: "/admin/skills", hasHomeSection: true },
+  { key: "skills", href: "/skills", navKey: "skills", adminHref: "/admin/skills", hasHomeSection: false },
   // Home-only: a page listing nothing but logos would be a thin thing to
   // give a URL to, so this module lives entirely in the home page strip.
   { key: "tools", href: null, navKey: null, adminHref: "/admin/tools", hasHomeSection: true },

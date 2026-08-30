@@ -5,7 +5,6 @@ import { DEFAULT_MODULES } from "@/lib/modules";
 import { getGithubStats, parseGithubUsername, type GithubStats } from "@/lib/github";
 import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturedProjects } from "@/components/home/FeaturedProjects";
-import { SkillsPreview } from "@/components/home/SkillsPreview";
 import { ToolsSection } from "@/components/home/ToolsSection";
 import { StatsSection } from "@/components/home/StatsSection";
 import { RecentBlog } from "@/components/home/RecentBlog";
@@ -43,7 +42,6 @@ export default async function HomePage() {
     <>
       <HeroSection home={home} />
       {onHome("projects") && <FeaturedProjects />}
-      {onHome("skills") && <SkillsPreview />}
       {onHome("tools") && <ToolsSection tools={await getTools()} display={toolsDisplay} />}
       {githubStats && <StatsSection stats={home.stats} values={githubStats} />}
       {onHome("blog") && <RecentBlog />}

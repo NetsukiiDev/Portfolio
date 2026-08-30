@@ -33,7 +33,6 @@ export interface HomeSettings {
 export const SECTION_KEYS = [
   "featuredProjects",
   "viewAll",
-  "skills",
   "tools",
   "recentPosts",
   "ctaHeading",

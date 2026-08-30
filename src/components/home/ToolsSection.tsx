@@ -3,7 +3,7 @@ import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { RevealOnScroll, TextMarquee } from "@/components/animations";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { ToolLogo } from "@/components/tools/ToolLogo";
-import { findToolIcon } from "@/lib/tools/catalogue";
+import { findToolIcon, findToolGroup, TOOL_GROUP_ORDER } from "@/lib/tools/catalogue";
 import { ToolsSectionHeader } from "./ToolsSectionHeader";
 import { getSectionText } from "@/lib/site.server";
 import type { Tool } from "@/types";
@@ -11,6 +11,17 @@ import type { ToolsDisplay } from "@/types/settings";
 
 /** Past this many, a still grid starts to look like a wall and scrolls instead. */
 const MARQUEE_THRESHOLD = 8;
+
+/**
+ * Seconds a strip takes to travel its own length. Fixed per item rather than
+ * per strip, so a row of twenty and a row of four move at the same speed —
+ * one duration for all of them made the long ones race.
+ */
+const SECONDS_PER_TOOL = 5;
+const MIN_MARQUEE_SECONDS = 24;
+
+/** Entries the catalogue doesn't cover — added by hand — go last, together. */
+const OTHER_GROUP = { id: "other", label: "Altro" };
 
 function ToolBadge({ tool }: { tool: Tool }) {
   // A catalogue pick draws its own vector; a manual entry falls back to the
@@ -43,12 +54,29 @@ function ToolBadge({ tool }: { tool: Tool }) {
   );
 }
 
+/** Splits the selection by what kind of thing each entry is, in catalogue order. */
+function groupTools(tools: Tool[]) {
+  const groups = new Map<string, { id: string; label: string; tools: Tool[] }>();
+
+  for (const tool of tools) {
+    const group = findToolGroup(tool.slug) ?? OTHER_GROUP;
+    const existing = groups.get(group.id);
+    if (existing) existing.tools.push(tool);
+    else groups.set(group.id, { ...group, tools: [tool] });
+  }
+
+  const order = [...TOOL_GROUP_ORDER, OTHER_GROUP.id];
+  return [...groups.values()].sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+}
+
 /**
- * The strip of tools, software and languages on the home page.
+ * The strip of tools, software and languages on the home page, split by kind
+ * — languages, frameworks, infrastructure and so on — rather than one long
+ * undifferentiated run.
  *
- * Two layouts: a still grid, or a marquee that scrolls on its own. The
- * marquee is deliberately inert — no dragging, no pausing, no buttons — so
- * it reads as motion rather than as something asking to be operated.
+ * Two layouts: still rows, or ones that scroll on their own. The scrolling
+ * kind is deliberately inert — nothing to drag, nothing to pause, no buttons
+ * — so it reads as motion rather than as something asking to be operated.
  */
 export async function ToolsSection({ tools, display }: { tools: Tool[]; display: ToolsDisplay }) {
   const visible = [...tools].sort((a, b) => a.order - b.order);
@@ -56,6 +84,7 @@ export async function ToolsSection({ tools, display }: { tools: Tool[]; display:
 
   const scrolling = display === "marquee" || (display === "auto" && visible.length > MARQUEE_THRESHOLD);
   const heading = await getSectionText("tools");
+  const groups = groupTools(visible);
 
   return (
     <SectionWrapper className="border-t border-border">
@@ -64,30 +93,40 @@ export async function ToolsSection({ tools, display }: { tools: Tool[]; display:
           <ToolsSectionHeader heading={heading} />
         </RevealOnScroll>
 
-        <div className="mt-8">
-          {scrolling ? (
-            // Faded at both ends so items enter and leave rather than being
-            // cut off mid-badge.
-            <div
-              className="[--fade:4rem] [mask-image:linear-gradient(to_right,transparent,black_var(--fade),black_calc(100%-var(--fade)),transparent)]"
-              // The strip repeats itself, so screen readers get it once.
-              aria-label={visible.map((tool) => findToolIcon(tool.slug)?.title ?? tool.name).join(", ")}
-            >
-              <TextMarquee>
-                {visible.map((tool) => (
-                  <ToolBadge key={tool.id} tool={tool} />
-                ))}
-              </TextMarquee>
+        <div className="mt-10 space-y-10">
+          {groups.map((group) => (
+            <div key={group.id}>
+              <p className="mb-4 text-center text-xs font-medium tracking-wider text-muted-foreground/70 uppercase">
+                {group.label}
+              </p>
+
+              {scrolling ? (
+                // Faded at both ends so items enter and leave rather than
+                // being cut off mid-badge.
+                <div
+                  className="[--fade:4rem] [mask-image:linear-gradient(to_right,transparent,black_var(--fade),black_calc(100%-var(--fade)),transparent)]"
+                  // The strip repeats itself, so screen readers get it once.
+                  aria-label={group.tools
+                    .map((tool) => findToolIcon(tool.slug)?.title ?? tool.name)
+                    .join(", ")}
+                >
+                  <TextMarquee
+                    duration={Math.max(MIN_MARQUEE_SECONDS, group.tools.length * SECONDS_PER_TOOL)}
+                  >
+                    {group.tools.map((tool) => (
+                      <ToolBadge key={tool.id} tool={tool} />
+                    ))}
+                  </TextMarquee>
+                </div>
+              ) : (
+                <div className="flex flex-wrap justify-center gap-3">
+                  {group.tools.map((tool) => (
+                    <ToolBadge key={tool.id} tool={tool} />
+                  ))}
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="flex flex-wrap justify-center gap-3">
-              {visible.map((tool, index) => (
-                <RevealOnScroll key={tool.id} delay={index * 0.03}>
-                  <ToolBadge tool={tool} />
-                </RevealOnScroll>
-              ))}
-            </div>
-          )}
+          ))}
         </div>
       </Container>
     </SectionWrapper>

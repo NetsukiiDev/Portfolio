@@ -121,7 +121,6 @@ export const DEFAULT_SECTIONS: SectionsSettings = {
     en: {
       featuredProjects: "Featured projects",
       viewAll: "View all",
-      skills: "Tools & technologies",
       tools: "Built with",
       recentPosts: "Recent posts",
       ctaHeading: "Need a hand?",
@@ -129,7 +128,6 @@ export const DEFAULT_SECTIONS: SectionsSettings = {
     it: {
       featuredProjects: "Progetti in evidenza",
       viewAll: "Vedi tutti",
-      skills: "Strumenti e tecnologie",
       tools: "Con cosa lavoro",
       recentPosts: "Ultimi articoli",
       ctaHeading: "Hai bisogno?",

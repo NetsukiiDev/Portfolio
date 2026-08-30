@@ -100,6 +100,20 @@ export const TOOL_ICONS: Map<string, ToolIcon> = new Map(
   TOOL_CATALOGUE.flatMap((group) => group.icons).map((icon) => [icon.slug, icon]),
 );
 
+/** Which catalogue group a slug belongs to, for grouping the strip by kind. */
+const GROUP_BY_SLUG = new Map<string, { id: string; label: string }>(
+  TOOL_CATALOGUE.flatMap((group) =>
+    group.icons.map((icon) => [icon.slug, { id: group.id, label: group.label }] as const),
+  ),
+);
+
+export function findToolGroup(slug: string | null): { id: string; label: string } | null {
+  return slug ? (GROUP_BY_SLUG.get(slug) ?? null) : null;
+}
+
+/** The order the groups are declared in, so the strip reads the same way. */
+export const TOOL_GROUP_ORDER: string[] = TOOL_CATALOGUE.map((group) => group.id);
+
 export function findToolIcon(slug: string | null): ToolIcon | null {
   return slug ? (TOOL_ICONS.get(slug) ?? bySlug.get(slug) ?? null) : null;
 }
