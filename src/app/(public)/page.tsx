@@ -127,7 +127,7 @@ export default async function HomePage() {
       )}
 
       {settings && (
-        <HomeSection id="about" eyebrow="Profilo" heading={await getSectionText("about")}>
+        <HomeSection id="about" eyebrow="Profilo" heading={await getSectionText("about")} centered>
           <AboutSection personal={personal} />
         </HomeSection>
       )}
