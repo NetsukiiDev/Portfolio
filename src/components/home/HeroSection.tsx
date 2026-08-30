@@ -3,6 +3,7 @@
 import { HeroBackground } from "./HeroBackground";
 import { HeroSocials } from "./HeroSocials";
 import { HeroCurrently } from "./HeroCurrently";
+import { ScrollCue } from "./ScrollCue";
 import { AnimatedText } from "@/components/animations";
 import { ButtonLink } from "@/components/ui/Button";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -31,7 +32,7 @@ export function HeroSection({
 }) {
   // Copy comes from the database (Admin → Portfolio); only the locale to pick
   // is client state.
-  const { t, locale } = useTranslation();
+  const { locale } = useTranslation();
   const text = home.translations[locale];
   const hasAside = experience.length > 0;
 
@@ -97,12 +98,7 @@ export function HeroSection({
         </div>
       </div>
 
-      <div className="relative z-10 flex flex-col items-center gap-2 pb-10">
-        <span className="text-[10px] font-medium tracking-[0.3em] text-muted-foreground/60 uppercase">
-          {t.common.scroll}
-        </span>
-        <span className="h-10 w-px bg-gradient-to-b from-border-strong to-transparent" />
-      </div>
+      <ScrollCue className="relative z-10 pb-12" />
     </section>
   );
 }
