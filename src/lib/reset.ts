@@ -15,16 +15,25 @@ const ALL_TABLES = [
   "Settings",
   "Skill",
   "SkillCategory",
+  "Tool",
 ];
 
-export type ResetContentType = "projects" | "blog" | "skills" | "experience" | "ai-gallery";
+export type ResetContentType = "projects" | "blog" | "skills" | "tools" | "experience" | "ai-gallery";
 
-export const RESET_CONTENT_TYPES: ResetContentType[] = ["projects", "blog", "skills", "experience", "ai-gallery"];
+export const RESET_CONTENT_TYPES: ResetContentType[] = [
+  "projects",
+  "blog",
+  "skills",
+  "tools",
+  "experience",
+  "ai-gallery",
+];
 
 const UPLOAD_FOLDER_BY_TYPE: Record<ResetContentType, string | null> = {
   projects: "projects",
   blog: "blog",
   skills: null,
+  tools: "tools",
   experience: "experience",
   "ai-gallery": "ai-gallery",
 };
@@ -51,6 +60,9 @@ export async function resetContent(type: ResetContentType): Promise<void> {
       await prisma.skill.deleteMany({});
       await prisma.skillCategory.deleteMany({});
       break;
+    case "tools":
+      await prisma.tool.deleteMany({});
+      break;
     case "experience":
       await prisma.experience.deleteMany({});
       break;
@@ -67,12 +79,15 @@ export async function resetSite(): Promise<void> {
   // Clear uploaded files first — deleteStorageFolder needs the Settings row
   // (for the active storage provider) to still exist to read its config.
   await Promise.all(
-    ["projects", "blog", "ai-gallery", "experience", "settings"].map((folder) => tryDeleteStorageFolder(folder)),
+    ["projects", "blog", "ai-gallery", "experience", "tools", "settings"].map((folder) =>
+      tryDeleteStorageFolder(folder),
+    ),
   );
 
   await prisma.contactMessage.deleteMany({});
   await prisma.aiImage.deleteMany({});
   await prisma.experience.deleteMany({});
+  await prisma.tool.deleteMany({});
   await prisma.skill.deleteMany({});
   await prisma.skillCategory.deleteMany({});
   await prisma.blogPost.deleteMany({});

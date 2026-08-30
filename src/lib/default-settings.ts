@@ -1,4 +1,10 @@
-import type { HomeSettings, LanguageSettings, PagesSettings, SectionsSettings } from "@/types/settings";
+import type {
+  HomeSettings,
+  LanguageSettings,
+  PagesSettings,
+  SectionsSettings,
+  ToolsSettings,
+} from "@/types/settings";
 
 export const DEFAULT_PERSONAL = {
   translations: {
@@ -116,6 +122,7 @@ export const DEFAULT_SECTIONS: SectionsSettings = {
       featuredProjects: "Featured projects",
       viewAll: "View all",
       skills: "Tools & technologies",
+      tools: "Built with",
       recentPosts: "Recent posts",
       ctaHeading: "Need a hand?",
     },
@@ -123,8 +130,13 @@ export const DEFAULT_SECTIONS: SectionsSettings = {
       featuredProjects: "Progetti in evidenza",
       viewAll: "Vedi tutti",
       skills: "Strumenti e tecnologie",
+      tools: "Con cosa lavoro",
       recentPosts: "Ultimi articoli",
       ctaHeading: "Hai bisogno?",
     },
   },
 };
+
+// "auto" keeps a short list still and lets a long one scroll — see
+// ToolsSection for where the line is drawn.
+export const DEFAULT_TOOLS: ToolsSettings = { display: "auto" };

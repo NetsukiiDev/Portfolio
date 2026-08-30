@@ -12,6 +12,7 @@ import type { Settings } from "@/types";
 const LABELS: Record<ModuleKey, string> = {
   projects: "Progetti",
   skills: "Competenze",
+  tools: "Strumenti e software",
   experience: "Esperienza",
   blog: "Blog",
   aiGallery: "Galleria AI",
@@ -62,7 +63,7 @@ export function ModulesForm({ settings }: { settings: Settings }) {
                 <div>
                   <h3 className="text-sm font-medium text-foreground">{LABELS[mod.key]}</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {mod.href}
+                    {mod.href ?? "Solo in home"}
                     {mod.adminHref && (
                       <>
                         {" · "}

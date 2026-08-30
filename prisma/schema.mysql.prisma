@@ -106,7 +106,17 @@ model Settings {
   pages            Json?
   tunnel           Json?
   sections         Json?
+  tools            Json?
   setupCompletedAt DateTime?
+}
+
+model Tool {
+  id      String  @id
+  name    String
+  image   String
+  url     String?
+  order   Int     @default(0)
+  visible Boolean @default(true)
 }
 
 model ContactMessage {

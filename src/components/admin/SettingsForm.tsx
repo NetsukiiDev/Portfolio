@@ -28,6 +28,7 @@ const RESET_TARGETS: { type: string; label: string; description: string }[] = [
   { type: "projects", label: "Reimposta progetti", description: "Elimina tutti i progetti e le relative immagini caricate." },
   { type: "blog", label: "Reimposta blog", description: "Elimina tutti gli articoli del blog e le relative immagini caricate." },
   { type: "skills", label: "Reimposta competenze", description: "Elimina tutte le categorie e le competenze." },
+  { type: "tools", label: "Reimposta strumenti", description: "Elimina tutti gli strumenti e i loghi caricati." },
   { type: "experience", label: "Reimposta esperienza", description: "Elimina tutte le voci di esperienza e i loghi caricati." },
   { type: "ai-gallery", label: "Reimposta galleria AI", description: "Elimina tutte le immagini della galleria AI." },
 ];

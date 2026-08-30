@@ -6,7 +6,13 @@ import { mergeTunnelSettings } from "./tunnel/types";
 import { mergeModules } from "./modules";
 import { fillTranslations } from "./translate";
 import { LOCALES } from "./constants";
-import { DEFAULT_HOME, DEFAULT_LANGUAGE, DEFAULT_PAGES, DEFAULT_SECTIONS } from "./default-settings";
+import {
+  DEFAULT_HOME,
+  DEFAULT_LANGUAGE,
+  DEFAULT_PAGES,
+  DEFAULT_SECTIONS,
+  DEFAULT_TOOLS,
+} from "./default-settings";
 import type { StorageSettings } from "./storage/types";
 import type { Prisma } from "@/generated/prisma-sqlite/client";
 import type {
@@ -27,6 +33,7 @@ import type {
   AiImageTranslation,
   AiLora,
   Settings,
+  Tool,
 } from "@/types";
 
 // Prisma's Json input type requires an index signature our plain data interfaces
@@ -584,6 +591,7 @@ export const getSettings = cache(async (): Promise<Settings> => {
     home: mergeHome(row.home),
     pages: mergePages(row.pages),
     sections: mergeSections(row.sections),
+    tools: { ...DEFAULT_TOOLS, ...((row.tools ?? {}) as Partial<Settings["tools"]>) },
   };
 });
 
@@ -647,8 +655,63 @@ export async function saveSettings(data: Settings): Promise<void> {
       home: toJson(home),
       pages: toJson(pages),
       sections: toJson(sections),
+      tools: toJson(data.tools),
     },
   });
+}
+
+// ---------- Tools ----------
+
+function mapTool(row: {
+  id: string;
+  name: string;
+  image: string;
+  url: string | null;
+  order: number;
+  visible: boolean;
+}): Tool {
+  return { id: row.id, name: row.name, image: row.image, url: row.url, order: row.order, visible: row.visible };
+}
+
+export async function getTools(): Promise<Tool[]> {
+  const rows = await prisma.tool.findMany({ orderBy: { order: "asc" } });
+  return rows.map(mapTool);
+}
+
+export async function createTool(tool: Tool): Promise<Tool> {
+  const row = await prisma.tool.create({
+    data: {
+      id: tool.id,
+      name: tool.name,
+      image: tool.image,
+      url: tool.url,
+      order: tool.order,
+      visible: tool.visible,
+    },
+  });
+  return mapTool(row);
+}
+
+export async function updateTool(id: string, data: Partial<Tool>): Promise<Tool | null> {
+  try {
+    const row = await prisma.tool.update({
+      where: { id },
+      data: {
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.image !== undefined && { image: data.image }),
+        ...(data.url !== undefined && { url: data.url }),
+        ...(data.order !== undefined && { order: data.order }),
+        ...(data.visible !== undefined && { visible: data.visible }),
+      },
+    });
+    return mapTool(row);
+  } catch {
+    return null;
+  }
+}
+
+export async function deleteTool(id: string): Promise<void> {
+  await prisma.tool.deleteMany({ where: { id } });
 }
 
 // ---------- Contact messages ----------

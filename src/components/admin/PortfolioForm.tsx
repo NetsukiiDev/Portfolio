@@ -17,6 +17,7 @@ const SECTION_LABELS: Record<SectionKey, string> = {
   featuredProjects: "Titolo della sezione progetti",
   viewAll: "Link «vedi tutti»",
   skills: "Titolo della sezione competenze",
+  tools: "Titolo della sezione strumenti",
   recentPosts: "Titolo della sezione blog",
   ctaHeading: "Titolo del riquadro finale",
 };

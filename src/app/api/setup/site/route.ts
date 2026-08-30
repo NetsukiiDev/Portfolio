@@ -13,6 +13,7 @@ import {
   DEFAULT_HOME,
   DEFAULT_PAGES,
   DEFAULT_SECTIONS,
+  DEFAULT_TOOLS,
 } from "@/lib/default-settings";
 import { DEFAULT_MODULES } from "@/lib/modules";
 import { DEFAULT_STORAGE_SETTINGS } from "@/lib/storage/types";
@@ -78,6 +79,7 @@ export async function POST(request: NextRequest) {
       home: toJson(DEFAULT_HOME),
       pages: toJson(DEFAULT_PAGES),
       sections: toJson(DEFAULT_SECTIONS),
+      tools: toJson(DEFAULT_TOOLS),
       domain,
       https,
       defaultLocale,

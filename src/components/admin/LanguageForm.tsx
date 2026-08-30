@@ -56,6 +56,7 @@ const SECTIONS: { id: string; label: string; entries: Entry[] }[] = [
       { group: "sections", field: "featuredProjects", label: "Titolo della sezione progetti" },
       { group: "sections", field: "viewAll", label: "Link «vedi tutti»" },
       { group: "sections", field: "skills", label: "Titolo della sezione competenze" },
+      { group: "sections", field: "tools", label: "Titolo della sezione strumenti" },
       { group: "sections", field: "recentPosts", label: "Titolo della sezione blog" },
       { group: "sections", field: "ctaHeading", label: "Titolo del riquadro finale" },
     ],

@@ -10,6 +10,7 @@ import {
   Blocks,
   Languages,
   Inbox,
+  Wrench,
   type LucideIcon,
 } from "lucide-react";
 
@@ -34,6 +35,7 @@ export const ADMIN_SECTIONS: { title: string | null; links: AdminLink[] }[] = [
     links: [
       { href: "/admin/projects", label: "Progetti", icon: FolderKanban },
       { href: "/admin/skills", label: "Competenze", icon: Sparkles },
+      { href: "/admin/tools", label: "Strumenti e software", icon: Wrench },
       { href: "/admin/experience", label: "Esperienza", icon: Briefcase },
       { href: "/admin/blog", label: "Blog", icon: Newspaper },
       { href: "/admin/ai-gallery", label: "Galleria AI", icon: ImageIcon },

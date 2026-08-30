@@ -8,6 +8,7 @@ const ADMIN_ROUTES = ["/admin"];
 const PROTECTED_API_ROUTES = [
   "/api/projects",
   "/api/skills",
+  "/api/tools",
   "/api/experience",
   "/api/blog",
   "/api/ai-gallery",

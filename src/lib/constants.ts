@@ -36,7 +36,7 @@ export const PROJECT_CATEGORIES: { id: ProjectCategory; label: Record<Locale, st
   { id: "mobile", label: { en: "Mobile", it: "Mobile" } },
 ];
 
-export const UPLOAD_FOLDERS = ["projects", "blog", "ai-gallery", "experience", "settings"] as const;
+export const UPLOAD_FOLDERS = ["projects", "blog", "ai-gallery", "experience", "tools", "settings"] as const;
 export type UploadFolder = (typeof UPLOAD_FOLDERS)[number];
 
 export const MAX_UPLOAD_SIZE_BYTES = 8 * 1024 * 1024;

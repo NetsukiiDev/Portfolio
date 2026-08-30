@@ -5,24 +5,27 @@ import {
   getExperience,
   getAiGallery,
   getSkillsData,
+  getTools,
   getContactMessages,
 } from "@/lib/data";
 import { Card } from "@/components/ui/Card";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 
 export default async function AdminDashboardPage() {
-  const [projects, posts, experience, gallery, skillsData, messages] = await Promise.all([
+  const [projects, posts, experience, gallery, skillsData, tools, messages] = await Promise.all([
     getProjects(),
     getBlogPosts(),
     getExperience(),
     getAiGallery(),
     getSkillsData(),
+    getTools(),
     getContactMessages(),
   ]);
 
   const stats = [
     { label: "Progetti", value: projects.length, href: "/admin/projects" },
     { label: "Competenze", value: skillsData.skills.length, href: "/admin/skills" },
+    { label: "Strumenti e software", value: tools.length, href: "/admin/tools" },
     { label: "Voci di esperienza", value: experience.length, href: "/admin/experience" },
     { label: "Articoli del blog", value: posts.length, href: "/admin/blog" },
     { label: "Immagini della galleria", value: gallery.length, href: "/admin/ai-gallery" },

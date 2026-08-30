@@ -34,6 +34,7 @@ export const SECTION_KEYS = [
   "featuredProjects",
   "viewAll",
   "skills",
+  "tools",
   "recentPosts",
   "ctaHeading",
 ] as const;
@@ -57,6 +58,13 @@ export type PageKey = (typeof PAGE_KEYS)[number];
  * in translations.ts — which meant notes written for the admin ("Invite
  * people to get in touch") were showing up on the live site.
  */
+/** How the tools strip is laid out on the home page. */
+export type ToolsDisplay = "auto" | "grid" | "marquee";
+
+export interface ToolsSettings {
+  display: ToolsDisplay;
+}
+
 export interface PagesSettings {
   translations: Record<Locale, Record<PageKey, string>>;
 }
@@ -109,4 +117,5 @@ export interface Settings {
   home: HomeSettings;
   pages: PagesSettings;
   sections: SectionsSettings;
+  tools: ToolsSettings;
 }

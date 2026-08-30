@@ -2,7 +2,15 @@ import type { translations } from "./translations";
 
 type NavKey = keyof (typeof translations)["en"]["nav"];
 
-export const MODULE_KEYS = ["projects", "skills", "experience", "blog", "aiGallery", "contact"] as const;
+export const MODULE_KEYS = [
+  "projects",
+  "skills",
+  "tools",
+  "experience",
+  "blog",
+  "aiGallery",
+  "contact",
+] as const;
 
 export type ModuleKey = (typeof MODULE_KEYS)[number];
 
@@ -17,10 +25,14 @@ export type ModulesSettings = Record<ModuleKey, ModuleConfig>;
 
 export interface ModuleDefinition {
   key: ModuleKey;
-  /** Public route the module owns — 404s while disabled. */
-  href: string;
+  /**
+   * Public route the module owns — 404s while disabled. Null for a module
+   * that only ever appears as a section of the home page, and so has no page
+   * of its own to hide and no navbar entry.
+   */
+  href: string | null;
   /** Navbar label, reused from the existing translations. */
-  navKey: NavKey;
+  navKey: NavKey | null;
   adminHref: string | null;
   /** Whether toggling showOnHome does anything for this module. */
   hasHomeSection: boolean;
@@ -31,6 +43,9 @@ export interface ModuleDefinition {
 export const MODULES: ModuleDefinition[] = [
   { key: "projects", href: "/projects", navKey: "projects", adminHref: "/admin/projects", hasHomeSection: true },
   { key: "skills", href: "/skills", navKey: "skills", adminHref: "/admin/skills", hasHomeSection: true },
+  // Home-only: a page listing nothing but logos would be a thin thing to
+  // give a URL to, so this module lives entirely in the home page strip.
+  { key: "tools", href: null, navKey: null, adminHref: "/admin/tools", hasHomeSection: true },
   {
     key: "experience",
     href: "/experience",
