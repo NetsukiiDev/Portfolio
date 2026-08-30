@@ -1,7 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
 import type { ReactNode } from "react";
+import { useInView } from "@/hooks/useInView";
+import { cn } from "@/lib/cn";
 
 export function BlurReveal({
   children,
@@ -12,15 +13,15 @@ export function BlurReveal({
   delay?: number;
   className?: string;
 }) {
+  const { ref, inView } = useInView<HTMLDivElement>("-80px");
+
   return (
-    <motion.div
-      initial={{ opacity: 0, filter: "blur(12px)", y: 16 }}
-      whileInView={{ opacity: 1, filter: "blur(0px)", y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}
-      className={className}
+    <div
+      ref={ref}
+      className={cn(className, inView && "animate-reveal-blur")}
+      style={inView ? { animationDelay: `${delay}s` } : undefined}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }

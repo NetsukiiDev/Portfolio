@@ -1,8 +1,15 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { cn } from "@/lib/cn";
 
+/**
+ * The headline, revealed a line at a time from behind its own mask.
+ *
+ * Deliberately CSS rather than JavaScript: the lines' resting position is
+ * where they belong, and the animation only displaces them on the way in. It
+ * used to render them pushed out of view and rely on JS to bring them back,
+ * which left the page's title invisible whenever that didn't run.
+ */
 export function AnimatedText({
   text,
   className,
@@ -18,14 +25,12 @@ export function AnimatedText({
     <span className={cn("block", className)}>
       {lines.map((line, lineIndex) => (
         <span key={line} className="block overflow-hidden">
-          <motion.span
-            className="block"
-            initial={{ y: "100%" }}
-            animate={{ y: "0%" }}
-            transition={{ duration: 0.8, delay: delay + lineIndex * 0.08, ease: [0.16, 1, 0.3, 1] }}
+          <span
+            className="animate-reveal-up block"
+            style={{ animationDelay: `${delay + lineIndex * 0.08}s` }}
           >
             {line}
-          </motion.span>
+          </span>
         </span>
       ))}
     </span>

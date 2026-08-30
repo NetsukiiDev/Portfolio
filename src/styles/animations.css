@@ -132,3 +132,69 @@
   background-size: 220px 220px;
   background-repeat: repeat;
 }
+
+/* Entrance animations.
+ *
+ * Each keyframe declares only its `from`: the `to` is the element's own
+ * resting style, which is the finished state. That is the whole point — if
+ * the animation never runs, because JavaScript failed or an
+ * IntersectionObserver never fired, the content is simply there. Starting
+ * from a hidden resting state and revealing it with JS meant a whole page
+ * of invisible text the one time that didn't happen. */
+@keyframes reveal-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+@keyframes reveal-blur {
+  from {
+    opacity: 0;
+    filter: blur(12px);
+    transform: translateY(16px);
+  }
+}
+
+.animate-reveal-up {
+  animation: reveal-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.animate-reveal-in {
+  animation: reveal-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.animate-reveal-blur {
+  animation: reveal-blur 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* The stagger is driven by the parent so the children need to know nothing
+   about their own position. */
+.stagger-in > * {
+  animation: reveal-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.stagger-in > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-in > *:nth-child(2) { animation-delay: 80ms; }
+.stagger-in > *:nth-child(3) { animation-delay: 160ms; }
+.stagger-in > *:nth-child(4) { animation-delay: 240ms; }
+.stagger-in > *:nth-child(5) { animation-delay: 320ms; }
+.stagger-in > *:nth-child(6) { animation-delay: 400ms; }
+.stagger-in > *:nth-child(7) { animation-delay: 480ms; }
+.stagger-in > *:nth-child(8) { animation-delay: 560ms; }
+.stagger-in > *:nth-child(n + 9) { animation-delay: 640ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-reveal-up,
+  .animate-reveal-in,
+  .animate-reveal-blur,
+  .stagger-in > * {
+    animation: none;
+  }
+}

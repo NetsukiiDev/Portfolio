@@ -1,12 +1,8 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
-
-const variants: Variants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0 },
-};
+import { useInView } from "@/hooks/useInView";
+import { cn } from "@/lib/cn";
 
 export function RevealOnScroll({
   children,
@@ -17,16 +13,15 @@ export function RevealOnScroll({
   delay?: number;
   className?: string;
 }) {
+  const { ref, inView } = useInView<HTMLDivElement>("-80px");
+
   return (
-    <motion.div
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
-      variants={variants}
-      transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
-      className={className}
+    <div
+      ref={ref}
+      className={cn(className, inView && "animate-reveal-in")}
+      style={inView ? { animationDelay: `${delay}s` } : undefined}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }

@@ -1,23 +1,20 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
+import { useInView } from "@/hooks/useInView";
+import { cn } from "@/lib/cn";
 
-const containerVariants: Variants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
-};
-
+/**
+ * Animates its direct children in, one shortly after another. The stagger is
+ * a CSS rule on this element, so a child needs to know nothing about its own
+ * position — and a child that never gets animated is still visible.
+ */
 export function StaggerChildren({ children, className }: { children: ReactNode; className?: string }) {
+  const { ref, inView } = useInView<HTMLDivElement>("-60px");
+
   return (
-    <motion.div
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-60px" }}
-      variants={containerVariants}
-      className={className}
-    >
+    <div ref={ref} className={cn(className, inView && "stagger-in")}>
       {children}
-    </motion.div>
+    </div>
   );
 }
