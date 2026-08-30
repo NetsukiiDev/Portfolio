@@ -10,6 +10,7 @@ import { HomeSection } from "@/components/home/HomeSection";
 import { SectionLink } from "@/components/home/SectionLink";
 import { AboutSection } from "@/components/home/AboutSection";
 import { ContactSection } from "@/components/home/ContactSection";
+import { ContactInfo } from "@/components/contact/ContactInfo";
 import { StatsSection } from "@/components/home/StatsSection";
 import { ToolsSection } from "@/components/home/ToolsSection";
 import { ProjectGrid } from "@/components/projects/ProjectGrid";
@@ -161,7 +162,8 @@ export default async function HomePage() {
           eyebrow="Contatti"
           heading={await getSectionText("contact")}
           description={await getPageDescriptions("contact")}
-          centered
+          split
+          action={<ContactInfo settings={settings} />}
         >
           <ContactSection settings={settings} />
         </HomeSection>
