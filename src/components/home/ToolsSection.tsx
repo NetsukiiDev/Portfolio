@@ -27,18 +27,20 @@ function ToolBadge({ tool }: { tool: Tool }) {
   const content = (
     <>
       {icon ? (
-        <ToolLogo icon={icon} brand className="h-8 w-8" />
+        <ToolLogo icon={icon} brand className="h-10 w-10" />
       ) : (
-        <span className="relative h-8 w-8 shrink-0 overflow-hidden">
+        <span className="relative h-10 w-10 shrink-0 overflow-hidden">
           <ImageWithFallback src={tool.image ?? ""} alt="" fill className="object-contain" />
         </span>
       )}
-      <span className="text-base whitespace-nowrap text-foreground">{label}</span>
+      <span className="text-sm whitespace-nowrap text-muted-foreground">{label}</span>
     </>
   );
 
+  // Stacked rather than side by side: the logo is what's recognised, the name
+  // is the caption under it.
   const className =
-    "inline-flex items-center gap-3 rounded-full border border-border bg-white/[0.03] px-6 py-3.5 transition-colors hover:border-border-strong";
+    "inline-flex w-32 flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-white/[0.03] px-4 py-6 transition-colors hover:border-border-strong";
 
   if (!tool.url) return <span className={className}>{content}</span>;
 
@@ -64,7 +66,7 @@ export async function ToolsSection({ tools, display }: { tools: Tool[]; display:
   const heading = await getSectionText("tools");
 
   return (
-    <HomeSection id="tools" eyebrow="Stack" heading={heading}>
+    <HomeSection id="tools" eyebrow="Stack" heading={heading} centered>
       {scrolling ? (
         // Faded at both ends so items enter and leave rather than being cut
         // off mid-badge.
@@ -80,7 +82,7 @@ export async function ToolsSection({ tools, display }: { tools: Tool[]; display:
           </TextMarquee>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap justify-center gap-3">
           {visible.map((tool) => (
             <ToolBadge key={tool.id} tool={tool} />
           ))}

@@ -22,6 +22,7 @@ export function HomeSection({
   heading,
   description,
   action,
+  centered = false,
   className,
   children,
 }: {
@@ -31,6 +32,8 @@ export function HomeSection({
   description?: Record<Locale, string>;
   /** A link to the fuller version, where one exists. */
   action?: ReactNode;
+  /** For a band that reads as a display rather than as a list to work through. */
+  centered?: boolean;
   className?: string;
   children: ReactNode;
 }) {
@@ -41,8 +44,13 @@ export function HomeSection({
     <SectionWrapper id={id} className={cn("scroll-mt-20 border-t border-border", className)}>
       <Container>
         <RevealOnScroll>
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <div className="max-w-2xl">
+          <div
+            className={cn(
+              "flex flex-wrap items-end justify-between gap-6",
+              centered && "flex-col items-center text-center",
+            )}
+          >
+            <div className={cn("max-w-2xl", centered && "mx-auto")}>
               <p className="text-xs font-medium tracking-[0.2em] text-muted-foreground/70 uppercase">
                 {eyebrow}
               </p>
